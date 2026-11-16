@@ -29,7 +29,13 @@ const registrationOpen = site.registration.status === 'open';
 ---
 
 <TarotLayout title={`${card.persona}｜${site.name}`} description={`${concept.zh}：${concept.line}`}>
-  <article class="report wrap">
+  <script slot="head" is:inline>
+    try {
+      if (sessionStorage.getItem('tarot-draw')) document.documentElement.classList.add('is-drawn');
+    } catch (e) {}
+  </script>
+  <p class="visually-hidden" role="status" data-draw-status data-persona={card.persona}></p>
+  <article class="report wrap" data-card={card.id}>
     <p class="report__title">QRACON 2026 量子狀態觀測報告</p>
 
     <div class="report__card" aria-hidden="true">
@@ -114,6 +120,10 @@ const registrationOpen = site.registration.status === 'open';
     </div>
   </article>
 </TarotLayout>
+
+<script>
+  import '../../scripts/reveal';
+</script>
 
 <style>
   .report {
@@ -256,5 +266,39 @@ const registrationOpen = site.registration.status === 'open';
 
   .report__again {
     margin-top: var(--space-5);
+  }
+
+  .report > :nth-child(1) { --i: 0; }
+  .report > :nth-child(3) { --i: 1; }
+  .report > :nth-child(4) { --i: 2; }
+  .report > :nth-child(5) { --i: 3; }
+  .report > :nth-child(6) { --i: 4; }
+  .report > :nth-child(7) { --i: 5; }
+  .report > :nth-child(8) { --i: 6; }
+  .report > :nth-child(n + 9) { --i: 7; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.is-drawn) .report__card {
+      view-transition-name: tarot-card;
+      animation: report-settle var(--dur-slow) var(--ease-out) backwards;
+    }
+
+    :global(.is-drawn) .report > :not(.report__card) {
+      animation: report-rise var(--dur-slow) var(--ease-out) backwards;
+      animation-delay: calc(var(--dur-base) + var(--i, 0) * 50ms);
+    }
+  }
+
+  @keyframes report-settle {
+    from {
+      scale: 1.08;
+    }
+  }
+
+  @keyframes report-rise {
+    from {
+      opacity: 0;
+      translate: 0 var(--space-4);
+    }
   }
 </style>

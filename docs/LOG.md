@@ -1,5 +1,29 @@
 # 變更紀錄
 
+## 2026-11-16（第八次）
+
+- **抽牌特效完成**（尚未 commit；範圍與設計見 `docs/05-fx-plan.md`）：洗牌與 CSS 牌背、發牌 stagger、CSS 3D 翻牌、六張散去、塌縮轉場（CSS 版與手寫 WebGL2 版）、結果頁進場（`sessionStorage` 交棒＋`view-transition-name` morph）、tier 3 的 WebGL2 散去粒子。不做環境干涉場。零新依賴。
+  - 新增：`src/scripts/store.ts`、`draw.ts`、`reveal.ts`、`fx/tier.ts`、`fx/gl.ts`、`fx/collapse.ts`、`fx/particles.ts`、`src/components/fx/FxCanvas.astro`。
+  - 修改：`Card.astro`（`flip` prop、牌背）、`index.astro`、`deck/[slug].astro`、`TarotLayout.astro`（`head` slot）、`tokens.css`（`--color-on-ink-sheen`、`--dur-flip`、`--z-fx`）、`global.css`（`tarot-card` 的 VT 時長、reduced motion 下 root VT 歸零）。
+- **WebGL2 是手寫、延遲載入的漸進增強層**：GL 三個 chunk 只在 tier ≥ 2 於 idle 或第一次 `pointerdown`／`focusin` 時動態 `import()`，結果頁不載入；點擊當下還沒載好就播 CSS 版，不等待。護欄：分級（reduced motion／save-data／cores／deviceMemory）、DPR ≤ 1.5、看門狗（每 20 幀或累計 400ms 取平均，> 24ms 就降解析度並把 tier 降一級寫入 `sessionStorage('fx-tier')`，再超過一次跳到最後一幀）、`visibilitychange` 暫停、`webglcontextlost` 隱藏 canvas 並立即導頁、1600ms 保底導頁、bfcache（`pageshow` persisted 重置首頁）。`?fx=0..3` 只在 DEV 有效，正式建置已移除。
+- **塌縮 shader**：原創，兩個同相位波源（點擊點與其對螢幕中心的鏡射點）產生的同心干涉環，硬邊、純黑白，前緣之後的線依距離與時間變細，最後一幀為純 `--color-ink`；顏色由 CSS token 讀入。
+- **與計畫的差異**：
+  - 洗牌是重排七個 `<a>` 在七個格子裡的位置，不是搬動 `<li>`（搬動 `<li>` 會讓發牌動畫重播）；效果相同，DOM 順序仍等於 Tab 順序與 `aria-label` 編號。
+  - 交棒改用 `sessionStorage('tarot-draw')`，導頁網址不帶 `?draw=1`（`02` §6.8 已加註）；結果頁用行內腳本先加 `html.is-drawn` 避免首幀閃爍，`reveal.ts` 再核對牌 id 與 15 秒時效。
+  - reduced motion 的散去淡出用 `--dur-fast`（160ms），不是 120ms；整段約 200ms 後導頁。
+  - 選中牌在支援 `pageswap` 的瀏覽器上浮在特效層之上（才能 morph 到結果頁的牌），不支援時被塌縮一起吞掉。
+  - deviceMemory 未提供（Safari、Firefox）時，tier 3 判斷視為 4，否則 iPhone 永遠沒有粒子。
+  - 看門狗的窗口不是單純 20 幀：整段特效只有約 1 秒、實際有畫面的幀不到 60 幀，照「連續 20 幀、第二次超過才寫入」的字面做，第二次永遠到不了，降級也就不會寫入（用 40ms 的假忙碌幀實測確認過）。改成每 20 幀或累計 400ms（至少 4 幀）先到先算，且每次超過都降一級寫入；閾值 24ms、解析度 ×0.66 不變。
+  - 版面仍不是牌扇。首頁牌陣改為 flex-wrap：48rem 以下每張寬 `clamp(5.5rem, 26vw, 8.25rem)`（`02` §5 的行動版尺寸），375px 排成 3-3-1，頁高 2721px 降為 1111px；48rem 以上 10.5rem、4-3 排列。原本 `repeat(auto-fit, minmax(min(100%, 9rem), 10.5rem))` 在 375px 只排得下一欄。
+- 文件：`02-plan.md` 更新非目標、§6.1 時間軸、§6.3 散去與粒子、§6.5 reduced motion 表、§6.8 交棒說明、§10 技術句、§11 Must／Later；`README.md` 技術句、時程句、文件表、狀態表；`SITEMAP.md` 登記所有新增與變更檔案；`05-fx-plan.md` 列入文件表。
+- 驗證（本機實際執行）：
+  - `pnpm check` 0 錯誤 0 警告 0 提示；`pnpm build` 10 個 HTML；預設 base 與 `ASTRO_BASE_PATH=/` 都能建置、連結與腳本路徑正確。另以 `tsc --noEmit` 確認 `src/scripts/**` 型別通過。
+  - gzip：首頁初始 JS 約 3.2 KB（含行內 59 B），GL chunk 合計約 3.2 KB（`gl` 1.4、`collapse` 0.9、`particles` 1.0），結果頁 JS 約 0.9 KB；預算為 35 KB 與 20 KB。七張結果頁 HTML 沒有任何 GL chunk 的參照；首頁 HTML 仍有七個正面 `<a href>`（無 JS 備援）。
+  - 以無頭 Chrome（CDP，`file://` 副本、實體 GPU、375×812 與 1440×900）實際跑過：tier 3（粒子＋GL 塌縮）、tier 1（CSS 塌縮）、tier 0（reduced motion，約 204ms 導頁）、鍵盤 Tab＋Enter、無 JS 版面、模擬 `pageshow` persisted 重置、用 `WEBGL_lose_context` 在塌縮中途觸發 context lost（立即導頁）、結果頁進場與 `role="status"` 宣告；沒有 console 錯誤，無水平捲軸。過程中發現並修正：正式建置的 CSS 會把 `240ms` 壓成 `.24s`，`draw.ts` 的 token 讀取要處理 `s` 與 `ms`。
+  - 另用 `fx-tier` 預設值測過 tier 2（無粒子、約 1.49 秒導頁）；用每幀 40ms 的假忙碌測過看門狗：解析度降為 0.66 倍、`fx-tier` 寫入 1、下一次載入 `data-fx` 為 1；每幀 12ms 時不觸發。
+  - dev server（內建瀏覽器，375×812 與 1440×900）：`?fx=1`、`?fx=2`、`?fx=3` 首頁到結果頁都走得通，無水平捲軸。console 只在 dev 冷編譯某條路由的第一次造訪出現 `InvalidStateError: Transition was aborted … Page already revealed`，同一路由再走就沒有，判斷是編譯太慢讓 Chrome 中止跨文件 VT，正式建置未確認。
+  - **未驗證**：正式建置於 http(s) 上的跨文件 VT morph、真機 iOS Safari、IG、LINE、Android、真正的 `prefers-reduced-motion` 媒體查詢（需在 DevTools Rendering 面板模擬）。
+
 ## 2026-11-16（第七次）
 
 - **K6 定案**：repo 已移到 `QRACON-tw/Qracon_Tarot`，正式網址 `https://qracon.entangletech.tw/Qracon_Tarot/`。本機 `origin` 改指新位置；`astro.config.mjs` 預設 base 由 `/tarot` 改為 `/Qracon_Tarot`；`README.md`、`docs/SITEMAP.md`、`02` §5、`03`、`handoff` 的 QR 網址同步更新。

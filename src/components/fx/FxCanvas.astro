@@ -1,0 +1,27 @@
+<canvas class="fx-canvas" aria-hidden="true" data-fx-canvas></canvas>
+<div class="fx-veil" aria-hidden="true" data-fx-veil></div>
+
+<style>
+  .fx-canvas,
+  .fx-veil {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-fx);
+    width: 100%;
+    pointer-events: none;
+  }
+
+  .fx-canvas {
+    height: 100lvh;
+  }
+
+  .fx-veil {
+    background: var(--color-ink);
+    clip-path: circle(0px at var(--fx-x, 50%) var(--fx-y, 50%));
+  }
+
+  :global(.is-collapsing) .fx-veil {
+    clip-path: circle(150vmax at var(--fx-x, 50%) var(--fx-y, 50%));
+    transition: clip-path var(--dur-slow) var(--ease-in-out);
+  }
+</style>

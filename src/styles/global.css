@@ -179,8 +179,15 @@ time,
   animation-timing-function: var(--ease-out);
 }
 
+::view-transition-group(tarot-card) {
+  animation-duration: var(--dur-view);
+  animation-timing-function: var(--ease-out);
+}
+
 @media (prefers-reduced-motion: reduce) {
-  ::view-transition-group(*) {
+  ::view-transition-group(*),
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
     animation-duration: 0s;
   }
 }

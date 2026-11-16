@@ -4,15 +4,25 @@ import type { TarotCard } from '../../data/tarot';
 interface Props {
   card: TarotCard;
   class?: string;
+  flip?: boolean;
 }
 
-const { card, class: className } = Astro.props;
+const { card, class: className, flip = false } = Astro.props;
 ---
 
-<span class:list={['card', className]}>
-  <span class="card__face">
-    <span class="card__numeral">{card.numeral}</span>
-    <span class="card__persona">{card.persona}</span>
+<span class:list={['card', { 'card--flip': flip }, className]}>
+  <span class="card__inner">
+    <span class="card__face">
+      <span class="card__numeral">{card.numeral}</span>
+      <span class="card__persona">{card.persona}</span>
+    </span>
+    {
+      flip && (
+        <span class="card__back" aria-hidden="true">
+          <span class="card__sigil" />
+        </span>
+      )
+    }
   </span>
 </span>
 
@@ -36,6 +46,10 @@ const { card, class: className } = Astro.props;
     border: var(--rule-hair) solid var(--color-ink);
     border-radius: var(--radius-tile);
     pointer-events: none;
+  }
+
+  .card__inner {
+    display: contents;
   }
 
   .card__face {
@@ -62,5 +76,149 @@ const { card, class: className } = Astro.props;
     line-height: var(--leading-tight);
     letter-spacing: 0.02em;
     writing-mode: vertical-rl;
+  }
+
+  .card--flip {
+    border: 0;
+    border-radius: 0;
+    background: none;
+    perspective: 40rem;
+  }
+
+  .card--flip::before {
+    content: none;
+  }
+
+  .card--flip .card__inner {
+    position: absolute;
+    inset: 0;
+    display: grid;
+    transform-style: preserve-3d;
+  }
+
+  .card--flip .card__face,
+  .card--flip .card__back {
+    grid-area: 1 / 1;
+    border-radius: var(--radius-chip);
+    backface-visibility: hidden;
+  }
+
+  .card--flip .card__face {
+    position: relative;
+    border: var(--rule-thin) solid var(--color-ink);
+    background: var(--color-white);
+  }
+
+  .card--flip .card__face::before {
+    content: '';
+    position: absolute;
+    inset: var(--space-2);
+    border: var(--rule-hair) solid var(--color-ink);
+    border-radius: var(--radius-tile);
+    pointer-events: none;
+  }
+
+  .card__back {
+    position: relative;
+    overflow: hidden;
+    border: var(--rule-thin) solid var(--color-white);
+    background: var(--color-ink-raised);
+    transform: rotateY(180deg);
+  }
+
+  .card__back::before {
+    content: '';
+    position: absolute;
+    inset: var(--space-2);
+    border: var(--rule-hair) solid var(--color-on-ink-rule);
+    border-radius: var(--radius-tile);
+    background-image:
+      linear-gradient(
+        45deg,
+        transparent calc(50% - var(--rule-hair)),
+        var(--color-on-ink-rule) calc(50% - var(--rule-hair)) 50%,
+        transparent 50%
+      ),
+      linear-gradient(
+        -45deg,
+        transparent calc(50% - var(--rule-hair)),
+        var(--color-on-ink-rule) calc(50% - var(--rule-hair)) 50%,
+        transparent 50%
+      );
+    background-size: 12cqw 12cqw;
+    background-position: center;
+  }
+
+  .card__sigil {
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 24cqw;
+    height: 24cqw;
+    border: var(--rule-thin) solid var(--color-white);
+    background: var(--color-ink-raised);
+    rotate: 45deg;
+  }
+
+  .card__sigil::after {
+    content: '';
+    position: absolute;
+    inset: 22%;
+    border: var(--rule-hair) solid var(--color-on-ink-soft);
+  }
+
+  .card__back::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(105deg, transparent 38%, var(--color-on-ink-sheen) 50%, transparent 62%);
+    opacity: 0.16;
+    translate: -110% 0;
+    pointer-events: none;
+  }
+
+  :global(.js) .card--flip .card__inner {
+    transform: rotateY(180deg);
+    transition: transform var(--dur-flip) var(--ease-in-out);
+  }
+
+  :global(.js) .card--flip.is-flipped .card__inner {
+    transform: none;
+  }
+
+  :global([data-fx='0']) .card--flip .card__inner {
+    transform: none;
+    transition: none;
+  }
+
+  :global([data-fx='0']) .card--flip .card__face,
+  :global([data-fx='0']) .card--flip .card__back {
+    backface-visibility: visible;
+    transition: opacity var(--dur-fast) linear;
+  }
+
+  :global([data-fx='0']) .card--flip .card__back {
+    transform: none;
+  }
+
+  :global([data-fx='0']) .card--flip .card__face,
+  :global([data-fx='0']) .card--flip.is-flipped .card__back {
+    opacity: 0;
+  }
+
+  :global([data-fx='0']) .card--flip.is-flipped .card__face {
+    opacity: 1;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .card__back::after {
+      animation: card-sheen calc(var(--dur-slow) * 2) var(--ease-in-out) calc(var(--dur-slow) + var(--i, 0) * 80ms) both;
+    }
+  }
+
+  @keyframes card-sheen {
+    to {
+      translate: 110% 0;
+    }
   }
 </style>

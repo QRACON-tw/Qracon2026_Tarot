@@ -51,7 +51,7 @@
 
 - 不做會員、登入、集點、排行榜。
 - 不做心理測驗量表，也不宣稱任何預測能力。
-- 不做 3D、不做 WebGL shader（主站已經有了，這裡不需要第二個）。
+- 不做 3D 場景、不引入 three 等 WebGL 函式庫、不移植主站 `interference.ts`。WebGL2 只當手寫、延遲載入的漸進增強層（塌縮轉場與散去粒子），失敗只少一層；翻牌用 CSS 3D。範圍、分級與看門狗見 `05-fx-plan.md`。
 - 不做多語系。
 - 不做後端。抽牌結果只存在瀏覽器。
 
@@ -290,10 +290,10 @@ https://qracon.entangletech.tw<base>/about/          Should：獨立關於頁
 ```
 idle ──pointerenter──▶ hover（牌抬起 4px、轉正 60%）
 idle ──activate─────▶ resolving（鎖輸入，prefetch 同時開始，啟動 1600ms 保底計時）
-                        ├ 其餘 6 張：淡出 520ms（Should：碎裂）
-                        ├ 被選的牌：轉正 → 放大 1.08 → 亮邊 180ms
-                        └ 翻牌 600ms（rotateY 180°）
-resolving ──end─────▶ navigating（View Transition 到 tarotPath('deck/[slug]/?draw=1')）
+                        ├ 0–520ms 其餘 6 張散去（CSS translate／rotate／opacity；tier 3 加 WebGL2 粒子；Should：碎裂）
+                        ├ 0–240ms 被選的牌放大 1.08；240–840ms 翻牌（rotateY 180°，`--dur-flip` 600ms）
+                        └ 960–1480ms 塌縮轉場（tier ≥ 2：WebGL2 干涉環；否則 CSS clip-path 墨色擴張）
+resolving ──end─────▶ navigating（導頁到 `<a>` 既有 href，不帶 `?draw=1`；狀態用 `sessionStorage('tarot-draw')` 交棒；有 View Transition 時牌 morph）
 resolving ──1600ms──▶ navigating（保底：直接 location.assign，S4）
 result ──重新抽一張──▶ 載入 tarotPath()（重新洗牌）
 ```
@@ -321,13 +321,13 @@ result ──重新抽一張──▶ 載入 tarotPath()（重新洗牌）
 
 ### 6.3 散去
 
-**Must：淡出。** 六張牌 `opacity` 520ms，`--ease-out`。
+**Must：CSS 散去。** 六張牌依與被選牌的相對位置往外飛，`translate`／`rotate`／`opacity` 520ms，`--ease-out`；向量由 JS 算好寫進 `--fx-dx／--fx-dy／--fx-rot`。
 
 **Should：碎裂。** 不用 WebGL。六張牌各自切成 6 片 `clip-path` 多邊形（共 36 個元素），每片給不同的 `--tx/--ty/--rot`，`transform: translate3d() rotate()` + `opacity` 520ms，`--ease-out`。
 
-**Later：塵埃。** Canvas2D 粒子（最多 120 粒，1 秒後停止並移除 canvas）。
+**漸進增強（tier 3）：WebGL2 粒子。** 與塌縮轉場共用同一個 `<canvas>`，`gl.POINTS` ≤ 600 點，從六張牌的 rect 出發、菱形、單色，只播一次；沒有緩衝區，位置與壽命全由頂點 shader 的雜湊產生。tier 0–2 不載入。
 
-理由：`interference.ts` 是全螢幕 WebGL2 shader，用在「六張小卡散掉」是殺雞用牛刀，低階手機會掉幀。
+理由：不移植主站 `interference.ts`（全螢幕 shader 對六張小卡殺雞用牛刀）。塔羅自己手寫約 3 KB gzip 的 shader，延遲載入，並以分級、DPR 上限 1.5、看門狗（每 20 幀或累計 400ms 取平均，> 24ms 就把解析度乘 0.66 並把 tier 降一級寫入 `sessionStorage`；再超過一次就跳到最後一幀）、單一 context、只播一次來對應「低階手機掉幀」的顧慮。`webglcontextlost` 時隱藏 canvas，轉場中遇到就立刻導頁。
 
 ### 6.4 鍵盤與螢幕閱讀器
 
@@ -341,9 +341,11 @@ result ──重新抽一張──▶ 載入 tarotPath()（重新洗牌）
 | 關閉的 | 改成 |
 | --- | --- |
 | 牌扇進場與展開 | 直接顯示最終位置 |
-| 散去／碎裂 | 六張 120ms 淡出 |
-| 翻牌 | 交叉淡化 |
-| 粒子 | 不建立 canvas |
+| 散去／碎裂 | 六張 `--dur-fast` 淡出（無位移） |
+| 翻牌 | 交叉淡化（`--dur-fast`） |
+| 塌縮轉場（GL 或 CSS） | 不播，約 200ms 後導頁 |
+| 粒子 | 不載入 WebGL、不取得 context |
+| 結果頁進場 | 不播 |
 | View Transition | 關閉，直接跳頁 |
 | 銀墨掃光 | 不播 |
 
@@ -368,6 +370,8 @@ try {
 首頁讀取時同樣 `try/catch`；`at` 超過 7 天不顯示。顯示文案見 `01` §3：「再看一次」連到該牌頁（不帶 `?draw=1`），牌扇照常顯示。
 
 ### 6.8 [v2.2] `?draw=1` 的處理（S1）
+
+> **[v2.3] 實作改用 `sessionStorage('tarot-draw')` 交棒**（`05-fx-plan.md`）：首頁點擊時寫入 `{ id, at }`，結果頁讀到且與本頁牌 id 相符、15 秒內才進場並以 `role="status"` 宣告「你抽到〔角色名〕。」，讀完即刪。導頁網址不帶 `?draw=1`，所以不需要 `replaceState`，分享網址天然乾淨；下列 1–4 只在日後要恢復狀態章時參考。
 
 1. 結果頁讀到 `?draw=1`：顯示「你剛剛抽到」狀態章、`aria-live` 宣告。
 2. 宣告後 `history.replaceState(null, '', location.pathname)` 拿掉參數。分享出去的網址不帶狀態章。
@@ -546,7 +550,7 @@ Canvas 分享卡（Later）若要做，才需要「偵測 UA 含 `Instagram`／`
 | CLS | < 0.05 |
 | INP | < 200ms |
 
-主站預算是首屏 JS ≤ 50 KB、LCP ≤ 2.5s，塔羅較嚴，相容。沒有 WebGL、沒有 Three.js、沒有動畫函式庫。字型走 Astro Fonts API 的 unicode-range 切片。
+主站預算是首屏 JS ≤ 50 KB、LCP ≤ 2.5s，塔羅較嚴，相容。沒有 Three.js、沒有動畫函式庫。WebGL2 是手寫、延遲載入的漸進增強層：塌縮 shader、粒子與 context 管理合計約 3 KB gzip，各自是獨立 chunk，首頁初始 JS 與結果頁都不含，也不計入首頁預算；分級、DPR 上限、看門狗與 context lost 備援見 `05-fx-plan.md`。字型走 Astro Fonts API 的 unicode-range 切片。
 
 **[v2.2]** 首頁總重從 350 KB 降到 300 KB：活動當天場地網路擁塞是主要瓶頸。
 
@@ -601,9 +605,9 @@ R9 改寫：K1＝C 後塔羅有自己的 workflow 與 Pages 專案，build 失�
 
 | 級別 | 內容 |
 | --- | --- |
-| **Must（12/02）** | 牌扇 + 洗位置 + 無 JS + 鍵盤 + reduced motion；被選牌翻開、其餘淡出；7 張結果頁（字體牌、9:16 第一屏）；`/tarot/deck/`（含關於）；OG ×9；只分享網址 + 複製連結；CTA 接報名狀態；S1–S6、S9、S10 |
+| **Must（12/02）** | 牌扇 + 洗位置 + 無 JS + 鍵盤 + reduced motion；被選牌翻開、其餘散去、塌縮轉場與結果頁進場（CSS 版；WebGL2 塌縮與粒子為漸進增強層，見 `05-fx-plan.md`）；7 張結果頁（字體牌、9:16 第一屏）；`/tarot/deck/`（含關於）；OG ×9；只分享網址 + 複製連結；CTA 接報名狀態；S1–S6、S9、S10 |
 | **Should（12/03–06 有餘力）** | 碎裂動畫；回訪橫幅；獨立 `/tarot/about/`；結果頁 QR（§9.4） |
-| **Later** | Canvas 9:16 分享卡與 WebView 長按退路、4:5 版本、塵埃粒子、插畫替換、音效 |
+| **Later** | Canvas 9:16 分享卡與 WebView 長按退路、4:5 版本、插畫替換、音效（塵埃粒子已改為 tier 3 的 WebGL2 粒子，不再列在 Later） |
 
 ### 時程
 

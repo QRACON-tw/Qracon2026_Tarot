@@ -38,6 +38,7 @@ const homeCurrent = path === homePath ? 'page' : undefined;
       noindex={!TAROT_INDEXABLE || noindex}
       canonical={canonical}
     />
+    <slot name="head" />
   </head>
   <body>
     <a class="skip-link" href="#main">跳到主要內容</a>

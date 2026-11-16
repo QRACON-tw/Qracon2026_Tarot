@@ -1,6 +1,7 @@
 ---
 import TarotLayout from '../layouts/TarotLayout.astro';
 import Card from '../components/tarot/Card.astro';
+import FxCanvas from '../components/fx/FxCanvas.astro';
 import { site } from '../data/site';
 import { cards } from '../data/tarot';
 import { cardPath } from '../utils/tarot';
@@ -16,19 +17,24 @@ import { cardPath } from '../utils/tarot';
         <p>翻開一張，其他六張就散了。</p>
       </div>
     </header>
-    <ol class="draw__cards" role="list" aria-label="七張牌，選一張翻開">
+    <ol class="draw__cards is-dealing" role="list" aria-label="七張牌，選一張翻開">
       {
         cards.map((card) => (
           <li>
-            <a class="pick" href={cardPath(card.id)}>
-              <Card card={card} />
+            <a class="pick" href={cardPath(card.id)} data-card={card.id}>
+              <Card card={card} flip />
             </a>
           </li>
         ))
       }
     </ol>
   </div>
+  <FxCanvas />
 </TarotLayout>
+
+<script>
+  import '../scripts/draw';
+</script>
 
 <style>
   .draw {
@@ -59,14 +65,102 @@ import { cardPath } from '../utils/tarot';
   }
 
   .draw__cards {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 10.5rem));
+    --pick-w: clamp(5.5rem, 26vw, 8.25rem);
+    display: flex;
+    flex-wrap: wrap;
     justify-content: center;
-    gap: var(--space-4);
+    gap: var(--space-4) var(--space-3);
+    max-inline-size: calc(var(--pick-w) * 3 + var(--space-3) * 2);
+    margin-inline: auto;
   }
+
+  .draw__cards li {
+    inline-size: var(--pick-w);
+  }
+
+  @media (min-width: 48rem) {
+    .draw__cards {
+      --pick-w: 10.5rem;
+      gap: var(--space-4);
+      max-inline-size: calc(var(--pick-w) * 4 + var(--space-4) * 3);
+    }
+  }
+
+  .draw__cards li:nth-child(1) { --i: 0; }
+  .draw__cards li:nth-child(2) { --i: 1; }
+  .draw__cards li:nth-child(3) { --i: 2; }
+  .draw__cards li:nth-child(4) { --i: 3; }
+  .draw__cards li:nth-child(5) { --i: 4; }
+  .draw__cards li:nth-child(6) { --i: 5; }
+  .draw__cards li:nth-child(7) { --i: 6; }
 
   .pick {
     display: block;
     border-radius: var(--radius-chip);
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .draw__cards li.is-gone {
+    translate: var(--fx-dx, 0px) var(--fx-dy, 0px);
+    rotate: var(--fx-rot, 0deg);
+    opacity: 0;
+    transition:
+      translate var(--dur-slow) var(--ease-out),
+      rotate var(--dur-slow) var(--ease-out),
+      opacity var(--dur-slow) var(--ease-in-out);
+  }
+
+  .draw__cards li.is-picked {
+    scale: 1.08;
+    transition: scale var(--dur-base) var(--ease-out);
+  }
+
+  :global(html.is-resolving) {
+    overflow: hidden;
+  }
+
+  :global(.has-vt) .draw__cards li.is-picked {
+    position: relative;
+    z-index: calc(var(--z-fx) + 1);
+  }
+
+  :global(.has-vt) .draw__cards li.is-picked :global(.card) {
+    view-transition-name: tarot-card;
+  }
+
+  :global([data-fx='0']) .draw__cards li.is-gone {
+    translate: none;
+    rotate: none;
+    transition: opacity var(--dur-fast) linear;
+  }
+
+  :global([data-fx='0']) .draw__cards li.is-picked {
+    scale: none;
+    transition: none;
+  }
+
+  @media (hover: hover) {
+    :global(.js) .pick {
+      transition: translate var(--dur-fast) var(--ease-out);
+    }
+
+    :global(.js) .draw__cards:not([aria-busy]) .pick:hover {
+      translate: 0 calc(var(--space-1) * -1);
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .draw__cards.is-dealing li {
+      animation: card-deal var(--dur-slow) var(--ease-out) backwards;
+      animation-delay: calc(var(--i) * 40ms);
+    }
+  }
+
+  @keyframes card-deal {
+    from {
+      opacity: 0;
+      transform: translate3d(0, var(--space-6), 0) rotate(calc((var(--i) - 3) * 1.5deg)) scale(0.94);
+    }
   }
 </style>

@@ -10,6 +10,7 @@
   --color-on-ink-soft: #b3b3b3;
   --color-on-ink-rule: #4d4d4d;
   --color-ink-raised: #262626;
+  --color-on-ink-sheen: rgb(255 255 255 / 0.9);
 
   /* Filtered-out timetable content. Kept above 4.5:1 on its own surface. */
   --color-dim-surface: #f3f3f3;
@@ -102,6 +103,7 @@
   --dur-view: 380ms;
   --dur-slow: 520ms;
   --dur-fall: 460ms;
+  --dur-flip: 600ms;
 
   --drop-ticket: drop-shadow(0 0.75rem 1.25rem rgb(0 0 0 / 0.16))
     drop-shadow(0 0.125rem 0.2rem rgb(0 0 0 / 0.12));
@@ -110,5 +112,6 @@
   --z-content: 1;
   --z-header: 40;
   --z-menu: 50;
+  --z-fx: 60;
   --z-skip: 100;
 }
