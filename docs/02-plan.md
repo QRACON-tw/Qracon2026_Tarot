@@ -1,26 +1,39 @@
 # 02 — 網站設計與建置計劃
 
-**版本**：v2.1（2026-11-10，Gemini 4 第二輪複核後核定）
-**狀態**：**已核定**。9 項 P0 全數關閉，見 `04-gemini-review.md`。
+**版本**：v2.2（2026-11-16，依 `05-review-and-build-plan.md` 修訂，並依主站 `origin/main@257b790` 實況改寫部署）
+**狀態**：**基準版，待 K1–K6 拍板**（`03-open-questions.md`）。v2.1 的設計決策維持；部署、範圍、時程與規格補洞為 v2.2 新增。
 **範圍**：只做規劃。本文件不含任何程式碼實作。
-**配套**：`01-copy-deck.md`（文案）、`00-source-audit.md`（原文診斷）、`03-open-questions.md`（待決）
+**配套**：`01-copy-deck.md`（文案）、`00-source-audit.md`（原文診斷）、`03-open-questions.md`（待決）、`05-review-and-build-plan.md`（v2.2 審查依據）
+
+### v2.2 變更摘要
+
+| 項目 | v2.1 | v2.2 |
+| --- | --- | --- |
+| 部署 | 方案 A：`apps/tarot` 子專案 + `base: '/tarot'` | **A1**：主站 repo 內 `src/pages/tarot/`，沿用主站 `base` 與 `sitePath()`（§2、§11） |
+| 網址 | `/tarot/`（網域未定） | `https://qracon.entangletech.tw/2026/tarot/`（§5） |
+| 時程 | P0–P6 共 14 工作天，無目標日 | **12/02 上線、12/06 凍結**（§11） |
+| 範圍 | 全部必做 | Must／Should／Later（§11） |
+| 分享 | Canvas 9:16 分享卡 + Web Share 帶檔案 | 結果頁第一屏 9:16 可截圖 + 只分享網址；Canvas 分享卡移到 Later（§9） |
+| 碎裂動畫 | 必做 | Should；Must 用淡出（§6.3） |
+| 關於頁 | 獨立頁 | Must 併入 `/tarot/deck/`（§5） |
+| 規格 | — | 補 S1–S12（標 `[v2.2]`） |
 
 ---
 
 ## 0. 摘要
 
-一個手機優先的單頁互動：七張牌背朝上的塔羅牌扇形展開，使用者點一張，其餘六張碎散，被選的那張翻開，接著展開成一張「觀測報告」票券。全程 30–60 秒，最後把人帶到議程頁與報名頁。
+一個手機優先的互動：七張牌背朝上的塔羅牌扇形展開，使用者點一張，其餘六張散去，被選的那張翻開，接著展開成一張「觀測報告」票券。全程 30–60 秒，最後把人帶到議程頁與報名頁。
 
-技術上與主站同源（Astro 靜態輸出、零框架、原生 CSS），素材直接沿用主站的字標、躍貓、字型、tokens 與票券元件。新增的只有：牌組資料、扇形互動、七張結果頁、分享卡。
+技術上與主站同源，而且**直接寫在主站 repo 裡**（Astro 7 靜態輸出、零框架、原生 CSS）。字標、躍貓、字型、tokens、元件直接 import，不複製。新增的只有：牌組資料、扇形互動、七張結果頁、塔羅專用 layout。
 
-### 需要核定的四個決策
+### 四個設計決策
 
-| # | 決策 | 建議 | 狀態 |
+| # | 決策 | 決定 | 狀態 |
 | --- | --- | --- | --- |
-| D1 | 色彩方向 | **A 暗房（純灰階）**：墨黑場、紙白牌面、銀墨壓紋 | Gemini 4 核准此版本 |
+| D1 | 色彩方向 | **A 暗房（純灰階）**：墨黑場、紙白牌面、銀墨壓紋 | Gemini 4 核准 |
 | D2 | 牌面插畫 | 設計組交付 7 張；先用「字體牌」上線 | 核准 |
 | D3 | 獎勵系統（QXP／SSS／NFC／冒險者系統） | 未確認前不寫，CTA 只導向議程與 KKTIX | 核准 |
-| D4 | 部署位置 | 主網域子路徑 `/tarot`；建置整合方式待決（§11） | 核准，但需先解決雙 repo 部署 |
+| D4 | 部署位置 | 主站 repo 內的 `/tarot/` 路由（A1，§11） | v2.2 提案，待 K1 拍板 |
 
 ---
 
@@ -47,11 +60,34 @@
 
 塔羅站是主站的**附屬頁面**，不是新品牌。三條硬規則：
 
-1. **素材不重畫**。字標、躍貓、favicon、字型、tokens 直接沿用（§7）。
-2. **元件同名同義**。`Button`、`Stamp`、`FlapText`、`Ticket`、`Words` 複製過來後保持介面一致。`Button` 的 prop 是 `variant?: 'ink' | 'line'`，塔羅站只新增一個值 `'on-ink'`，不新增 `tone` 這種別名。
-3. **不連回主站導覽**。塔羅站只有自己的頁尾，加一行「QRACON 2026 官網 ↗」。反過來，主站之後要加入口（另一個 PR，不在本計劃）。
+1. **素材不重畫**。字標、躍貓、favicon、字型、tokens 直接 import 主站檔案（§7）。
+2. **元件共用，不複製**。`Button`、`Stamp`、`FlapText`、`Ticket`、`Words` 直接用主站元件。`Button` 的 prop 是 `variant?: 'ink' | 'line'`，只新增一個值 `'on-ink'`（取代主站首頁 `:global(.board__cta)` 的局部覆寫），不新增 `tone` 這種別名。
+3. **不連回主站導覽**。塔羅頁用自己的 `TarotLayout`（不含 `SiteHeader`／`SiteFooter`），頁尾加一行「QRACON 2026 官網 ↗」。主站入口另做（`03` Q9）。
 
-**複製或共用的決定**：建議把塔羅站做成主站 repo 的 `apps/tarot` 子目錄（§11 D4）。這樣元件不會分叉、`/tarot` 只是 Astro 的 `base`、部署是單一 Pages 專案。若維持兩個 repo，複製的檔案開頭要寫 `// 來源：qracon_web_2026@<commit>`，並在每次主站改 tokens 時手動同步。
+### [v2.2] 主站實況（`origin/main@257b790`，2026-11-16）
+
+- repo 已移到 **`QRACON-tw/2026`**（舊網址 `Twcat0503/qracon_web_2026` 會轉址）。協作者近期幾乎每天推 `main`。
+- 技術棧：`astro@^7.3.2`、`sharp@^0.35.4`、`typescript@^6.0.3`（`astro/tsconfigs/strict`）、`pnpm@12.3.4`（corepack），Node ≥22.12。無 linter、無測試；完成定義是 `pnpm check`、`pnpm build` 通過，1440 與 375 寬實際看過。
+- **部署**：GitHub Actions（`.github/workflows/deploy-pages.yml`），每次推 `main` 就建置並部署到 GitHub Pages。共用網域 `qracon.entangletech.tw` 由 `QRACON-tw/qracon-tw.github.io` 管理，本站在 `/2026/`。
+- **base**：`astro.config.mjs` 為 `site: 'https://qracon.entangletech.tw'`、`base: env.ASTRO_BASE_PATH ?? '/2026'`。同一份程式碼可以建在 `/2026/` 或根目錄。
+- **路徑 helper**：`src/utils/paths.ts` 的 `sitePath()` 會把站內路徑補上 base，外部網址原樣保留。canonical、OG、sitemap、robots 都已經走它。
+- **`public/_headers` 在 GitHub Pages 沒有作用**（那是 Cloudflare Pages 的格式）。快取標頭不可控，GitHub Pages 固定 `max-age=600`。
+- 主站本機的 `CLAUDE.md`、`DESIGN.md`、`PRODUCT.md`、`docs/` 大多被 gitignore。`CLAUDE.md` 仍寫「正式網域 `2026-qracon.entangletech.tw`、`_headers` 讓 pages.dev 回 noindex」，**已過時**。
+- Astro 7 慣例：預設 `compressHTML: 'jsx'`，行內元素之間要空格就寫 `{' '}`；非 void 標籤一律正確閉合。
+
+### [v2.2] 塔羅要遵守的主站規則
+
+主站規範文件不在 git 裡，協作者看不到，所以在這裡寫全：
+
+- **Zero Hue Rule**：全站不得出現任何色相，連焦點框、文字選取、捲軸都一樣。唯一例外是 `/team` 頭像照片。
+- **Lit Sign Rule**：白是「點亮」，大面積的白只能是牌面、票券這類物件，不能是版面底色。
+- **The Latin-Only Sign Rule**：`var(--font-sign)` 只給拉丁字母與數字（§4.2）。
+- **One Ticket Rule**：層級靠線重、反白、字重，不靠陰影與漸層；票券是唯一有陰影的物件。
+- **不用眉標、區段編號、數字大卡片**（DESIGN.md Don'ts）。結果頁的「量子狀態觀測報告」是票頭，不是眉標（`01` §7）。
+- **無裸值**：元件裡不寫裸色碼、裸 px 間距、裸 `cubic-bezier()`，一律用 `tokens.css`。
+- **動畫**只寫在 `@media (prefers-reduced-motion: no-preference)` 裡。
+- **文案直白**：主站規定標題不用隱喻。塔羅是附屬頁例外，隱喻只在牌義內，介面標籤仍直白。
+- **站內連結一律經 `sitePath()`**，不得寫死 `/2026/`，也不得寫死根路徑。
 
 ---
 
@@ -67,7 +103,7 @@
 - 牌面：紙白 `#FFF`（`--color-white`）——全頁唯一「被點亮」的表面，沿用主站的 Lit Sign Rule。
 - 次要字：`#B3B3B3`（`--color-on-ink-soft`，墨上 10:1）；細線 `#4D4D4D`（`--color-on-ink-rule`，裝飾用）。
 - 抬升面：`#262626`（`--color-ink-raised`），用於牌背與面板。
-- **質感靠銀墨，不靠色相**：牌背的壓紋是一層 105° 的白色高光漸層（`transparent → rgb(255 255 255 / 0.9) → transparent`）掃過，加上 `--color-on-ink-rule` 的干涉線。這是印刷上的銀墨反光，零色相。
+- **質感靠銀墨，不靠色相**：牌背的壓紋是一層 105° 的白色高光漸層（`transparent → var(--color-on-ink-sheen) → transparent`）掃過，加上 `--color-on-ink-rule` 的干涉線。這是印刷上的銀墨反光，零色相。
 - 硬規則：**高光不承載資訊**。把高光關掉，頁面仍然完全可用、對比仍然合格。
 
 **B. 印刷廠（保守備案）**
@@ -81,19 +117,21 @@
 
 深宇宙藍／塔羅紫底 + 螢光綠／電光藍／暖橘。
 
-- **不採用**。與 `DESIGN.md` 的 Zero Hue Rule 直接衝突；要維護第二套色票與對比表；最大風險是「看起來像另一場活動」，而兩場活動的受眾完全重疊。
+- **不採用**。與 Zero Hue Rule 直接衝突；要維護第二套色票與對比表；最大風險是「看起來像另一場活動」，而兩場活動的受眾完全重疊。
 
 ### 為什麼不是全像箔
 
-初稿曾建議用「全像箔」當唯一彩色，理由是主視覺上那隻貓有箔的質感。**這個理由是錯的**：實測 `art/QRACON2026主視覺形象圖.jpg` 全圖最高飽和度 0.000（零色相）；`qracon-wordmark.png` 同樣為 0；`schrodinger-cat-leaping.png` 只有 0.05% 的像素有飽和（虹膜上的一點反光），不足以支撐一套材質。依 `DESIGN.md` 的 Zero Hue Rule，全像箔全部移除，改成灰階銀墨。
+初稿曾建議用「全像箔」當唯一彩色，理由是主視覺上那隻貓有箔的質感。**這個理由是錯的**：實測 `art/QRACON2026主視覺形象圖.jpg` 全圖最高飽和度 0.000（零色相）；`qracon-wordmark.png` 同樣為 0；`schrodinger-cat-leaping.png` 只有極少數像素有飽和（虹膜上的一點反光，0.05%–0.27% 依門檻而定），不足以支撐一套材質。依 Zero Hue Rule，全像箔全部移除，改成灰階銀墨。
 
 ### 建議
 
 **選 A（純灰階暗房）。** 理由：
 
 1. 它讓「翻牌」有物理意義：亮的是被觀測到的那一張，其餘留在暗處。這是用版面說故事，不是加裝飾。
-2. 不新增任何色彩 token。整個塔羅站的顏色都是主站已有的變數，`tokens.css` 仍是唯一來源。
+2. 只新增一個中性 token（`--color-on-ink-sheen`，§4.1），沒有任何色相。`tokens.css` 仍是唯一來源。
 3. 與 B 的差別只在「場景是白天還是暗房」，不是兩套視覺語言，日後要改回 B 只需要換一個底色。
+
+全頁墨底是主站沒用過的反相場景（主站只有局部墨色區塊），需設計組確認（`03` Q7）。
 
 ---
 
@@ -101,7 +139,7 @@
 
 ### 4.1 色彩
 
-**不新增任何色彩 token。** 全部使用主站 `src/styles/tokens.css` 的既有變數：
+全部使用主站 `src/styles/tokens.css` 的變數，**只新增一個**：
 
 | 用途 | token | 值 | 對比 |
 | --- | --- | --- | --- |
@@ -109,12 +147,25 @@
 | 牌面、票券 | `--color-white` | `#FFF` | 21:1 on ink |
 | 場上主要文字 | `--color-white` | `#FFF` | 21:1 |
 | 場上次要文字 | `--color-on-ink-soft` | `#B3B3B3` | 10:1 |
-| 場上分隔線 | `--color-on-ink-rule` | `#4D4D4D` | 2.3:1（裝飾） |
+| 場上分隔線 | `--color-on-ink-rule` | `#4D4D4D` | 約 2.5:1（裝飾） |
 | 牌背、抬升面 | `--color-ink-raised` | `#262626` | 裝飾 |
 | 牌面上的字 | `--color-ink` | `#000` | 21:1 |
 | 牌面次要字 | `--color-ink-soft` | `#4D4D4D` | 8.5:1 |
+| **[v2.2] 銀墨高光** | `--color-on-ink-sheen`（新增） | `rgb(255 255 255 / 0.9)` | 裝飾，不承載資訊 |
 
-**銀墨規則**：牌背與坍縮瞬間的高光，只能是白色透明漸層或明度變化。不得出現任何 `hue` 值、不得寫 `--color-accent`、不得用 `conic-gradient` 做彩虹。
+新增 token 的前例：主站已有 `--color-backdrop: rgb(0 0 0 / 0.55)`。
+
+**銀墨規則**：牌背與塌縮瞬間的高光，只能是 `--color-on-ink-sheen` 的透明漸層或明度變化。不得出現任何 `hue` 值、不得寫 `--color-accent`、不得用 `conic-gradient` 做彩虹。
+
+**[v2.2] 暗場覆寫**（寫在 `TarotLayout`，不改主站全域）：
+
+| 主站預設（`global.css`） | 塔羅覆寫 |
+| --- | --- |
+| `color-scheme: light` | `color-scheme: dark` |
+| 紙灰背景、`scrollbar-color: ink paper` | 墨背景、`scrollbar-color: var(--color-on-ink-rule) var(--color-ink)` |
+| `--color-focus: var(--color-ink)`（**在墨底上看不見**） | `--color-focus: var(--color-white)` |
+| 選取：細線灰底、墨字 | 維持（細線灰底墨字在墨場上仍可讀，且零色相） |
+| `theme-color #d9d9d9`（寫死） | `#000`（需先抽出 `SeoHead`，§11） |
 
 ### 4.2 字型
 
@@ -134,21 +185,28 @@
 - 斷點沿用：72rem / 48rem / 34rem。
 - 首頁：牌扇置中，垂直居中偏上；提示文字在牌扇上方 `--space-5`。
 - 結果頁：單欄，最大 `46rem`；票券滿寬（手機 bleed 到 gutter）。
+- **[v2.2]** 結果頁第一屏（狀態章到一句定義）在 375×667 以上的手機要能完整截進一張 9:16 截圖（§9）。
 
 ### 4.4 牌面規格
 
 | 項目 | 值 |
 | --- | --- |
-| 比例 | 2 : 3.5（70×120mm 標準塔羅） |
+| 比例 | 4 : 7（約 70×122.5mm；標準塔羅 70×120mm 是 2:3.43，取整數比方便 `aspect-ratio`） |
 | 圓角 | `--radius-chip`（4px） |
 | 外框 | `var(--rule-thin)` 墨線 |
 | 內框 | `var(--rule-hair)` 墨線，內縮 `var(--space-2)` |
-| 牌背 | `--color-ink-raised` 底 + 白色高光掃光 + `--color-on-ink-rule` 干涉線；字標「O」紋樣 45° 重複 |
+| 牌背 | `--color-ink-raised` 底 + 銀墨掃光 + `--color-on-ink-rule` 干涉線 + 主視覺紋樣（`03` Q7） |
 | 牌面底 | `--color-white` |
-| 陰影 | 無。牌靠白面本身發亮（主站 One Ticket Rule） |
+| 陰影 | 無。牌靠白面本身發亮（One Ticket Rule） |
 
-牌扇在 375px 寬：牌寬 `clamp(88px, 26vw, 132px)`，角度 ±21°，每張水平偏移 6vw，垂直位移依 `sin` 排成弧。
-桌機：牌寬 200px，角度 ±18°，水平偏移 72px。
+**[v2.2] 牌扇尺寸**（取代 v2.1 的裸 px，實作時把數值收進塔羅元件的 custom properties）：
+
+| 寬度 | 牌寬 | 角度 | 水平偏移 |
+| --- | --- | --- | --- |
+| 手機（< 48rem） | `clamp(5.5rem, 26vw, 8.25rem)` | ±21° | `6vw` |
+| 桌機（≥ 48rem） | `12.5rem` | ±18° | `4.5rem` |
+
+垂直位移依 `sin` 排成弧。
 
 ### 4.5 元件
 
@@ -157,52 +215,69 @@
 | `Button` | 主站 | `variant` 新增 `'on-ink'`（白框白字），不新增 `tone` |
 | `Stamp` | 主站 | 直接用於「你剛剛抽到」 |
 | `FlapText` | 主站 | 結果頁的羅馬數字用 `mode="view"` 翻一次 |
-| `Ticket` | 主站 | 抽出 `TicketShell`（去掉場次依賴），結果頁用 |
+| `Ticket` | 主站 | **直接用**。props 只有 `slits`／`stamp`／`class`／`labelledby`，沒有場次依賴，不需要抽 `TicketShell` |
 | `Words` | 主站 | 牌義長句斷行 |
 | `Card`（新） | — | 牌面／牌背，含焦點與 reduced-motion |
 | `AttributeBar`（新） | — | `var(--rule-heavy)` 線條進度條，四軸 |
 
-屬性**不用雷達圖**。雷達圖是企業儀表板語彙，七邊形在手機上讀不出數值。用四條線：軌道 `--color-on-ink-rule`，填充 `--color-white`，右側接數字（Barlow，tabular-nums）。
+屬性**不用雷達圖**。雷達圖是企業儀表板語彙，四軸的菱形在手機上讀不出數值。用四條線，右側接數字（Barlow，tabular-nums）。
+
+**[v2.2] 屬性條配色依位置**（S6）：
+
+| 位置 | 軌道 | 填充 |
+| --- | --- | --- |
+| 白色票券內（預設） | `--color-rule-fine` | `--color-ink` |
+| 墨底上 | `--color-on-ink-rule` | `--color-white` |
 
 ### 4.6 屬性四軸
 
-| 軸 | 意思 | 為什麼是這四個 |
-| --- | --- | --- |
-| 疊加 | 同時保有幾種可能 | — |
-| 糾纏 | 跟別人的狀態綁得多緊 | — |
-| 相干 | 狀態多整齊、能不能干涉 | — |
-| 能階 | 處在多大的能量上 | — |
+| 軸 | 意思 |
+| --- | --- |
+| 疊加 | 同時保有幾種可能 |
+| 糾纏 | 跟別人的狀態綁得多緊 |
+| 相干 | 狀態多整齊、能不能干涉 |
+| 能階 | 處在多大的能量上 |
 
 初稿的第四軸是「退相干」，與「相干」在定義上反相關（退相干就是相干性的消逝），兩軸並列會出現「相干 60／退相干 95」這種自相矛盾的數字。改成「能階」後四軸互相獨立。
 
-七張牌的數值見 `01-copy-deck.md` §4。介面不得用「高分／低分」暗示優劣：能階高不是好事也不是壞事，它只是描述。
+七張牌的數值見 `01-copy-deck.md` §5（v2.2 改了愚者相干、太陽糾纏）。數值是角色描述、不是物理量；介面不得用「高分／低分」暗示優劣。若物理校稿判斷無法一致解釋，改成「高／中／低」質性描述，`AttributeBar` 改成三段刻度（`03` K4）。
 
 ---
 
 ## 5. 資訊架構
 
-所有站內路徑都掛在 `import.meta.env.BASE_URL`（`/tarot/`）底下，不得寫死根路徑。
+**[v2.2]** 所有站內連結經主站的 `sitePath()`。塔羅另加一個薄包裝，集中前綴：
 
-```
-/tarot/                    抽牌（洗牌 → 坍縮 → 導向結果）
-/tarot/deck               七張牌總覽
-/tarot/deck/[slug]        單張牌＝結果頁（?draw=1 顯示「你剛剛抽到」）
-/tarot/about              這是什麼、名詞對照、製作、使用限制
+```ts
+// src/utils/tarot.ts
+export const tarotPath = (path = '') => sitePath(`/tarot/${path}`);
 ```
 
-七個 slug：`fool`、`lovers`、`hermit`、`wheel`、`death`、`tower`、`sun`。
+正式網址（`base: '/2026'`）：
 
-不做 `/result/[slug]`：結果頁就是牌義頁，避免兩份同樣的內容稀釋 SEO。
+```
+https://qracon.entangletech.tw/2026/tarot/                抽牌
+https://qracon.entangletech.tw/2026/tarot/deck/           七張牌總覽（Must 含「關於」）
+https://qracon.entangletech.tw/2026/tarot/deck/[slug]/    單張牌＝結果頁（?draw=1 顯示「你剛剛抽到」）
+https://qracon.entangletech.tw/2026/tarot/about/          Should：獨立關於頁
+https://qracon.entangletech.tw/2026/tarot/s/              選用：現場 QR 入口（S11）
+```
+
+- 路徑一律帶尾斜線（主站 canonical 會補尾斜線、清 query）。
+- 七個 slug：`fool`、`lovers`、`hermit`、`wheel`、`death`、`tower`、`sun`。
+- 不做 `/result/[slug]`：結果頁就是牌義頁，避免兩份同樣的內容稀釋 SEO。
+- `pnpm build` 產出：Must 9 頁（首頁、deck、7 張牌）；Should 再加 about。
 
 ### 導覽
 
-只有一條：左上字標（回首頁）、右上「牌組」「關於」。手機收成兩顆文字按鈕，不做漢堡選單。
+只有一條：左上「QRACON 2026 量子塔羅」（回塔羅首頁）、右上「牌組」。手機同樣兩個文字連結，不做漢堡選單。Should 做出 about 後再加「關於」。
 
 ### SEO
 
-- 每張牌頁有獨立 `<title>`、description、OG 圖。
-- 結構化資料：`WebSite` + 每頁 `Article`（不用 `Quiz`，這不是測驗）。
-- `robots.txt` + `sitemap.xml`，`base` 由 Astro 處理。
+- 每張牌頁有獨立 `<title>`、description、OG 圖（文案見 `01` §2）。首頁與 deck 也各有一張 OG（共 9 張）。
+- 結構化資料：主站已輸出 `WebSite`；塔羅每張牌頁加 `Article`（不用 `Quiz`，這不是測驗）。
+- sitemap：在主站 `src/utils/seo.ts` 的 `INDEXABLE_PAGES` 加塔羅頁，`sitemap.xml.ts` 會經 `sitePath()` 產生完整網址。
+- 上線前（軟上線期間）塔羅頁全部 `noindex`，且不加入 sitemap（§11）。
 
 ---
 
@@ -212,17 +287,20 @@
 
 ```
 idle ──pointerenter──▶ hover（牌抬起 4px、轉正 60%）
-idle ──activate─────▶ resolving（鎖輸入，prefetch 同時開始）
-                        ├ 其餘 6 張：碎裂 520ms
+idle ──activate─────▶ resolving（鎖輸入，prefetch 同時開始，啟動 1600ms 保底計時）
+                        ├ 其餘 6 張：淡出 520ms（Should：碎裂）
                         ├ 被選的牌：轉正 → 放大 1.08 → 亮邊 180ms
                         └ 翻牌 600ms（rotateY 180°）
-resolving ──end─────▶ navigating（View Transition 到 /tarot/deck/[slug]?draw=1）
-result ──重新抽一張──▶ 重新載入 /tarot/（重新洗牌）
+resolving ──end─────▶ navigating（View Transition 到 tarotPath('deck/[slug]/?draw=1')）
+resolving ──1600ms──▶ navigating（保底：直接 location.assign，S4）
+result ──重新抽一張──▶ 載入 tarotPath()（重新洗牌）
 ```
 
-`resolving` 期間：`pointer-events: none`、`aria-busy="true"`、`inert` 套在牌扇容器上。
+`resolving` 期間：`aria-busy="true"`、`inert` 套在牌扇容器上。
 
-**預取（R11）**：點擊的 0ms 就對目標頁插 `<link rel="prefetch">`，並預載該張牌面圖。不要在 1300ms 動畫結束後才開始請求——4G 訊號差的時候會卡在翻開那一格。
+**預取（R11）**：點擊的 0ms 就對目標頁插 `<link rel="prefetch">`，並預載該張牌面圖。prefetch 的網址必須和實際導頁的網址**完全一致**（含尾斜線與 `?draw=1`），否則快取不會命中。
+
+**[v2.2] 上一頁（S3）**：監聽 `pageshow`，`event.persisted` 為真（從 bfcache 還原）時，把牌扇重設回 `idle`、拿掉 `inert`／`aria-busy`、重新洗牌。否則按上一頁會回到鎖死的 `resolving` 畫面。
 
 ### 6.2 選牌：洗位置，不是抽亂數
 
@@ -233,29 +311,35 @@ result ──重新抽一張──▶ 重新載入 /tarot/（重新洗牌）
 3. 使用者點哪一張，就開那一張的 `href`。**沒有另外的亂數**——使用者的選擇就是唯一的隨機。
 4. 「重新抽一張」＝重新載入頁面，重新洗一次。
 
-**無 JS 時**：`<a href>` 維持建置時的固定順序（fool → sun），仍然七張都能開，只是位置不隨機。
+**無 JS 時**：`<a href>` 維持建置時的固定順序（fool → sun），仍然七張都能開，只是位置不隨機。無 JS 的連結不帶 `?draw=1`。
 
 不做 `sessionStorage` 鎖定：結果頁本身就是 URL，按上一頁回來看到的是同一頁；抽牌頁重洗不影響已抽到的結果。
 
-### 6.3 碎裂
+**接受的取捨**：牌是 `<a href>`，桌機 hover 時狀態列、手機長按預覽會露出目標網址。這正是無 JS 備援的代價，不改成 `<button>`。
 
-不用 WebGL。六張牌各自切成 6 片 `clip-path` 多邊形（共 36 個元素），每片給不同的 `--tx/--ty/--rot`，`transform: translate3d() rotate()` + `opacity` 520ms，`--ease-out`。另加一層 Canvas2D 塵埃（最多 120 粒，1 秒後停止並移除 canvas）。
+### 6.3 散去
 
-理由：`interference.ts` 是全螢幕 WebGL2 shader，用在「六張小卡碎掉」是殺雞用牛刀，低階手機會掉幀。主站的首屏值得那個成本，這裡不值得。
+**Must：淡出。** 六張牌 `opacity` 520ms，`--ease-out`。
+
+**Should：碎裂。** 不用 WebGL。六張牌各自切成 6 片 `clip-path` 多邊形（共 36 個元素），每片給不同的 `--tx/--ty/--rot`，`transform: translate3d() rotate()` + `opacity` 520ms，`--ease-out`。
+
+**Later：塵埃。** Canvas2D 粒子（最多 120 粒，1 秒後停止並移除 canvas）。
+
+理由：`interference.ts` 是全螢幕 WebGL2 shader，用在「六張小卡散掉」是殺雞用牛刀，低階手機會掉幀。
 
 ### 6.4 鍵盤與螢幕閱讀器
 
-- 七張牌是 `<a>`，包在 `<ol>` 裡，`aria-label="第 1 張牌，牌背"`。
+- 七張牌是 `<a>`，包在 `<ol aria-label="七張牌，選一張翻開">` 裡，每張 `aria-label="第 1 張牌"`（文字見 `01` §3）。
 - 點擊時 `preventDefault()` 播動畫；**沒有 JS 就正常跳頁**（漸進增強，也是 SEO 的底）。
-- Tab 順序 = 牌序；焦點框 `var(--rule-heavy)` 白框外推 3px。
-- 結果頁 `?draw=1` 時，`<h1>` 是角色名，並用 `aria-live="polite"` 宣告「你抽到觀測者冷酷貓」。
+- Tab 順序 = 牌序；焦點框 `var(--rule-heavy)` 白框外推 3px（需 §4.1 的 `--color-focus` 覆寫）。
+- 結果頁 `?draw=1` 時，`<h1>` 是角色名，並用 `aria-live="polite"` 宣告「你抽到觀測者冷酷貓。」
 
 ### 6.5 Reduced motion
 
 | 關閉的 | 改成 |
 | --- | --- |
 | 牌扇進場與展開 | 直接顯示最終位置 |
-| 碎裂 | 六張 120ms 淡出 |
+| 散去／碎裂 | 六張 120ms 淡出 |
 | 翻牌 | 交叉淡化 |
 | 粒子 | 不建立 canvas |
 | View Transition | 關閉，直接跳頁 |
@@ -265,18 +349,35 @@ result ──重新抽一張──▶ 重新載入 /tarot/（重新洗牌）
 
 ### 6.6 重抽
 
-- 結果頁有「重新抽一張」，回到 `/tarot/` 重洗。
+- 結果頁有「重新抽一張」，回到塔羅首頁重洗。
 - 同一 session 內允許無限重抽（沒有集點，沒有理由限制）。
 - 不做「今天已經抽過」的鎖——那會讓分享連結進來的人卡住。
 
-### 6.7 回訪
+### 6.7 回訪（Should）
 
-結果頁載入時寫 `localStorage['qracon.tarot.last'] = { slug, at }`。首頁讀到就顯示：
+**[v2.2] 只在 `?draw=1` 時寫入**（S2），單純瀏覽牌頁或從分享連結進來都不寫：
 
+```ts
+try {
+  localStorage.setItem('qracon.tarot.last', JSON.stringify({ slug, at: Date.now() }));
+} catch {}
 ```
-你上次抽到：觀測者冷酷貓
-[ 再看一次 ]  [ 重新抽一張 ]
-```
+
+首頁讀取時同樣 `try/catch`；`at` 超過 7 天不顯示。顯示文案見 `01` §3：「再看一次」連到該牌頁（不帶 `?draw=1`），牌扇照常顯示。
+
+### 6.8 [v2.2] `?draw=1` 的處理（S1）
+
+1. 結果頁讀到 `?draw=1`：顯示「你剛剛抽到」狀態章、`aria-live` 宣告。
+2. 宣告後 `history.replaceState(null, '', location.pathname)` 拿掉參數。分享出去的網址不帶狀態章。
+3. 狀態章的位置**永遠預留高度**（沒有 `?draw=1` 時 `visibility: hidden`），避免 JS 插入造成 CLS。
+4. canonical 由主站 `BaseLayout` 處理，本來就會清掉 query。
+
+### 6.9 [v2.2] View Transition（S5）
+
+- 沿用主站 `global.css` 的跨文件 `@view-transition { navigation: auto }`，不用 Astro ClientRouter。
+- 抽牌頁被選的牌與結果頁的牌面設同一個 `view-transition-name: tarot-card`。同一頁同時只能有一個同名元素，所以抽牌頁要在點擊後才把名稱加到被選的那張（主站 `vt-session` 用同樣做法）。
+- 主站 ↔ 塔羅之間的 root 轉場會從紙灰閃到墨黑：塔羅頁在 `pagereveal`／`pageswap` 判斷來源或目的地不是 `/tarot/` 時，`skipTransition()`。
+- 不支援的瀏覽器（Firefox）直接跳頁，不另做退路。
 
 ---
 
@@ -287,9 +388,10 @@ result ──重新抽一張──▶ 重新載入 /tarot/（重新洗牌）
 | 項目 | 規格 |
 | --- | --- |
 | 張數 | 7 |
-| 尺寸 | 1440×2520 px（2:3.5，300dpi 級） |
-| 格式 | PNG 去背或滿版，另附 SVG 線稿 |
-| 單張上限 | 400 KB（網站用 AVIF） |
+| 尺寸 | 1440×2520 px（4:7） |
+| 格式 | **滿版** PNG（含牌面白底，內框以內才是插畫），另附 SVG 線稿 |
+| 交付檔上限 | 單張 400 KB（PNG，設計組交付） |
+| 上線檔上限 | 單張 90 KB（AVIF，由 `astro:assets` 轉出） |
 | 安全區 | 四周內縮 8% 不放主體（對應內框） |
 | 風格 | 與 `art/QRACON2026主視覺形象圖.jpg` 同一支筆：手繪黑貓、墨線、**純灰階** |
 | 禁止 | 漸層背景、寫實 3D、彩色寶石、傳統偉特牌構圖直接挪用 |
@@ -302,11 +404,11 @@ result ──重新抽一張──▶ 重新載入 /tarot/（重新洗牌）
 
 ```
 ┌──────────────────┐
-│  1.5px 外框       │
+│  rule-thin 外框   │
 │  ┌────────────┐  │
 │  │    IX      │  │  ← Barlow 800，牌寬 18%
 │  │  ┌──────┐  │  │
-│  │  │ 圖示 │  │  │  ← 40×40 SVG 線稿
+│  │  │ 圖示 │  │  │  ← 2.5rem SVG 線稿
 │  │  └──────┘  │  │
 │  │   觀      │  │  ← 直排牌名，Noto 900
 │  │   測      │  │
@@ -315,7 +417,7 @@ result ──重新抽一張──▶ 重新載入 /tarot/（重新洗牌）
 └──────────────────┘
 ```
 
-**首頁牌扇的牌面只放三件事**：羅馬數字、圖示、直排牌名。牌寬最小 88px，塞不下一句定義——13px 的中文在這個尺寸低於主站 `--text-xs` 的可讀下限。「一句定義」只出現在結果頁的大尺寸牌面。
+**首頁牌扇的牌面只放三件事**：羅馬數字、圖示、直排牌名。牌寬最小 5.5rem，塞不下一句定義——13px 的中文在這個尺寸低於主站 `--text-xs` 的可讀下限。「一句定義」只出現在結果頁的大尺寸牌面。
 
 七個 SVG 圖示（全部 `var(--rule-thin)` 線稿，墨色）：
 
@@ -326,7 +428,7 @@ result ──重新抽一張──▶ 重新載入 /tarot/（重新洗牌）
 | 隱士 | 一條波被垂直線切斷，右側只剩一個點 |
 | 命運之輪 | 三條水平能階 + 一支向上的箭頭 |
 | 死神 | 干涉條紋的明暗對比逐漸衰減，最後變成均勻灰階 |
-| 塔 | 一條線突然階梯上升，接著劇烈震盪 |
+| 塔 | 一條線突然階梯上升，接著震盪 |
 | 太陽 | 兩條同相位正弦波疊成加粗的一條 |
 
 字體牌是**成品**，不是灰塊佔位——它本身就符合品牌（純黑白、印刷感、直排）。插畫是加分，不是前提。
@@ -352,7 +454,7 @@ export interface TarotCard {
     line: string;            // 一句定義（≤ 24 字）
     note: string;            // 科普註（≤ 70 字）
   };
-  art: string | null;        // 插畫 import；null → 字體牌
+  art: ImageMetadata | null; // 插畫 import；null → 字體牌
   reading: {
     fortune: string;         // 最近的運勢
     quote: string;           // 牌義引言
@@ -364,7 +466,7 @@ export interface TarotCard {
 }
 ```
 
-`src/data/cards.ts` 是唯一來源；結果頁、`/deck`、OG 產生腳本都從它推導。文案改動只改這個檔。
+`src/data/tarot.ts`（放在主站 `src/data/`，與 `site.ts` 同層）是唯一來源；結果頁、`/deck/`、OG 產生腳本都從它推導。文案改動只改這個檔。
 
 驗證（`astro check` 抓不到的）：
 
@@ -373,6 +475,7 @@ export interface TarotCard {
 - `stats` 四項 0–100。
 - `numeral` 與 `arcana` 對應。
 - `concept.note` ≤ 70 字、`concept.line` ≤ 24 字。
+- **[v2.2]** 文案不含 emoji、不含「坍縮」、不含 `SSS`／`NFC`／`QXP`／`冒險者`。
 
 寫成 `validateCards()`，在 build 時跑，錯就讓 build 失敗。
 
@@ -380,36 +483,50 @@ export interface TarotCard {
 
 ## 9. 分享與 OG
 
-### 9.1 OG 圖（7 張）
+### 9.1 OG 圖（9 張）
 
-1200×630，每張一個檔案：`public/og/fool.png` … `sun.png`。
+1200×630，每張一個檔案：`public/og/tarot.png`、`tarot-deck.png`、`fool.png` … `sun.png`。
 
-產生方式：`scripts/build-og.mjs`，用 **sharp**（已經是直接依賴）把一段 SVG 轉 PNG。SVG 裡是：墨底 + 字標 + 羅馬數字 + 角色名 + 一句定義。
+產生方式：`scripts/build-og.mjs`，用 **sharp**（主站已是直接依賴）把一段 SVG 轉 PNG。SVG 裡是：墨底 + 字標 + 羅馬數字 + 角色名 + 一句定義。
 
 - 字型：SVG 內指定 `Noto Sans TC, Microsoft JhengHei, sans-serif`。**在本機執行一次，把 PNG commit 進 repo**，不在 CI 產生（CI 沒有這些字型，輸出會不一致）。
-- 重跑條件：`cards.ts` 文案或牌面插畫變更時。
+- OG 圖的網址經 `sitePath()`，`BaseLayout` 已會轉成絕對網址。
+- 重跑條件：`tarot.ts` 文案或牌面插畫變更時。**文案凍結（11/21）與物理簽核之後才產生正式版。**
 
 ### 9.2 站內分享
 
-- 「分享」按鈕：`navigator.canShare({ files })` 為真才顯示，呼叫 `navigator.share()`。
-- 「下載分享卡」：Canvas 2D 產 **1080×1920（9:16）** PNG，`<a download>`。
-  - 學生主要在 IG 限時動態分享，9:16 優先；4:5 列為第二版。
-  - 上下各留 15% 安全區，避開 IG 介面。
-  - 字型：**不能寫死 `'Noto Sans TC'`**。Astro Fonts API 會給字族名加 hash，先用 `getComputedStyle(document.documentElement).getPropertyValue('--font-sans')` 取實際字族名，再用 `document.fonts.load()` 等它載入，否則會拍到 fallback 字。
-  - 內容：墨底、牌面、羅馬數字、角色名、一句定義、QR Code、活動日期地點。
+**[v2.2] Must：只分享網址。**
+
+- 「分享」按鈕：`navigator.share` 存在就呼叫 `navigator.share({ title, text, url })`（文案見 `01` §8）。只帶網址，不需要等待產圖，不會失去 user activation。
+- 不支援時，按鈕改成「複製連結」，用 `navigator.clipboard.writeText`。
+- 使用者取消（`AbortError`）不顯示任何訊息；其他錯誤退回複製連結。
+
+**[v2.2] 截圖分享**：結果頁第一屏本身就是 9:16 構圖（§4.3）。學生習慣直接截圖貼 IG 限時動態，這條路不需要任何 JS。
+
+**Later：Canvas 分享卡**（v2.1 規格保留備查）：
+
+- Canvas 2D 產 1080×1920 PNG，`<a download>`；上下各留 15% 安全區。
+- 字型：先用 `getComputedStyle(document.documentElement).getPropertyValue('--font-sans')` 取實際字族名，再 `document.fonts.load()`。
+- Canvas 不支援直排，牌名要逐字定位繪製。
+- 要用 Web Share 帶檔案，PNG 必須在使用者按下之前就產好，否則 iOS 會失去 user activation。
 
 ### 9.3 In-App WebView（R10）
 
-受眾從 IG 限時動態或 LINE 點進來。IG／LINE 的內建瀏覽器常常讓 `<a download>` 對 `blob:` 沒反應，也不支援 `navigator.canShare({ files })`。
+受眾從 IG 限時動態或 LINE 點進來。Must 版只分享網址、不下載檔案，所以 IG／LINE 擋 `blob:` 下載的問題不存在；`navigator.share` 不存在時自動退到複製連結。
 
-對策：偵測 UA 含 `Instagram`／`Line` 時，下載後（或直接）在畫面彈出 `<img>` 預覽層，提示「若沒有自動下載，長按圖片存到相簿」。
+Canvas 分享卡（Later）若要做，才需要「偵測 UA 含 `Instagram`／`Line` 時彈出 `<img>` 預覽層，提示長按存圖」的退路。
 
 ### 9.4 QR Code
 
 `sharp` 只會把 SVG 點陣化，沒有 QR 矩陣（Reed–Solomon）編碼器，所以不能「用 sharp 產生 QR」。
 
-做法：用一次性腳本（devDependency `qrcode`，只給 `scripts/` 用，不進 bundle）產生 7 張 PNG，commit 進 `public/qr/`。前端只載 PNG 疊圖。
-QR 內容是該張牌的完整網址（含 `/tarot` 前綴），產生時就要用正式網域。
+做法：用一次性腳本（devDependency `qrcode`，只給 `scripts/` 用，不進 bundle）產生 PNG／SVG，commit 進 repo。
+
+**[v2.2] QR 指向（S12）**：一律指向塔羅首頁（或現場入口 `/tarot/s/`），邀人來抽，不指向單張牌。原文寫的是「掃描 QR 測你的量子狀態」。
+
+- 內容：`https://qracon.entangletech.tw/2026/tarot/`（或 `/2026/tarot/s/`）。
+- **網址印出去就永遠不改**，所以正式網域要在 12/01 交印刷前確認（`03` K6）。
+- QR 下方印短網址，掃不到的人可以手打。
 
 ---
 
@@ -422,64 +539,111 @@ QR 內容是該張牌的完整網址（含 `/tarot` 前綴），產生時就要�
 | 首頁 JS（gzip） | 35 KB |
 | 結果頁 JS（gzip） | 20 KB |
 | 單張牌面插畫（AVIF） | 90 KB |
-| 首頁總重（首次載入） | 350 KB |
+| 首頁總重（首次載入） | 300 KB |
 | LCP（4G，中階 Android） | 2.0s |
 | CLS | < 0.05 |
 | INP | < 200ms |
 
-沒有 WebGL、沒有 Three.js、沒有動畫函式庫。字型走 Astro Fonts API 的 unicode-range 切片。
+主站預算是首屏 JS ≤ 50 KB、LCP ≤ 2.5s，塔羅較嚴，相容。沒有 WebGL、沒有 Three.js、沒有動畫函式庫。字型走 Astro Fonts API 的 unicode-range 切片。
+
+**[v2.2]** 首頁總重從 350 KB 降到 300 KB：活動當天場地網路擁塞是主要瓶頸。
+
+### 支援範圍
+
+iOS Safari 16+、Android Chrome 最近兩版、IG 與 LINE 內建瀏覽器（iOS／Android 各一）。View Transition 只在支援的瀏覽器播放。
 
 ### 無障礙（WCAG 2.2 AA）
 
-- 所有牌可 Tab 到、可 Enter 開啟；焦點框 `var(--rule-heavy)`、外推 3px。
+- 所有牌可 Tab 到、可 Enter 開啟；焦點框 `var(--rule-heavy)`、外推 3px，墨底上為白色（§4.1）。
 - 顏色不承載狀態（主站規則沿用）。
 - 動畫全部可被 `prefers-reduced-motion` 關閉。
 - 牌扇的旋轉是裝飾：螢幕閱讀器讀 `<ol>` 順序，不讀視覺角度。
 - 結果頁的「你抽到 X」用 `aria-live`。
-- 對比：白/墨 21:1、`#B3B3B3`/墨 10:1、`#4D4D4D`/白 8.5:1。
+- 對比：白／墨 21:1、`#B3B3B3`／墨 10:1、`#4D4D4D`／白 8.5:1。
 
 ---
 
 ## 11. 分期、部署與驗收
 
-### 部署架構（R9）
-
-`/tarot` 子路徑需要先決定建置怎麼合併，否則兩個 Pages 專案會互相覆蓋根目錄。
+### [v2.2] 部署架構
 
 | 方案 | 做法 | 評價 |
 | --- | --- | --- |
-| **A（建議）** | 塔羅站成為主站 repo 的 `apps/tarot`，單一建置、單一 Pages 專案 | 元件不分叉、`base: '/tarot'` 直接生效。代價是要搬一次 repo |
-| B | 維持兩個 repo，主站 CI 拉塔羅站的建置產物放進 `dist/tarot/` | 需要 cross-repo token，兩邊版本要對齊 |
-| C | 獨立子網域 `tarot.entangletech.tw` | 最簡單，但 SEO 權重不共用，`base` 也不用設 |
+| **A1（建議）** | 在主站 repo 加 `src/pages/tarot/*` + `TarotLayout`，沿用主站 `base` 與 `sitePath()` | 單一建置、元件不分叉、共用網域與 sitemap。不需要改部署 |
+| A（v2.1） | `apps/tarot` 獨立 Astro 專案 | 主站不是 workspace，還要合併兩份 dist，放棄 |
+| B | 兩個 repo，主站 CI 拉塔羅產物 | 要改主站 workflow 與 cross-repo token，放棄 |
+| C | 共用網域下另一個 GitHub Pages 專案（例如 `/tarot-2026/`） | 只在主辦不同意把程式碼放進主站 repo 時採用；要另開 repo 並複製元件 |
 
-維持「子路徑 `/tarot`」的決定，但方案在 P0 選定。**不接受**把塔羅站直接部署到根目錄。
+A1 要動到的主站檔案：
 
-### 分期
+| 檔案 | 改動 | 影響主站？ |
+| --- | --- | --- |
+| `src/layouts/BaseLayout.astro` | `<head>` 抽成 `SeoHead.astro`，加 `themeColor` prop | 否，只搬結構 |
+| `src/layouts/TarotLayout.astro`（新） | 用 `SeoHead`，不含 `SiteHeader`／`SiteFooter`，加 §4.1 暗場覆寫 | — |
+| `src/components/Button.astro` | `variant` 加 `'on-ink'` | 否，舊值不變 |
+| `src/styles/tokens.css` | 加 `--color-on-ink-sheen` | 否 |
+| `src/utils/seo.ts` | 上線時把塔羅頁加進 `INDEXABLE_PAGES` | sitemap 多 9 筆 |
+| `src/pages/tarot/**`、`src/data/tarot.ts`、`src/utils/tarot.ts`、`src/components/tarot/**`、`public/og/`（新） | 塔羅本體 | — |
 
-| 階段 | 內容 | 估時 | 完成定義 |
+**[v2.2] 沒有分支預覽**：GitHub Pages 只部署 `main`，不像 Cloudflare Pages 有分支預覽網址。所以：
+
+1. **開發**在 `feat/tarot` 分支，本機 `pnpm build` + `pnpm preview`；真機用同一個區網連開發機（`pnpm dev --host`）。
+2. **軟上線**（11/27）：合併進 `main`，但塔羅頁全部 `noindex`、不進 sitemap、主站不加入口。這樣才能在正式網址上測 IG／LINE WebView 與 OG 預覽。
+3. **正式上線**（12/02）：拿掉 `noindex`、加進 sitemap、主站加入口。
+
+**協作風險**：協作者幾乎每天推 `main`。`feat/tarot` 每兩天 rebase 一次 `origin/main`；改主站共用檔（`BaseLayout`、`Button`、`tokens.css`）的 commit 獨立成小 PR 先合，降低衝突面。push 與開 PR 由你手動做。
+
+R9 改寫：A1 是單一建置、單一 Pages 部署，不存在兩個專案互相覆蓋。剩下的風險是**塔羅的 build 失敗會擋住主站部署**（同一個 workflow），所以合進 `main` 前本機必須 `pnpm check`、`pnpm build` 都過。
+
+### 範圍
+
+| 級別 | 內容 |
+| --- | --- |
+| **Must（12/02）** | 牌扇 + 洗位置 + 無 JS + 鍵盤 + reduced motion；被選牌翻開、其餘淡出；7 張結果頁（字體牌、9:16 第一屏）；`/tarot/deck/`（含關於）；OG ×9；只分享網址 + 複製連結；CTA 接報名狀態；S1–S6、S9、S10 |
+| **Should（12/03–06 有餘力）** | 碎裂動畫；回訪橫幅；獨立 `/tarot/about/`；現場入口 `/tarot/s/` |
+| **Later** | Canvas 9:16 分享卡與 WebView 長按退路、4:5 版本、塵埃粒子、插畫替換、音效 |
+
+### 時程
+
+| 日期 | 階段 | 內容 | 完成定義 |
 | --- | --- | --- | --- |
-| P0 決策 | D1–D4 拍板；部署方案；插畫排程；獎勵制度確認 | 1 天 | `03-open-questions.md` 清空阻擋項 |
-| P1 骨架 | Astro 初始化、複製 tokens/字型/元件、`cards.ts`、路由、SEO | 2 天 | `pnpm build` 出 10 頁，`/tarot/` 可開 |
-| P2 抽牌 | 牌扇、洗位置、狀態機、鍵盤、無 JS 備援、reduced motion、prefetch | 3 天 | 鍵盤全程可完成抽牌 |
-| P3 結果 | 票券、屬性條、契合度、CTA、字體牌 | 3 天 | 七張牌頁皆可讀 |
-| P4 分享 | OG ×7、9:16 分享卡、Web Share、WebView 退路、QR | 2 天 | iOS/Android 各下載一次；IG WebView 測過 |
-| P5 打磨 | 效能、a11y、真機、文案校對 | 2 天 | 預算全數達標 |
-| P6 上線 | 部署、`_headers`、sitemap | 1 天 | 正式網域可開 |
+| 11/17（二） | P0 | 拍板 K1–K6；`corepack enable pnpm`；`pnpm install`；開 `feat/tarot`；文案送物理校稿 | 主站本機 `pnpm build` 過 |
+| 11/18–19 | P1 | 抽 `SeoHead`、`TarotLayout` 與暗場覆寫、`tarotPath()`、`tarot.ts` + `validateCards()`、路由 | `pnpm check`、`pnpm build` 通過；主站頁面輸出不變 |
+| 11/20–24 | P2 | 牌扇、洗位置、狀態機（S3、S4）、淡出、S1、S2、S5、鍵盤、無 JS、reduced motion。**11/21 文案凍結** | 鍵盤與無 JS 都能完成抽牌 |
+| 11/25–26 | P3 | 結果頁（9:16 第一屏）、`Ticket`、屬性條（S6）、CTA（S9）、重新抽一張、aria 文字 | 七張牌頁皆可讀 |
+| **11/27** | 軟上線 | 合進 `main`，全部 `noindex`，不加入口 | 正式網址可開 |
+| 11/28–29 | 真機 | iOS Safari、Android Chrome、IG／LINE WebView 跑完整流程 | 各跑一次 |
+| 11/30–12/01 | P4 | OG ×9、分享、QR。**12/01 交印刷 QR**，打樣後多支手機實掃 | OG 在 FB／LINE 預覽過 |
+| **12/02** | 正式上線 | 拿掉 `noindex`、進 sitemap、主站加入口 | Lighthouse a11y ≥95、perf ≥90 |
+| 12/03–06 | P5 | 修 bug；有餘力做 Should。**12/06 程式凍結** | — |
+| 12/07–11 | — | 只改文案；12/11 後只接 hotfix；12/11 或 12/12 到場地測網路、現場掃印刷品 | — |
+| **12/13** | 活動日 | 見下 | — |
+
+### 活動當天
+
+- 純靜態站在 GitHub Pages CDN 上，容量不是問題；瓶頸是場地網路。
+- 指定一位不上台的人值守：預先登入 GitHub，熟悉「revert 上一個 commit 觸發重新部署」與 Actions 頁面。
+- 活動期間不推 `main`（主站議程若要改，先和協作者約好）。
+- 準備印有短網址的牌卡，掃不到 QR 的人可以手打。
 
 ### 驗收清單
 
-- [ ] `pnpm check`、`pnpm build` 通過
-- [ ] 1440 / 375 兩個寬度實際看過（牌扇、結果頁、分享卡）
+- [ ] `pnpm check`、`pnpm build` 通過；主站既有頁面輸出不變
+- [ ] `ASTRO_BASE_PATH=/` 與預設 `/2026` 兩種 base 都能建置、連結都正確
+- [ ] 1440 / 375 兩個寬度實際看過（牌扇、結果頁）
 - [ ] 關掉 JS 仍能點牌進結果頁
-- [ ] 只用鍵盤完成一次抽牌
+- [ ] 只用鍵盤完成一次抽牌；焦點框在墨底上看得見
+- [ ] 按上一頁回到抽牌頁不會鎖死
 - [ ] `prefers-reduced-motion: reduce` 全程 ≤ 300ms 且無位移
-- [ ] 首頁 JS ≤ 35 KB gzip
+- [ ] 首頁 JS ≤ 35 KB gzip、結果頁 JS ≤ 20 KB gzip
+- [ ] LCP ≤ 2.0s、CLS < 0.05、INP < 200ms（手機模擬）
 - [ ] Lighthouse：Accessibility ≥ 95、Performance ≥ 90（手機模擬）
-- [ ] 七張 OG 圖在 Facebook / X / LINE 各預覽一次
-- [ ] IG 與 LINE 內建瀏覽器各開一次，分享卡能存
+- [ ] 九張 OG 圖在 Facebook / X / LINE 各預覽一次
+- [ ] IG 與 LINE 內建瀏覽器各開一次，分享或複製連結可用
+- [ ] 分享出去的網址不帶 `?draw=1`
 - [ ] `01-copy-deck.md` 的文案 100% 上線，沒有殘留 emoji
 - [ ] 物理名詞由校稿者簽過
-- [ ] 全站掃過：沒有裸色碼、沒有 `hue`、沒有 `conic-gradient`
+- [ ] 全站掃過：沒有裸色碼、沒有 `hue`、沒有 `conic-gradient`、沒有寫死的 `/2026/`
 
 ---
 
@@ -492,15 +656,19 @@ QR 內容是該張牌的完整網址（含 `/tarot` 前綴），產生時就要�
 | R3 | 獎勵系統不存在 | 文案承諾跳票 | D3；未確認前不寫 |
 | R4 | 「占卜」被讀成偽科學 | 觀感 | 免責 + 每個名詞一句正確解釋 + 不談吉凶 |
 | R5 | 色彩方向與主站衝突 | 品牌分裂 | D1 已改為純灰階，衝突解除 |
-| R6 | 分享卡字型在 CI 不一致 | 圖壞掉 | 本機產生、commit PNG；前端用 `--font-sans` 取值 |
-| R7 | 元件從主站複製後分叉 | 兩站不一致 | 方案 A（同 repo 子目錄）優先 |
+| R6 | OG 圖字型在 CI 不一致 | 圖壞掉 | 本機產生、commit PNG |
+| R7 | 元件分叉 | 兩站不一致 | A1 直接共用主站元件 |
 | R8 | 塔羅在台灣的宗教聯想 | 受眾排斥 | 定位「娛樂 + 科普」，不做吉凶斷言 |
-| **R9** | **雙 repo 共用 `/tarot` 子路徑，部署互相覆蓋** | **主站被蓋掉** | §11 部署架構，P0 選定；不接受根目錄部署 |
-| **R10** | **IG／LINE WebView 擋下載與 Web Share** | **分享失效** | §9.3，長按存圖的退路 |
-| **R11** | **1300ms 動畫結束才請求目標頁，4G 下卡住** | **轉場失敗** | §6.1，點擊 0ms 就 prefetch |
+| R9 | 塔羅 build 失敗擋住主站部署（同一個 workflow） | 主站議程無法更新 | 合進 `main` 前本機 check + build 必過；軟上線提早到 11/27 |
+| R10 | IG／LINE WebView 擋下載與 Web Share | 分享失效 | Must 只分享網址，退回複製連結（§9.3） |
+| R11 | 1300ms 動畫結束才請求目標頁，4G 下卡住 | 轉場失敗 | 點擊 0ms 就 prefetch；1600ms 保底直接跳頁 |
+| **R12** | **協作者頻繁推 `main`，`feat/tarot` 衝突** | **合併延誤** | 每兩天 rebase；共用檔改動拆小 PR 先合（§11） |
+| **R13** | **GitHub Pages 沒有分支預覽** | **WebView、OG 只能在正式網址測** | 11/27 軟上線（noindex、無入口） |
+| **R14** | **報名截止後 CTA 失效** | **導流到已關閉的報名頁** | CTA 接 `site.registration.status`（S9） |
+| **R15** | **主站網域或 base 再變** | **印出去的 QR 失效** | 12/01 交印前確認；QR 下方印短網址；連結全走 `sitePath()` |
 
 ---
 
 ## 13. 待決事項
 
-見 `03-open-questions.md`。擋住 P1 的是：部署方案（R9）、獎勵制度、插畫排程。
+見 `03-open-questions.md`。擋上線的是 K1（部署方案）、K2（報名截止日）、K3（上線日）、K4（物理校稿者）、K6（QR 網域與印刷截稿）。獎勵制度與插畫排程**不擋上線**。
