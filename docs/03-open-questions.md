@@ -23,7 +23,7 @@
 | 主站入口 | 另做一個主站 PR，12/02 正式上線時加（原 Q9） | `02` §11 |
 | 屆數 | 「第四屆」，出處為主站 `PRODUCT.md` | `01` §10 |
 | 部署方案（原 K1） | **C：獨立 repo**。塔羅站有自己的 Astro 專案與 GitHub Pages 部署，不放進主站 repo；tokens、`Button`、`sitePath()` 等從主站 `257b790` 複製（漂移風險見 `02` R7）。網址見下一列 | `02` §2、§5、§11 |
-| 網域與 repo（原 K6） | repo 為 **`QRACON-tw/Qracon_Tarot`**，正式網址 `https://qracon.entangletech.tw/Qracon_Tarot/`（GitHub Pages 專案頁，共用組織網域）。公開後改名會讓已分享的連結失效。部署暫停，只能手動觸發 | `02` §2、§5 |
+| 網域與 repo（原 K6） | repo 為 **`QRACON-tw/Qracon2026_Tarot`**，正式網址 `https://qracon.entangletech.tw/Qracon2026_Tarot/`（GitHub Pages 專案頁，共用組織網域）。公開後改名會讓已分享的連結失效。部署暫停，只能手動觸發 | `02` §2、§5 |
 
 ---
 

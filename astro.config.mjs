@@ -3,7 +3,7 @@ import { env } from 'node:process';
 
 export default defineConfig({
   site: env.ASTRO_SITE || 'https://qracon.entangletech.tw',
-  base: (env.ASTRO_BASE_PATH ?? '/Qracon_Tarot') || '/',
+  base: (env.ASTRO_BASE_PATH ?? '/Qracon2026_Tarot') || '/',
   fonts: [
     {
       provider: fontProviders.google(),

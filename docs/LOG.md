@@ -1,5 +1,10 @@
 # 變更紀錄
 
+## 2026-11-16（第九次）
+
+- **repo 名稱更正為 `QRACON-tw/Qracon2026_Tarot`**：`QRACON-tw/Qracon_Tarot` 不存在，`git push`／`fetch` 回 `Repository not found`。本機 `origin` 改指 `https://github.com/QRACON-tw/Qracon2026_Tarot.git`，遠端 `main` 停在 `6679170`，本地可快轉推上。
+- GitHub Pages 子路徑跟 repo 名稱走：`astro.config.mjs` 預設 base 改為 `/Qracon2026_Tarot`，正式網址 `https://qracon.entangletech.tw/Qracon2026_Tarot/`；`README.md`、`02`、`03`、`SITEMAP.md`、`handoff` 的 QR 網址同步更新。第七次紀錄保留原樣。
+
 ## 2026-11-16（第八次）
 
 - **抽牌特效完成**（尚未 commit；範圍與設計見 `docs/05-fx-plan.md`）：洗牌與 CSS 牌背、發牌 stagger、CSS 3D 翻牌、六張散去、塌縮轉場（CSS 版與手寫 WebGL2 版）、結果頁進場（`sessionStorage` 交棒＋`view-transition-name` morph）、tier 3 的 WebGL2 散去粒子。不做環境干涉場。零新依賴。

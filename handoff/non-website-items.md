@@ -40,7 +40,7 @@
 
 | 項目 | 建議 |
 | --- | --- |
-| QR 內容 | 塔羅首頁 `https://qracon.entangletech.tw/Qracon_Tarot/`（repo `QRACON-tw/Qracon_Tarot`；印刷前先確認已部署可開）。指首頁邀人來抽，不要指向單張牌 |
+| QR 內容 | 塔羅首頁 `https://qracon.entangletech.tw/Qracon2026_Tarot/`（repo `QRACON-tw/Qracon2026_Tarot`；印刷前先確認已部署可開）。指首頁邀人來抽，不要指向單張牌 |
 | 網址 | **印出去就不能改**。送印前先確認正式網址 |
 | 最小尺寸 | 印刷 ≥ 2.5 cm；海報掃描距離 1 m 以上時 ≥ 5 cm |
 | 靜區 | 四周留白 ≥ 4 格模組 |

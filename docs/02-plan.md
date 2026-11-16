@@ -254,7 +254,7 @@
 export const cardPath = (id: CardId) => sitePath(`/deck/${id}/`);
 ```
 
-路由與正式網址（`<base>` 為 `/Qracon_Tarot`（repo `QRACON-tw/Qracon_Tarot`），由 `ASTRO_BASE_PATH` 決定）：
+路由與正式網址（`<base>` 為 `/Qracon2026_Tarot`（repo `QRACON-tw/Qracon2026_Tarot`），由 `ASTRO_BASE_PATH` 決定）：
 
 ```
 https://qracon.entangletech.tw<base>/                抽牌
@@ -637,7 +637,7 @@ R9 改寫：K1＝C 後塔羅有自己的 workflow 與 Pages 專案，build 失�
 ### 驗收清單
 
 - [ ] `pnpm check`、`pnpm build` 通過
-- [ ] `ASTRO_BASE_PATH=/` 與預設 `/Qracon_Tarot` 兩種 base 都能建置、連結都正確
+- [ ] `ASTRO_BASE_PATH=/` 與預設 `/Qracon2026_Tarot` 兩種 base 都能建置、連結都正確
 - [ ] 1440 / 375 兩個寬度實際看過（牌扇、結果頁）
 - [ ] 關掉 JS 仍能點牌進結果頁
 - [ ] 只用鍵盤完成一次抽牌；焦點框在墨底上看得見

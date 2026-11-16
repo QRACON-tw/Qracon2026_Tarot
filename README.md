@@ -32,7 +32,7 @@ QRACON 2026 學生量子電腦年會（2026-12-13，中央研究院南部院區�
 | 指令 | 用途 |
 | --- | --- |
 | `pnpm install` | 安裝依賴 |
-| `pnpm dev` | 開發伺服器，預設網址 <http://localhost:4321/Qracon_Tarot/> |
+| `pnpm dev` | 開發伺服器，預設網址 <http://localhost:4321/Qracon2026_Tarot/> |
 | `pnpm check` | `astro check`，型別檢查 |
 | `pnpm build` | 靜態輸出到 `dist/` |
 
@@ -40,7 +40,7 @@ QRACON 2026 學生量子電腦年會（2026-12-13，中央研究院南部院區�
 
 | 變數 | 預設 | 用途 |
 | --- | --- | --- |
-| `ASTRO_BASE_PATH` | `/Qracon_Tarot` | 網站的子路徑；空字串或 `/` 代表根目錄 |
+| `ASTRO_BASE_PATH` | `/Qracon2026_Tarot` | 網站的子路徑；空字串或 `/` 代表根目錄 |
 | `ASTRO_SITE` | `https://qracon.entangletech.tw` | 網站來源，用於 canonical 與 sitemap |
 
 PowerShell 建在根目錄：`$env:ASTRO_BASE_PATH = '/'; pnpm build`，用完 `Remove-Item Env:ASTRO_BASE_PATH`。GitHub Actions 的部署流程會把 `configure-pages` 的 `origin` 與 `base_path` 帶進這兩個變數。部署目前只能手動觸發（`workflow_dispatch`），推 `main` 不會部署；軟上線前再把 `push` 觸發加回去。
@@ -53,7 +53,7 @@ PowerShell 建在根目錄：`$env:ASTRO_BASE_PATH = '/'; pnpm build`，用完 `
 
 **是什麼**：手機優先的互動。七張牌背朝上的塔羅牌扇形展開，點一張，其餘六張散去，被選的那張翻開，接著展開成一張票券狀的「量子狀態觀測報告」。30–60 秒完成，最後導向議程與報名。
 
-**網址**：`https://qracon.entangletech.tw/Qracon_Tarot/`（repo `QRACON-tw/Qracon_Tarot` 的 GitHub Pages 專案頁；尚未部署）。
+**網址**：`https://qracon.entangletech.tw/Qracon2026_Tarot/`（repo `QRACON-tw/Qracon2026_Tarot` 的 GitHub Pages 專案頁；尚未部署）。
 
 **技術**：獨立 repo，Astro 7 靜態輸出、零框架、原生 CSS。tokens、`Button` 等從主站複製，連結走 `sitePath()`。沒有 WebGL 函式庫、沒有動畫函式庫；WebGL2 是手寫、延遲載入的漸進增強層（塌縮轉場、散去粒子），分級與看門狗見 `docs/05-fx-plan.md`，失敗只少一層。
 
@@ -72,4 +72,4 @@ PowerShell 建在根目錄：`$env:ASTRO_BASE_PATH = '/'; pnpm build`，用完 `
 | 素材需求 | 完成，**待設計組 11/18 確認墨底方向（A3）** |
 | 實作 | P1 骨架完成（路由、牌組資料與驗證、暗場版型）；抽牌特效完成（`05-fx-plan.md`，瀏覽器與真機驗證見 `LOG.md`）；牌扇版面、結果頁票券、OG 圖尚未做 |
 
-擋上線的決策見 `docs/03-open-questions.md`：K2 報名截止日、K3 上線日、K4 物理校稿者（K1、K6 已定案：獨立 repo `QRACON-tw/Qracon_Tarot`）。插畫排程不擋上線（預設字體牌）。
+擋上線的決策見 `docs/03-open-questions.md`：K2 報名截止日、K3 上線日、K4 物理校稿者（K1、K6 已定案：獨立 repo `QRACON-tw/Qracon2026_Tarot`）。插畫排程不擋上線（預設字體牌）。
