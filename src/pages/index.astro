@@ -1,0 +1,72 @@
+---
+import TarotLayout from '../layouts/TarotLayout.astro';
+import Card from '../components/tarot/Card.astro';
+import { site } from '../data/site';
+import { cards } from '../data/tarot';
+import { cardPath } from '../utils/tarot';
+---
+
+<TarotLayout title={site.name} description={site.description}>
+  <div class="draw wrap">
+    <header class="draw__intro">
+      <h1>你現在是哪一種量子態？</h1>
+      <p class="draw__sub">七張牌，七種量子態。</p>
+      <div class="draw__hint">
+        <p>翻開之前，你不知道會是哪一張。</p>
+        <p>翻開一張，其他六張就散了。</p>
+      </div>
+    </header>
+    <ol class="draw__cards" role="list" aria-label="七張牌，選一張翻開">
+      {
+        cards.map((card) => (
+          <li>
+            <a class="pick" href={cardPath(card.id)}>
+              <Card card={card} />
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</TarotLayout>
+
+<style>
+  .draw {
+    display: grid;
+    gap: var(--space-7);
+    padding-block: var(--space-7) 0;
+  }
+
+  .draw__intro {
+    display: grid;
+    gap: var(--space-3);
+    justify-items: center;
+    text-align: center;
+  }
+
+  h1 {
+    font-size: var(--text-3xl);
+    letter-spacing: 0.02em;
+  }
+
+  .draw__sub {
+    font-size: var(--text-lg);
+    font-weight: var(--weight-bold);
+  }
+
+  .draw__hint {
+    color: var(--color-on-ink-soft);
+  }
+
+  .draw__cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 9rem), 10.5rem));
+    justify-content: center;
+    gap: var(--space-4);
+  }
+
+  .pick {
+    display: block;
+    border-radius: var(--radius-chip);
+  }
+</style>

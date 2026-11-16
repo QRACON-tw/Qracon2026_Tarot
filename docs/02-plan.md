@@ -1,7 +1,8 @@
 # 02 — 網站設計與建置計劃
 
 **版本**：v2.2（2026-11-16，實作前審查後修訂，並依主站 `origin/main@257b790` 實況改寫部署）
-**狀態**：**基準版，待 K1–K6 拍板**（`03-open-questions.md`）。v2.1 的設計決策維持；部署、範圍、時程與規格補洞為 v2.2 新增。
+**狀態**：**基準版，待 K2–K6 拍板**（`03-open-questions.md`）。v2.1 的設計決策維持；部署、範圍、時程與規格補洞為 v2.2 新增。
+**[K1=C，2026-11-16]** 部署方案定案為 C：獨立 repo。§0、§2、§5、§11、R7、R9、R12 已據此改寫；其餘章節寫「直接 import／直接共用主站」之處，一律改讀為「複製自主站 `257b790`」，`tarotPath()` 改讀為 `sitePath()`、路由前綴 `/tarot/` 改讀為 §5 的 `/`、`/deck/`、`/deck/[slug]/`。
 **範圍**：只做規劃。本文件不含任何程式碼實作。
 **配套**：`01-copy-deck.md`（文案）、`03-open-questions.md`（待決）、`04-asset-requirements.md`（素材需求）、`LOG.md`（變更紀錄）
 
@@ -24,7 +25,7 @@
 
 一個手機優先的互動：七張牌背朝上的塔羅牌扇形展開，使用者點一張，其餘六張散去，被選的那張翻開，接著展開成一張「觀測報告」票券。全程 30–60 秒，最後把人帶到議程頁與報名頁。
 
-技術上與主站同源，而且**直接寫在主站 repo 裡**（Astro 7 靜態輸出、零框架、原生 CSS）。字標、躍貓、字型、tokens、元件直接 import，不複製。新增的只有：牌組資料、扇形互動、七張結果頁、塔羅專用 layout。
+技術上與主站同源，但**獨立成自己的 repo**（K1＝C；Astro 7 靜態輸出、零框架、原生 CSS）。字型設定、tokens、`Button`、`sitePath()` 從主站 `257b790` 複製，不再直接 import；字標、躍貓等素材需要時才複製。本站自己的是：牌組資料、扇形互動、七張結果頁、塔羅專用 layout。
 
 ### 四個設計決策
 
@@ -33,7 +34,7 @@
 | D1 | 色彩方向 | **A 暗房（純灰階）**：墨黑場、紙白牌面、銀墨壓紋 | Gemini 4 核准 |
 | D2 | 牌面插畫 | 設計組交付 7 張；先用「字體牌」上線 | 核准 |
 | D3 | CTA 目標 | 只導向議程與報名（KKTIX），報名截止後改導向會場頁 | 定案 |
-| D4 | 部署位置 | 主站 repo 內的 `/tarot/` 路由（A1，§11） | v2.2 提案，待 K1 拍板 |
+| D4 | 部署位置 | 獨立 repo（C，§11） | K1 定案（2026-11-16） |
 
 ---
 
@@ -60,8 +61,8 @@
 
 塔羅站是主站的**附屬頁面**，不是新品牌。三條硬規則：
 
-1. **素材不重畫**。字標、躍貓、favicon、字型、tokens 直接 import 主站檔案（§7）。
-2. **元件共用，不複製**。`Button`、`Stamp`、`FlapText`、`Ticket`、`Words` 直接用主站元件。`Button` 的 prop 是 `variant?: 'ink' | 'line'`，只新增一個值 `'on-ink'`（取代主站首頁 `:global(.board__cta)` 的局部覆寫），不新增 `tone` 這種別名。
+1. **素材不重畫**。字標、躍貓、favicon、字型、tokens 從主站複製，不重畫（§7）。複製的檔案與來源版本記在 `docs/SITEMAP.md`。
+2. **元件沿用主站的設計，程式碼複製過來**（K1＝C 後不再直接 import）。`Button`、`Stamp`、`FlapText`、`Ticket`、`Words` 需要時從主站 `257b790` 複製，改動記在 `docs/SITEMAP.md`。`Button` 的 prop 是 `variant?: 'ink' | 'line'`，只新增一個值 `'on-ink'`（取代主站首頁 `:global(.board__cta)` 的局部覆寫），不新增 `tone` 這種別名。
 3. **不連回主站導覽**。塔羅頁用自己的 `TarotLayout`（不含 `SiteHeader`／`SiteFooter`），頁尾加一行「QRACON 2026 官網 ↗」。主站入口另開一個主站 PR，12/02 正式上線時加（§11）。
 
 ### [v2.2] 主站實況（`origin/main@257b790`，2026-11-16）
@@ -87,7 +88,7 @@
 - **無裸值**：元件裡不寫裸色碼、裸 px 間距、裸 `cubic-bezier()`，一律用 `tokens.css`。
 - **動畫**只寫在 `@media (prefers-reduced-motion: no-preference)` 裡。
 - **文案直白**：主站規定標題不用隱喻。塔羅是附屬頁例外，隱喻只在牌義內，介面標籤仍直白。
-- **站內連結一律經 `sitePath()`**，不得寫死 `/2026/`，也不得寫死根路徑。
+- **站內連結一律經 `sitePath()`**，不得寫死 `/2026/`、`/tarot/`，也不得寫死根路徑。
 
 ---
 
@@ -246,26 +247,28 @@
 
 ## 5. 資訊架構
 
-**[v2.2]** 所有站內連結經主站的 `sitePath()`。塔羅另加一個薄包裝，集中前綴：
+**[K1=C]** 塔羅站是獨立專案，路由直接放在站根。所有站內連結經 `src/utils/paths.ts` 的 `sitePath()`（複製自主站），不再有 `tarotPath()`；牌頁連結用 `cardPath()`：
 
 ```ts
 // src/utils/tarot.ts
-export const tarotPath = (path = '') => sitePath(`/tarot/${path}`);
+export const cardPath = (id: CardId) => sitePath(`/deck/${id}/`);
 ```
 
-正式網址（`base: '/2026'`）：
+路由與正式網址（`<base>` 在部署時是 `/<repo-name>`，本機預設 `/tarot`，由 `ASTRO_BASE_PATH` 決定；repo 名稱見 `03` K6）：
 
 ```
-https://qracon.entangletech.tw/2026/tarot/                抽牌
-https://qracon.entangletech.tw/2026/tarot/deck/           七張牌總覽（Must 含「關於」）
-https://qracon.entangletech.tw/2026/tarot/deck/[slug]/    單張牌＝結果頁（?draw=1 顯示「你剛剛抽到」）
-https://qracon.entangletech.tw/2026/tarot/about/          Should：獨立關於頁
+https://qracon.entangletech.tw<base>/                抽牌
+https://qracon.entangletech.tw<base>/deck/           七張牌總覽（Must 含「關於」）
+https://qracon.entangletech.tw<base>/deck/[slug]/    單張牌＝結果頁（?draw=1 顯示「你剛剛抽到」）
+https://qracon.entangletech.tw<base>/about/          Should：獨立關於頁
 ```
+
+文件裡其他處（§6、§9、`01`）的 `tarotPath()` 與 `/tarot/…` 路徑，一律以本節為準。
 
 - 路徑一律帶尾斜線（主站 canonical 會補尾斜線、清 query）。
 - 七個 slug：`fool`、`lovers`、`hermit`、`wheel`、`death`、`tower`、`sun`。
 - 不做 `/result/[slug]`：結果頁就是牌義頁，避免兩份同樣的內容稀釋 SEO。
-- `pnpm build` 產出：Must 9 頁（首頁、deck、7 張牌）；Should 再加 about。
+- `pnpm build` 產出：Must 9 頁（首頁、deck、7 張牌）加 `404.html`，共 10 個 HTML；Should 再加 about。
 
 ### 導覽
 
@@ -274,9 +277,9 @@ https://qracon.entangletech.tw/2026/tarot/about/          Should：獨立關於�
 ### SEO
 
 - 每張牌頁有獨立 `<title>`、description、OG 圖（文案見 `01` §2）。首頁與 deck 也各有一張 OG（共 9 張）。
-- 結構化資料：主站已輸出 `WebSite`；塔羅每張牌頁加 `Article`（不用 `Quiz`，這不是測驗）。
-- sitemap：在主站 `src/utils/seo.ts` 的 `INDEXABLE_PAGES` 加塔羅頁，`sitemap.xml.ts` 會經 `sitePath()` 產生完整網址。
-- 上線前（軟上線期間）塔羅頁全部 `noindex`，且不加入 sitemap（§11）。
+- 結構化資料：每張牌頁加 `Article`（不用 `Quiz`，這不是測驗）。`seo.ts` 沒有複製，P4 再做。
+- sitemap：`src/utils/tarot.ts` 的 `getIndexablePaths()` 在 `TAROT_INDEXABLE` 為 `true` 時回傳首頁、deck 與七張牌，`sitemap.xml.ts` 經 `sitePath()` 產生完整網址。
+- 上線前（軟上線期間）塔羅頁全部 `noindex`，且不加入 sitemap（§11）；由 `TAROT_INDEXABLE = false` 控制，上線時改為 `true`。
 
 ---
 
@@ -568,12 +571,12 @@ iOS Safari 16+、Android Chrome 最近兩版、IG 與 LINE 內建瀏覽器（iOS
 
 | 方案 | 做法 | 評價 |
 | --- | --- | --- |
-| **A1（建議）** | 在主站 repo 加 `src/pages/tarot/*` + `TarotLayout`，沿用主站 `base` 與 `sitePath()` | 單一建置、元件不分叉、共用網域與 sitemap。不需要改部署 |
+| A1（原建議，K1 未採用） | 在主站 repo 加 `src/pages/tarot/*` + `TarotLayout`，沿用主站 `base` 與 `sitePath()` | 單一建置、元件不分叉、共用網域與 sitemap。不需要改部署 |
 | A（v2.1） | `apps/tarot` 獨立 Astro 專案 | 主站不是 workspace，還要合併兩份 dist，放棄 |
 | B | 兩個 repo，主站 CI 拉塔羅產物 | 要改主站 workflow 與 cross-repo token，放棄 |
-| C | 共用網域下另一個 GitHub Pages 專案（例如 `/tarot-2026/`） | 只在主辦不同意把程式碼放進主站 repo 時採用；要另開 repo 並複製元件 |
+| **C（K1 定案，2026-11-16）** | 共用網域下另一個 GitHub Pages 專案，獨立 repo、複製元件 | **採用**。程式碼不進主站 repo；元件分叉風險見 R7 |
 
-A1 要動到的主站檔案：
+以下是 A1 要動到的主站檔案（未採用，僅供備查）：
 
 | 檔案 | 改動 | 影響主站？ |
 | --- | --- | --- |
@@ -586,13 +589,13 @@ A1 要動到的主站檔案：
 
 **[v2.2] 沒有分支預覽**：GitHub Pages 只部署 `main`，不像 Cloudflare Pages 有分支預覽網址。所以：
 
-1. **開發**在 `feat/tarot` 分支，本機 `pnpm build` + `pnpm preview`；真機用同一個區網連開發機（`pnpm dev --host`）。
+1. **開發**在本 repo 的功能分支，本機 `pnpm build` + `pnpm preview`；真機用同一個區網連開發機（`pnpm dev --host`）。
 2. **軟上線**（11/27）：合併進 `main`，但塔羅頁全部 `noindex`、不進 sitemap、主站不加入口。這樣才能在正式網址上測 IG／LINE WebView 與 OG 預覽。
 3. **正式上線**（12/02）：拿掉 `noindex`、加進 sitemap、主站加入口。
 
-**協作風險**：協作者幾乎每天推 `main`。`feat/tarot` 每兩天 rebase 一次 `origin/main`；改主站共用檔（`BaseLayout`、`Button`、`tokens.css`）的 commit 獨立成小 PR 先合，降低衝突面。push 與開 PR 由你手動做。
+**協作風險**：K1＝C 後塔羅 repo 與主站互不影響，不需要 rebase 主站，也不改主站共用檔。取而代之的是複製檔漂移（R7）：主站改了 `tokens.css`、`global.css`、`Button.astro`、`paths.ts`、`Icon.astro` 時，人工比對並同步。push 與開 PR 由你手動做。
 
-R9 改寫：A1 是單一建置、單一 Pages 部署，不存在兩個專案互相覆蓋。剩下的風險是**塔羅的 build 失敗會擋住主站部署**（同一個 workflow），所以合進 `main` 前本機必須 `pnpm check`、`pnpm build` 都過。
+R9 改寫：K1＝C 後塔羅有自己的 workflow 與 Pages 專案，build 失敗只影響本站，不會擋住主站部署。合進 `main` 前本機仍須 `pnpm check`、`pnpm build` 都過。
 
 ### 範圍
 
@@ -606,8 +609,8 @@ R9 改寫：A1 是單一建置、單一 Pages 部署，不存在兩個專案互�
 
 | 日期 | 階段 | 內容 | 完成定義 |
 | --- | --- | --- | --- |
-| 11/17（二） | P0 | 拍板 K1–K6；`corepack enable pnpm`；`pnpm install`；開 `feat/tarot`；文案送物理校稿 | 主站本機 `pnpm build` 過 |
-| 11/18–19 | P1 | 抽 `SeoHead`、`TarotLayout` 與暗場覆寫、`tarotPath()`、`tarot.ts` + `validateCards()`、路由 | `pnpm check`、`pnpm build` 通過；主站頁面輸出不變 |
+| 11/17（二） | P0 | 拍板 K2–K6（K1 已定案）；`pnpm install`；文案送物理校稿 | 本機 `pnpm build` 過 |
+| 11/18–19 | P1 | 建立獨立專案（複製主站工具鏈、tokens、`Button`、`sitePath()`）、`SeoHead`、`TarotLayout` 與暗場覆寫、`tarot.ts` + `validateCards()`、路由 `/`、`/deck/`、`/deck/[slug]/` | `pnpm check`、`pnpm build` 通過（骨架已於 2026-11-16 完成，見 `LOG.md`） |
 | 11/20–24 | P2 | 牌扇、洗位置、狀態機（S3、S4）、淡出、S1、S2、S5、鍵盤、無 JS、reduced motion。**11/21 文案凍結** | 鍵盤與無 JS 都能完成抽牌 |
 | 11/25–26 | P3 | 結果頁（9:16 第一屏）、`Ticket`、屬性條（S6）、CTA（S9）、重新抽一張、aria 文字 | 七張牌頁皆可讀 |
 | **11/27** | 軟上線 | 合進 `main`，全部 `noindex`，不加入口 | 正式網址可開 |
@@ -629,8 +632,8 @@ R9 改寫：A1 是單一建置、單一 Pages 部署，不存在兩個專案互�
 
 ### 驗收清單
 
-- [ ] `pnpm check`、`pnpm build` 通過；主站既有頁面輸出不變
-- [ ] `ASTRO_BASE_PATH=/` 與預設 `/2026` 兩種 base 都能建置、連結都正確
+- [ ] `pnpm check`、`pnpm build` 通過
+- [ ] `ASTRO_BASE_PATH=/` 與預設 `/tarot` 兩種 base 都能建置、連結都正確
 - [ ] 1440 / 375 兩個寬度實際看過（牌扇、結果頁）
 - [ ] 關掉 JS 仍能點牌進結果頁
 - [ ] 只用鍵盤完成一次抽牌；焦點框在墨底上看得見
@@ -644,7 +647,7 @@ R9 改寫：A1 是單一建置、單一 Pages 部署，不存在兩個專案互�
 - [ ] 分享出去的網址不帶 `?draw=1`
 - [ ] `01-copy-deck.md` 的文案 100% 上線，沒有殘留 emoji
 - [ ] 物理名詞由校稿者簽過
-- [ ] 全站掃過：沒有裸色碼、沒有 `hue`、沒有 `conic-gradient`、沒有寫死的 `/2026/`
+- [ ] 全站掃過：沒有裸色碼、沒有 `hue`、沒有 `conic-gradient`、沒有寫死的 `/2026/` 或 `/tarot/`
 
 ---
 
@@ -658,12 +661,12 @@ R9 改寫：A1 是單一建置、單一 Pages 部署，不存在兩個專案互�
 | R4 | 「占卜」被讀成偽科學 | 觀感 | 免責 + 每個名詞一句正確解釋 + 不談吉凶 |
 | R5 | 色彩方向與主站衝突 | 品牌分裂 | D1 已改為純灰階，衝突解除 |
 | R6 | OG 圖字型在 CI 不一致 | 圖壞掉 | 本機產生、commit PNG |
-| R7 | 元件分叉 | 兩站不一致 | A1 直接共用主站元件 |
+| R7 | 元件分叉（K1＝C 後成真） | 複製的 tokens、`Button`、`paths.ts` 與主站漂移，兩站不一致 | `docs/SITEMAP.md` 標註複製自 `257b790`；主站改動共用檔時人工比對並同步 |
 | R8 | 塔羅在台灣的宗教聯想 | 受眾排斥 | 定位「娛樂 + 科普」，不做吉凶斷言 |
-| R9 | 塔羅 build 失敗擋住主站部署（同一個 workflow） | 主站議程無法更新 | 合進 `main` 前本機 check + build 必過；軟上線提早到 11/27 |
+| R9（K1＝C 後不適用） | 塔羅 build 失敗擋住主站部署（同一個 workflow） | 主站議程無法更新 | 合進 `main` 前本機 check + build 必過；軟上線提早到 11/27 |
 | R10 | IG／LINE WebView 擋下載與 Web Share | 分享失效 | Must 只分享網址，退回複製連結（§9.3） |
 | R11 | 1300ms 動畫結束才請求目標頁，4G 下卡住 | 轉場失敗 | 點擊 0ms 就 prefetch；1600ms 保底直接跳頁 |
-| **R12** | **協作者頻繁推 `main`，`feat/tarot` 衝突** | **合併延誤** | 每兩天 rebase；共用檔改動拆小 PR 先合（§11） |
+| **R12**（K1＝C 後不適用） | **協作者頻繁推 `main`，`feat/tarot` 衝突** | **合併延誤** | 每兩天 rebase；共用檔改動拆小 PR 先合（§11） |
 | **R13** | **GitHub Pages 沒有分支預覽** | **WebView、OG 只能在正式網址測** | 11/27 軟上線（noindex、無入口） |
 | **R14** | **報名截止後 CTA 失效** | **導流到已關閉的報名頁** | CTA 接 `site.registration.status`（S9） |
 | **R15** | **主站網域或 base 再變** | **canonical、OG、已分享的連結失效** | 上線前確認網址（K6）；連結全走 `sitePath()`，改網域只需重建 |
@@ -672,4 +675,4 @@ R9 改寫：A1 是單一建置、單一 Pages 部署，不存在兩個專案互�
 
 ## 13. 待決事項
 
-見 `03-open-questions.md`。擋上線的是 K1（部署方案）、K2（報名截止日）、K3（上線日）、K4（物理校稿者）、K6（正式網址）。插畫排程**不擋上線**。
+見 `03-open-questions.md`。擋上線的是 K2（報名截止日）、K3（上線日）、K4（物理校稿者）、K6（repo 擁有者與名稱 → 正式網址）；K1（部署方案）已於 2026-11-16 定案為 C。插畫排程**不擋上線**。

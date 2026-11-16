@@ -1,0 +1,81 @@
+---
+import { Font } from 'astro:assets';
+import { site } from '../data/site';
+import { sitePath } from '../utils/paths';
+
+interface Props {
+  title: string;
+  description: string;
+  canonicalPath?: string;
+  canonical?: boolean;
+  image?: string;
+  imageAlt?: string;
+  noindex?: boolean;
+  themeColor?: string;
+}
+
+const {
+  title,
+  description,
+  canonicalPath = Astro.url.pathname,
+  canonical: includeCanonical = true,
+  image,
+  imageAlt = title,
+  noindex = false,
+  themeColor = '#000',
+} = Astro.props;
+
+const siteUrl = Astro.site ?? new URL(Astro.url.origin);
+const canonicalUrl = new URL(sitePath(canonicalPath), siteUrl);
+canonicalUrl.search = '';
+canonicalUrl.hash = '';
+if (!canonicalUrl.pathname.endsWith('/')) canonicalUrl.pathname += '/';
+
+const canonical = includeCanonical ? canonicalUrl.href : undefined;
+const ogImage = image ? new URL(sitePath(image), siteUrl).href : undefined;
+const robots = noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large';
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<script is:inline>
+  document.documentElement.classList.add('js');
+</script>
+<title>{title}</title>
+<meta name="description" content={description} />
+<meta name="robots" content={robots} />
+{canonical && <link rel="canonical" href={canonical} />}
+<link rel="sitemap" href={sitePath('/sitemap.xml')} type="application/xml" />
+<link rel="icon" href={sitePath('/favicon.ico')} sizes="16x16 32x32 48x48" />
+<link rel="icon" href={sitePath('/favicon-96x96.png')} type="image/png" sizes="96x96" />
+<link rel="apple-touch-icon" href={sitePath('/apple-touch-icon.png')} />
+<meta name="theme-color" content={themeColor} />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content={site.name} />
+{canonical && <meta property="og:url" content={canonical} />}
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+{
+  ogImage && (
+    <>
+      <meta property="og:image" content={ogImage} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
+      <meta property="og:image:alt" content={imageAlt} />
+    </>
+  )
+}
+<meta property="og:locale" content="zh_TW" />
+<meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+{
+  ogImage && (
+    <>
+      <meta name="twitter:image" content={ogImage} />
+      <meta name="twitter:image:alt" content={imageAlt} />
+    </>
+  )
+}
+<Font cssVariable="--font-barlow-condensed" preload />
+<Font cssVariable="--font-noto-sans-tc" />

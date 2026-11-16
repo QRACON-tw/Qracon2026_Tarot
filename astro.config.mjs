@@ -1,0 +1,26 @@
+import { defineConfig, fontProviders } from 'astro/config';
+import { env } from 'node:process';
+
+export default defineConfig({
+  site: env.ASTRO_SITE || 'https://qracon.entangletech.tw',
+  base: (env.ASTRO_BASE_PATH ?? '/tarot') || '/',
+  fonts: [
+    {
+      provider: fontProviders.google(),
+      name: 'Noto Sans TC',
+      cssVariable: '--font-noto-sans-tc',
+      weights: ['400 900'],
+      styles: ['normal'],
+      fallbacks: ['PingFang TC', 'Microsoft JhengHei', 'sans-serif'],
+    },
+    {
+      provider: fontProviders.google(),
+      name: 'Barlow Condensed',
+      cssVariable: '--font-barlow-condensed',
+      weights: [600, 800],
+      styles: ['normal'],
+      subsets: ['latin'],
+      fallbacks: ['Arial Narrow', 'sans-serif'],
+    },
+  ],
+});

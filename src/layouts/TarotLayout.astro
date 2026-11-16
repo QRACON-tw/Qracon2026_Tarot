@@ -1,0 +1,152 @@
+---
+import '../styles/global.css';
+import SeoHead from '../components/SeoHead.astro';
+import Icon from '../components/Icon.astro';
+import { mainSite } from '../data/site';
+import { cards } from '../data/tarot';
+import { TAROT_INDEXABLE, validateCards } from '../utils/tarot';
+import { sitePath } from '../utils/paths';
+
+interface Props {
+  title: string;
+  description: string;
+  image?: string;
+  imageAlt?: string;
+  noindex?: boolean;
+  canonical?: boolean;
+}
+
+validateCards(cards);
+
+const { title, description, image, imageAlt, noindex = false, canonical = true } = Astro.props;
+
+const homePath = sitePath('/');
+const deckPath = sitePath('/deck/');
+const path = Astro.url.pathname;
+const deckCurrent = path === deckPath ? 'page' : path.startsWith(deckPath) ? 'true' : undefined;
+const homeCurrent = path === homePath ? 'page' : undefined;
+---
+
+<!doctype html>
+<html lang="zh-Hant-TW">
+  <head>
+    <SeoHead
+      title={title}
+      description={description}
+      image={image}
+      imageAlt={imageAlt}
+      noindex={!TAROT_INDEXABLE || noindex}
+      canonical={canonical}
+    />
+  </head>
+  <body>
+    <a class="skip-link" href="#main">跳到主要內容</a>
+    <header class="site-header">
+      <div class="site-header__bar wrap">
+        <a class="site-header__link site-header__brand" href={homePath} aria-current={homeCurrent}>
+          QRACON 2026 量子塔羅
+        </a>
+        <a class="site-header__link" href={deckPath} aria-current={deckCurrent}>牌組</a>
+      </div>
+    </header>
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <div class="site-footer__inner wrap">
+        <p class="site-footer__note">娛樂用途。牌上的物理名詞附有科普說明，占卜結果不預測任何事。</p>
+        <a class="site-footer__link" href={mainSite('/')}>
+          <span>QRACON 2026 官網</span>
+          <Icon name="arrow-up-right" size={16} />
+        </a>
+      </div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .skip-link {
+    position: absolute;
+    top: var(--space-2);
+    left: var(--space-2);
+    z-index: var(--z-skip);
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    padding: var(--space-2) var(--space-4);
+    background: var(--color-white);
+    color: var(--color-ink);
+    font-weight: var(--weight-bold);
+    text-decoration: none;
+    translate: 0 -200%;
+  }
+
+  .skip-link:focus-visible {
+    translate: 0 0;
+  }
+
+  main:focus {
+    outline: none;
+  }
+
+  .site-header {
+    border-bottom: var(--rule-hair) solid var(--color-on-ink-rule);
+  }
+
+  .site-header__bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    column-gap: var(--space-5);
+  }
+
+  .site-header__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-weight: var(--weight-bold);
+    text-decoration: none;
+  }
+
+  .site-header__brand {
+    font-weight: var(--weight-black);
+    letter-spacing: 0.02em;
+  }
+
+  .site-header__link:hover,
+  .site-header__link[aria-current] {
+    text-decoration: underline;
+    text-decoration-thickness: var(--rule-mid);
+    text-underline-offset: 0.28em;
+  }
+
+  .site-footer {
+    margin-top: var(--space-9);
+    border-top: var(--rule-hair) solid var(--color-on-ink-rule);
+  }
+
+  .site-footer__inner {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+    padding-block: var(--space-5);
+  }
+
+  .site-footer__note {
+    max-width: var(--measure);
+    color: var(--color-on-ink-soft);
+    font-size: var(--text-sm);
+    line-height: var(--leading-snug);
+  }
+
+  .site-footer__link {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+    min-height: 2.75rem;
+    font-size: var(--text-sm);
+    font-weight: var(--weight-bold);
+  }
+</style>

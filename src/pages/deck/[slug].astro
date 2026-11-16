@@ -1,0 +1,260 @@
+---
+import type { GetStaticPaths } from 'astro';
+import TarotLayout from '../../layouts/TarotLayout.astro';
+import Card from '../../components/tarot/Card.astro';
+import Button from '../../components/Button.astro';
+import { mainSite, site } from '../../data/site';
+import { cards } from '../../data/tarot';
+import { cardById, cardPath } from '../../utils/tarot';
+
+export const getStaticPaths = (() =>
+  cards.map((card) => ({ params: { slug: card.id }, props: { card } }))) satisfies GetStaticPaths;
+
+const { card } = Astro.props;
+const { concept, reading, stats } = card;
+
+const statRows = [
+  ['疊加', stats.superposition],
+  ['糾纏', stats.entanglement],
+  ['相干', stats.coherence],
+  ['能階', stats.energy],
+] as const;
+
+const matches = [
+  { label: '最佳量子夥伴', target: cardById(card.partner.id), why: card.partner.why },
+  { label: '最強相剋量子', target: cardById(card.rival.id), why: card.rival.why },
+];
+
+const registrationOpen = site.registration.status === 'open';
+---
+
+<TarotLayout title={`${card.persona}｜${site.name}`} description={`${concept.zh}：${concept.line}`}>
+  <article class="report wrap">
+    <p class="report__title">QRACON 2026 量子狀態觀測報告</p>
+
+    <div class="report__card" aria-hidden="true">
+      <Card card={card} />
+    </div>
+
+    <p class="report__numeral">{card.numeral}</p>
+    <h1 class="report__persona">{card.persona}</h1>
+    <p class="report__persona-en">{card.personaEn}</p>
+    <p class="report__name">{card.name} {card.nameEn}</p>
+
+    <section class="report__section">
+      <h2>量子概念</h2>
+      <p class="concept__name">{concept.zh} <span class="concept__en">{concept.en}</span></p>
+      <p class="concept__line">{concept.line}</p>
+    </section>
+
+    <section class="report__section">
+      <h2>最近的運勢</h2>
+      <p>{reading.fortune}</p>
+    </section>
+
+    <section class="report__section">
+      <h2>牌義</h2>
+      <p class="quote">{reading.quote}</p>
+      <ul class="traits">
+        {reading.traits.map((trait) => <li>{trait}</li>)}
+      </ul>
+    </section>
+
+    <section class="report__section">
+      <h2>屬性</h2>
+      <dl class="stats">
+        {
+          statRows.map(([label, value]) => (
+            <div>
+              <dt>{label}</dt>
+              <dd>{value}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+
+    <section class="report__section">
+      <h2>量子小知識</h2>
+      <p>{concept.note}</p>
+    </section>
+
+    <section class="report__section">
+      <h2>契合度</h2>
+      <dl class="match">
+        {
+          matches.map(({ label, target, why }) => (
+            <div>
+              <dt>{label}</dt>
+              <dd>
+                <a href={cardPath(target.id)}>{target.name}</a>
+                <p>{why}</p>
+              </dd>
+            </div>
+          ))
+        }
+      </dl>
+    </section>
+
+    <div class="report__actions">
+      <Button href={mainSite('/agenda/')} variant="on-ink" icon="arrow-up-right">看議程</Button>
+      {
+        registrationOpen ? (
+          <Button href={site.registration.url} variant="on-ink" icon="arrow-up-right">
+            報名 QRACON 2026
+          </Button>
+        ) : (
+          <Button href={mainSite('/venue/')} variant="on-ink" icon="arrow-up-right">12/13 會場見</Button>
+        )
+      }
+    </div>
+
+    <div class="report__again">
+      <Button href="/" variant="on-ink" icon="arrow-left" iconAt="start">重新抽一張</Button>
+    </div>
+  </article>
+</TarotLayout>
+
+<style>
+  .report {
+    display: grid;
+    justify-items: start;
+    max-width: calc(46rem + var(--gutter) * 2);
+    padding-block: var(--space-6) 0;
+  }
+
+  .report > * {
+    min-width: 0;
+  }
+
+  .report__title {
+    width: 100%;
+    padding-bottom: var(--space-3);
+    border-bottom: var(--rule-thin) solid var(--color-white);
+    font-weight: var(--weight-bold);
+    letter-spacing: var(--tracking-sign);
+  }
+
+  .report__card {
+    justify-self: center;
+    width: min(60%, 14rem);
+    margin-block: var(--space-6) var(--space-5);
+  }
+
+  .report__numeral {
+    font-family: var(--font-sign);
+    font-weight: var(--weight-sign-heavy);
+    font-size: var(--text-2xl);
+    line-height: 1;
+    letter-spacing: 0.08em;
+    color: var(--color-on-ink-soft);
+  }
+
+  .report__persona {
+    margin-top: var(--space-2);
+    font-size: var(--text-3xl);
+    letter-spacing: 0.02em;
+  }
+
+  .report__persona-en {
+    margin-top: var(--space-2);
+    font-size: var(--text-lg);
+    font-weight: var(--weight-bold);
+  }
+
+  .report__name {
+    color: var(--color-on-ink-soft);
+  }
+
+  .report__section {
+    display: grid;
+    gap: var(--space-3);
+    width: 100%;
+    margin-top: var(--space-6);
+    padding-top: var(--space-4);
+    border-top: var(--rule-hair) solid var(--color-on-ink-rule);
+  }
+
+  .report__section h2 {
+    font-size: var(--text-xl);
+    letter-spacing: 0.02em;
+  }
+
+  .concept__name {
+    font-size: var(--text-lg);
+    font-weight: var(--weight-black);
+  }
+
+  .concept__en {
+    color: var(--color-on-ink-soft);
+    font-size: var(--text-base);
+    font-weight: var(--weight-regular);
+  }
+
+  .concept__line {
+    font-size: var(--text-lg);
+  }
+
+  .quote {
+    font-size: var(--text-lg);
+    font-weight: var(--weight-bold);
+  }
+
+  .traits {
+    padding-inline-start: var(--space-4);
+    list-style-type: '· ';
+  }
+
+  .stats {
+    display: grid;
+  }
+
+  .stats div {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    padding-block: var(--space-2);
+    border-top: var(--rule-hair) solid var(--color-on-ink-rule);
+  }
+
+  .stats dt {
+    font-weight: var(--weight-bold);
+  }
+
+  .stats dd {
+    font-family: var(--font-sign);
+    font-weight: var(--weight-sign-heavy);
+    font-size: var(--text-xl);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .match {
+    display: grid;
+    gap: var(--space-4);
+  }
+
+  .match dt {
+    color: var(--color-on-ink-soft);
+    font-size: var(--text-sm);
+    font-weight: var(--weight-bold);
+  }
+
+  .match a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    font-size: var(--text-lg);
+    font-weight: var(--weight-black);
+  }
+
+  .report__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-4);
+    margin-top: var(--space-7);
+  }
+
+  .report__again {
+    margin-top: var(--space-5);
+  }
+</style>

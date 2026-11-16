@@ -1,0 +1,26 @@
+---
+import TarotLayout from '../layouts/TarotLayout.astro';
+import Button from '../components/Button.astro';
+import { site } from '../data/site';
+---
+
+<TarotLayout title={`找不到這一頁｜${site.name}`} description={site.description} noindex canonical={false}>
+  <div class="not-found wrap">
+    <h1>找不到這一頁。</h1>
+    <Button href="/" variant="on-ink" icon="arrow-left" iconAt="start">回首頁</Button>
+  </div>
+</TarotLayout>
+
+<style>
+  .not-found {
+    display: grid;
+    justify-items: start;
+    gap: var(--space-5);
+    padding-block: var(--space-8) 0;
+  }
+
+  h1 {
+    font-size: var(--text-3xl);
+    letter-spacing: 0.02em;
+  }
+</style>

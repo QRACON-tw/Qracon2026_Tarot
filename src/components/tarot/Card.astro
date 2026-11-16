@@ -1,0 +1,66 @@
+---
+import type { TarotCard } from '../../data/tarot';
+
+interface Props {
+  card: TarotCard;
+  class?: string;
+}
+
+const { card, class: className } = Astro.props;
+---
+
+<span class:list={['card', className]}>
+  <span class="card__face">
+    <span class="card__numeral">{card.numeral}</span>
+    <span class="card__persona">{card.persona}</span>
+  </span>
+</span>
+
+<style>
+  .card {
+    position: relative;
+    display: grid;
+    width: 100%;
+    aspect-ratio: 4 / 7;
+    container-type: inline-size;
+    border: var(--rule-thin) solid var(--color-ink);
+    border-radius: var(--radius-chip);
+    background: var(--color-white);
+    color: var(--color-ink);
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: var(--space-2);
+    border: var(--rule-hair) solid var(--color-ink);
+    border-radius: var(--radius-tile);
+    pointer-events: none;
+  }
+
+  .card__face {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6cqw;
+    padding: 14cqw 8cqw;
+  }
+
+  .card__numeral {
+    font-family: var(--font-sign);
+    font-weight: var(--weight-sign-heavy);
+    font-size: 18cqw;
+    line-height: 1;
+    letter-spacing: 0.08em;
+    padding-inline-start: 0.08em;
+  }
+
+  .card__persona {
+    font-family: var(--font-sans);
+    font-weight: var(--weight-black);
+    font-size: 12cqw;
+    line-height: var(--leading-tight);
+    letter-spacing: 0.02em;
+    writing-mode: vertical-rl;
+  }
+</style>

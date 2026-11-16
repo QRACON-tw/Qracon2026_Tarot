@@ -1,5 +1,17 @@
 # 變更紀錄
 
+## 2026-11-16（第六次）
+
+- **K1 定案：C，獨立 repo。** 塔羅站不寫進主站 repo，改在本 repo 根目錄建立獨立 Astro 專案；`docs/`、`handoff/` 留在原處。網址變為 `qracon.entangletech.tw/<repo-name>/`（repo 在 `QRACON-tw` 組織下時），否則是 github.io；K6 改為「repo 擁有者與名稱 → 正式網址」。
+- **P1 骨架完成**（尚未 commit）：
+  - 工具鏈與主站一致：`package.json`、`pnpm-lock.yaml`、`pnpm-workspace.yaml`、`tsconfig.json`、`astro.config.mjs`（`ASTRO_SITE`、`ASTRO_BASE_PATH`，預設 `/tarot`）、`.gitignore`、`.gitattributes`、`.github/workflows/deploy-pages.yml`。
+  - 樣式與共用：`src/styles/tokens.css`、`global.css`（暗場）、`src/utils/paths.ts`、`src/components/Button.astro`（新增 `on-ink`）、`Icon.astro`、`public/` 三個圖示。
+  - 新增：`src/data/site.ts`、`src/data/tarot.ts`（七張牌）、`src/utils/tarot.ts`（`validateCards()`）、`src/components/SeoHead.astro`、`src/components/tarot/Card.astro`、`src/layouts/TarotLayout.astro`。
+  - 路由：`/`、`/deck/`、`/deck/[slug]/`×7、404、sitemap、robots。完整清單與來源見 `docs/SITEMAP.md`。
+- 驗證（本機實際執行）：`pnpm check` 0 錯誤 0 警告 0 提示；`pnpm build` 產出 10 個 HTML；`ASTRO_BASE_PATH=/` 與預設 `/tarot` 都能建置，連結正確；`TAROT_INDEXABLE = false` 時全頁 `noindex, follow`、sitemap 沒有 `<loc>`；把某張牌的相剋改成自己，建置失敗並印出 `validateCards` 訊息，還原後通過。瀏覽器檢視尚未做。
+- 主站 `257b790` 的 `astro check` 本來就有 1 個錯誤（`astro.config.mjs` 的 `// @ts-check` 找不到 `node:process` 型別）；本專案移除該行，不新增依賴。
+- `docs/02-plan.md` 局部更新：K1＝C、路由改為 `/`、`/deck/`、`/deck/[slug]/`、`tarotPath()` 改為 `sitePath()`、R7（元件分叉）成真、R9／R12 不再適用。`docs/03-open-questions.md`：K1 移入已定案，K6 改寫。README 加入 Astro 站的指令與環境變數。
+
 ## 2026-11-16（第五次）
 
 - 新增 Google Doc〈QRACON 2026 量子塔羅：插畫與牌背素材需求〉（Drive 資料夾〈QRACON 2026 量子塔羅 素材需求〉）：`04` §1、§2、§6 的設計組版本，只看這份就能動筆。
