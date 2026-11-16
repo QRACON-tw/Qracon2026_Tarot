@@ -14,6 +14,7 @@ QRACON 2026 學生量子電腦年會（2026-12-13，中央研究院南部院區�
 | [`docs/02-plan.md`](docs/02-plan.md) | 網站設計與建置計劃：部署、設計系統、互動、範圍、時程、驗收、風險 | 全體 |
 | [`docs/03-open-questions.md`](docs/03-open-questions.md) | 待決事項：擋上線（K1–K6）、影響設計、可延後 | 主辦 |
 | [`docs/04-asset-requirements.md`](docs/04-asset-requirements.md) | 素材需求：設計組與主辦要交什麼、規格、期限、驗收；沿用與不需要的素材 | 設計組、主辦 |
+| [Google Doc：插畫與牌背素材需求](https://docs.google.com/document/d/1MAt50h1XGtFqNq2o1_Ztlnq8tcBbG7MjjKy7EZtJNpo/edit) | `04` 給設計組的獨立版本，附參考圖與安全區底圖 [`docs/assets/tarot-card-template.png`](docs/assets/tarot-card-template.png) | 設計組 |
 | [`docs/LOG.md`](docs/LOG.md) | 文件變更紀錄 | 全體 |
 
 原始需求是行銷組的 Google Doc〈QUACON量子塔羅〉，僅供參考（有多處物理錯誤與怪異用語），文案已全部改寫進 `01`。
