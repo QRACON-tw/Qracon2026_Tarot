@@ -4,16 +4,16 @@ P1 骨架（2026-11-16）。主站來源一律指 `QRACON-tw/2026` 的 `257b790`
 
 ## 路由
 
-預設 base 為 `/tarot`；部署時由 `ASTRO_BASE_PATH`、`ASTRO_SITE` 覆寫（見 `README.md`）。
+預設 base 為 `/Qracon_Tarot`；部署時由 `ASTRO_BASE_PATH`、`ASTRO_SITE` 覆寫（見 `README.md`）。
 
 | URL（預設 base） | 檔案 | 狀態 |
 | --- | --- | --- |
-| `/tarot/` | `src/pages/index.astro` | P1：七張牌正面的靜態清單（P2 換成牌扇） |
-| `/tarot/deck/` | `src/pages/deck/index.astro` | P1：七張牌清單；「關於這副牌」未做 |
-| `/tarot/deck/fool/`、`lovers/`、`hermit/`、`wheel/`、`death/`、`tower/`、`sun/` | `src/pages/deck/[slug].astro` | P1：純文字結果頁，屬性為數字（屬性條、票券、狀態章在 P3） |
-| `/tarot/404.html` | `src/pages/404.astro` | `noindex`、無 canonical |
-| `/tarot/sitemap.xml` | `src/pages/sitemap.xml.ts` | `TAROT_INDEXABLE = false` 時沒有任何 `<loc>` |
-| `/tarot/robots.txt` | `src/pages/robots.txt.ts` | 全部允許，附 sitemap 網址 |
+| `/Qracon_Tarot/` | `src/pages/index.astro` | P1：七張牌正面的靜態清單（P2 換成牌扇） |
+| `/Qracon_Tarot/deck/` | `src/pages/deck/index.astro` | P1：七張牌清單；「關於這副牌」未做 |
+| `/Qracon_Tarot/deck/fool/`、`lovers/`、`hermit/`、`wheel/`、`death/`、`tower/`、`sun/` | `src/pages/deck/[slug].astro` | P1：純文字結果頁，屬性為數字（屬性條、票券、狀態章在 P3） |
+| `/Qracon_Tarot/404.html` | `src/pages/404.astro` | `noindex`、無 canonical |
+| `/Qracon_Tarot/sitemap.xml` | `src/pages/sitemap.xml.ts` | `TAROT_INDEXABLE = false` 時沒有任何 `<loc>` |
+| `/Qracon_Tarot/robots.txt` | `src/pages/robots.txt.ts` | 全部允許，附 sitemap 網址 |
 
 建置產出 10 個 HTML：首頁、deck、七張牌、404。
 
@@ -29,10 +29,10 @@ P1 骨架（2026-11-16）。主站來源一律指 `QRACON-tw/2026` 的 `257b790`
 | `pnpm-lock.yaml` | 鎖檔，解析結果與主站一致 | 複製 |
 | `pnpm-workspace.yaml` | pnpm 12 的 `allowBuilds`（esbuild） | 複製 |
 | `tsconfig.json` | `astro/tsconfigs/strict` | 複製 |
-| `astro.config.mjs` | `site` 讀 `ASTRO_SITE`、`base` 讀 `ASTRO_BASE_PATH`（預設 `/tarot`，空字串視為 `/`）；`fonts` 與主站相同；移除 `// @ts-check`（見下方備註） | 改寫 |
+| `astro.config.mjs` | `site` 讀 `ASTRO_SITE`、`base` 讀 `ASTRO_BASE_PATH`（預設 `/Qracon_Tarot`，空字串視為 `/`）；`fonts` 與主站相同；移除 `// @ts-check`（見下方備註） | 改寫 |
 | `.gitignore` | 忽略 `dist/`、`.astro/`、`node_modules/`、`.env*` 等；不忽略 `docs/` | 新增 |
 | `.gitattributes` | `* text=auto`；`yml`／`yaml`／`mjs`／`sh` 固定 LF；圖檔標為 binary | 新增 |
-| `.github/workflows/deploy-pages.yml` | GitHub Pages 部署；`configure-pages` 移到建置前，並把 `origin`、`base_path` 以 `ASTRO_SITE`、`ASTRO_BASE_PATH` 傳給建置 | 改寫 |
+| `.github/workflows/deploy-pages.yml` | GitHub Pages 部署；`configure-pages` 移到建置前，並把 `origin`、`base_path` 以 `ASTRO_SITE`、`ASTRO_BASE_PATH` 傳給建置；觸發只留 `workflow_dispatch`（暫不部署） | 改寫 |
 
 ### `public/`
 

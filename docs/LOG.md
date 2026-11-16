@@ -1,5 +1,10 @@
 # 變更紀錄
 
+## 2026-11-16（第七次）
+
+- **K6 定案**：repo 已移到 `QRACON-tw/Qracon_Tarot`，正式網址 `https://qracon.entangletech.tw/Qracon_Tarot/`。本機 `origin` 改指新位置；`astro.config.mjs` 預設 base 由 `/tarot` 改為 `/Qracon_Tarot`；`README.md`、`docs/SITEMAP.md`、`02` §5、`03`、`handoff` 的 QR 網址同步更新。
+- **暫不部署**：`.github/workflows/deploy-pages.yml` 拿掉 `push` 觸發，只留 `workflow_dispatch`；推 `main` 不會部署。軟上線前再加回。
+
 ## 2026-11-16（第六次）
 
 - **K1 定案：C，獨立 repo。** 塔羅站不寫進主站 repo，改在本 repo 根目錄建立獨立 Astro 專案；`docs/`、`handoff/` 留在原處。網址變為 `qracon.entangletech.tw/<repo-name>/`（repo 在 `QRACON-tw` 組織下時），否則是 github.io；K6 改為「repo 擁有者與名稱 → 正式網址」。

@@ -3,7 +3,7 @@
 **規則**：拍板後回寫 `01-copy-deck.md` 或 `02-plan.md` 為規格，並從本檔移除。
 分三級：**擋上線**（12/02 前必須決定）、**影響設計**（影響 P2–P4）、**可延後**。
 
-最後更新：2026-11-16（v2.2 + K1 定案；主站以 `origin/main@257b790` 為準）
+最後更新：2026-11-16（v2.2 + K1、K6 定案；主站以 `origin/main@257b790` 為準）
 
 ---
 
@@ -22,8 +22,8 @@
 | 多語系 | 不做（原 Q10） | `02` §1 |
 | 主站入口 | 另做一個主站 PR，12/02 正式上線時加（原 Q9） | `02` §11 |
 | 屆數 | 「第四屆」，出處為主站 `PRODUCT.md` | `01` §10 |
-| 部署方案（原 K1） | **C：獨立 repo**。塔羅站有自己的 Astro 專案與 GitHub Pages 部署，不放進主站 repo；tokens、`Button`、`sitePath()` 等從主站 `257b790` 複製（漂移風險見 `02` R7）。網址變為 `https://qracon.entangletech.tw/<repo-name>/`（repo 在 `QRACON-tw` 組織下時），否則是 `<owner>.github.io/<repo-name>/` | `02` §2、§5、§11 |
-| 網域 | 共用網域 `qracon.entangletech.tw`，由 GitHub Pages 提供；子路徑由 repo 名稱決定（K6） | `02` §2、§5 |
+| 部署方案（原 K1） | **C：獨立 repo**。塔羅站有自己的 Astro 專案與 GitHub Pages 部署，不放進主站 repo；tokens、`Button`、`sitePath()` 等從主站 `257b790` 複製（漂移風險見 `02` R7）。網址見下一列 | `02` §2、§5、§11 |
+| 網域與 repo（原 K6） | repo 為 **`QRACON-tw/Qracon_Tarot`**，正式網址 `https://qracon.entangletech.tw/Qracon_Tarot/`（GitHub Pages 專案頁，共用組織網域）。公開後改名會讓已分享的連結失效。部署暫停，只能手動觸發 | `02` §2、§5 |
 
 ---
 
@@ -54,18 +54,6 @@ GitHub Pages 沒有分支預覽，WebView 與 OG 預覽只能在正式網址測�
 - 隱士 ↔ 測量是最弱的對應（隱士內省退隱，觀測者卻是主動介入）。替代案：隱士＝與環境隔離＝保護相干性。
 
 簽核前頁尾只寫「附有科普說明」，不寫「已確認」。OG 圖要等簽核後才產生正式版（文案會燒進圖裡）。
-
-### K6. repo 擁有者與名稱 → 正式網址
-
-K1 定案為獨立 repo 後，網址不再是 `qracon.entangletech.tw/2026/tarot/`，而是 `https://qracon.entangletech.tw/<repo-name>/`（repo 在 `QRACON-tw` 組織下時）。要決定：
-
-- repo 開在 `QRACON-tw` 還是個人帳號。個人帳號時網址是 `<owner>.github.io/<repo-name>/`，不在共用網域下。
-- repo 名稱（目前本機資料夾是 `Qracon_Tarot`）。名稱就是網址路徑，公開後改名會讓已分享的連結失效。
-- 主站 README 仍寫 `2026-qracon.entangletech.tw/2026/`，`astro.config.mjs` 的 `site` 則是 `qracon.entangletech.tw`；`MAIN_SITE`（`src/data/site.ts`）目前採後者。
-
-**影響**：canonical、OG 絕對網址、分享出去的連結、結果頁 QR 的內容。部署時 `ASTRO_SITE`、`ASTRO_BASE_PATH` 由 `configure-pages` 帶入，所以改名只要重建；但 12/02 正式上線後已分享出去的連結會失效。
-
-**期限**：11/17。沒確認就先用預設 `/tarot`。
 
 ---
 
