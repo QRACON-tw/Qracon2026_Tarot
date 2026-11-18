@@ -151,6 +151,17 @@ const registrationOpen = site.registration.status === 'open';
     margin-block: var(--space-6) var(--space-5);
   }
 
+  @media (orientation: landscape) and (max-height: 30rem) {
+    .report {
+      padding-top: var(--space-4);
+    }
+
+    .report__card {
+      width: min(60%, 14rem, 55svh * 4 / 7);
+      margin-top: var(--space-4);
+    }
+  }
+
   .report__numeral {
     font-family: var(--font-sign);
     font-weight: var(--weight-sign-heavy);
