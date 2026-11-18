@@ -1,5 +1,24 @@
 # 變更紀錄
 
+## 2026-11-18
+
+- **行動裝置測試**：正式建置（`astro preview`，http）＋無頭 Chrome 157（CDP、實體 GPU）模擬 iPhone SE／15、Pixel 7、Galaxy A、320 寬、橫向，送真的觸控事件（`hover: none`、`pointer: coarse` 生效），逐格錄影檢查動畫。找到四個問題並修正：
+  1. **跨頁 VT 在第一次抽牌必定失效**，console 有未捕捉的 `InvalidStateError: … ViewTransition opt-in disabled`。新頁首次繪製時若還有外部 script 在下載，Chrome 157 就放棄跨頁 VT（最小重現頁在有視窗與無頭模式都重現；查無官方說明）。結果頁的 `reveal.ts` 因為 import 了與首頁共用的 `store.ts` 而被拆成外部檔＋共用 chunk。修正：`reveal.ts` 自帶交棒讀取，不 import 任何模組，Astro 改為內嵌；`store.ts` 拿掉 `drawStore.take` 與 15 秒時效。
+  2. **散牌撐大手機 layout viewport**：牌飛出畫面造成水平溢出，手機 Chrome 把 layout viewport 從 393 撐到 871×1889；`position: fixed` 的 canvas 像素量約 2.2 倍、塌縮的鏡射波源跑到畫面外（放射狀雜線），VT 也以 `Viewport size changed` 中止。修正：`index.astro` 在 `html.is-resolving` 時對 `body` 設 `overflow-x: clip`。1 與 2 要一起改，只改 1 仍會中止。
+  3. **慢速網路下 `draw.ts` 晚 4.7 秒才執行**：首頁入口要再抓 `store` 共用 chunk（0.9 KB），被 16 個 VeryHigh 字型檔擠到 6.4 秒才完成（Slow 4G＋4×CPU）。這段時間牌背已顯示、可點但沒洗牌，三次點第一張都是「愚者」。修正同 1：`store.ts` 不再共用，併進首頁入口檔。
+  4. **看門狗把穩定 30fps 誤判為掉幀**：門檻是絕對 24ms，30Hz 上限的裝置（iOS 低耗電模式）每幀 33ms 必然觸發，抽一次就降到 tier 1；之後 `collapse()` 只看 GL 有沒有載入，不看 tier，加上「跳到最後一幀」的旗標在 bfcache 復原後仍在，再抽時塌縮直接跳黑。修正：`gl.ts` 建立舞台時先量 8 幀閒置 rAF 間隔取中位數，門檻改為 `max(24ms, 基準 × 1.4)`；`draw.ts` 只在 tier ≥ 2 用 GL 塌縮。
+- 文件：`SITEMAP.md`（`index.astro`、`[slug].astro`、`store.ts`、`reveal.ts`、`gl.ts`、`src/scripts/` 的 import 限制、體積）、`05-fx-plan.md`（渲染規則、In-app 與 iOS、架構表）、`02-plan.md` §10 看門狗描述。
+- 驗證（本機實際執行，修正後回歸）：
+  - `pnpm check` 0 錯誤 0 警告 0 提示；`pnpm build` 10 頁。結果頁只剩內嵌 script（無外部 JS）；首頁入口沒有靜態 import。gzip：首頁初始 JS 約 3.0 KB、GL chunk 合計約 3.4 KB、結果頁 JS 約 0.55 KB。
+  - iPhone 15 觸控全流程：首次抽牌 VT `ready` 成功、`role="status"` 宣告；上一頁從 bfcache 還原後 tier 維持 3、可再抽；「重新抽一張」正常；console 零錯誤。散牌期間 `innerWidth` 與 canvas 寬維持 393；塌縮為乾淨的同心環。
+  - 看門狗：30fps 穩定與模擬 15Hz 都不再寫入 `fx-tier`；不限幀率每幀 +40ms → 降到 tier 1，之後再抽改播 CSS 塌縮（約 1.58 秒導頁）；30fps 下每幀 +70ms → 降到 tier 2；不限幀率 +12ms 或無負載不觸發。
+  - 減少動態效果（真的 media 模擬）269ms 導頁、牌不位移；2 核＋4×CPU 走 CSS 塌縮；6×CPU 點擊事件 120ms。
+  - 邊界 8 項全過：連點兩張、同一張雙擊、從牌上滑動、捲動後點第 7 張、發牌中點牌、動畫中轉橫向、動畫中點頁首、無 JS。320／360／375／393／412 寬與橫向，首頁、結果頁、牌組頁、404 都沒有水平捲軸。桌機 1440 滑鼠與純鍵盤（焦點框 3px 白）各走一次，VT 成功。
+  - Slow 4G＋4×CPU：`draw.ts` 於 1.91 秒執行（修正前 6.4 秒），與首次繪製同時；早點的三次分別抽到 fool、hermit、tower，有動畫；首頁→結果頁 VT 成功。
+- **已知限制**：首頁入口檔有動態 `import()`，無法內嵌。冷快取且慢速網路時，從結果頁（例如分享連結進站）按「重新抽一張」第一次進首頁，root 淡入會被丟掉並留一條 console 例外；本機網路下未發生。
+- **未修，待決定**：每頁冷載入字型 1.06–1.21 MB（Noto Sans TC 111 個子集命中 18–20 個），Slow 4G 下結果頁 LCP 2.01 秒、Fast 3G 全頁載完約 15 秒；頁首「牌組」32×44 與契合度連結 36×44 未達 44×44 建議值（AA 24×24 通過）；橫向手機（852×393）因寬度 ≥ 48rem 套用桌機牌寬，首屏看不到牌。
+- **未驗證**：真機 iOS Safari／WebKit、IG 與 LINE 內建瀏覽器、實機 GPU 與發熱、網址列伸縮時的 `100lvh`、120Hz 裝置。
+
 ## 2026-11-16（第九次）
 
 - **repo 名稱更正為 `QRACON-tw/Qracon2026_Tarot`**：`QRACON-tw/Qracon_Tarot` 不存在，`git push`／`fetch` 回 `Repository not found`。本機 `origin` 改指 `https://github.com/QRACON-tw/Qracon2026_Tarot.git`，遠端 `main` 停在 `6679170`，本地可快轉推上。

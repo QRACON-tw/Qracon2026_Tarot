@@ -35,7 +35,8 @@
 
 - DPR 取 `min(devicePixelRatio, 1.5)`。
 - context：`alpha: true, premultipliedAlpha: true, antialias: false, depth: false, stencil: false`。
-- 看門狗：連續 20 幀平均 > 24ms，解析度乘 0.66；再超過一次，粒子停、轉場跳到 `progress = 1`，降級 tier 寫入 `sessionStorage`。
+- 看門狗：每 20 幀或累計 400ms 取平均，超過門檻就把解析度乘 0.66、tier 降一級寫入 `sessionStorage`；再超過一次，粒子停、轉場跳到 `progress = 1`。門檻是 `max(24ms, 閒置 rAF 間隔 × 1.4)`：建立舞台時先量 8 幀閒置間隔取中位數，60Hz 仍是 24ms，30Hz 上限的裝置（iOS 低耗電模式）放寬為約 47ms，不會把穩定的 30fps 誤判成掉幀。
+- 塌縮只在 tier ≥ 2 用 GL；本次瀏覽中被降到 tier 1 後，即使 GL 已載入也改播 CSS 版。
 - `visibilitychange` 隱藏時停迴圈。
 - `webglcontextlost`：`preventDefault()`、停迴圈、隱藏 canvas；轉場中遇到就立刻導頁。
 - 單一 `<canvas>` 共用（iOS WebView 對 context 數量敏感）。
@@ -44,6 +45,8 @@
 
 - 跨文件 View Transition 要 Safari 18.2+ / Chrome 126+，iOS 16–18.1 沒有。轉場不依賴 VT：首頁把畫面收成全黑再導頁，結果頁用 CSS 進場；VT 有支援時只是多一段牌的 morph。
 - bfcache：`pageshow` 且 `event.persisted` 時重置首頁（移除 overlay、解鎖、重新洗牌）。
+- 新頁首次繪製時若還有外部 script 在下載，Chrome 157 會放棄跨頁 VT（`ViewTransition opt-in disabled`，並留一條未捕捉的例外）。所以結果頁不放外部 JS：`reveal.ts` 不 import 任何模組，讓 Astro 內嵌。首頁的入口檔有動態 `import()`，無法內嵌；冷快取又慢速網路時，從結果頁回首頁會少一段 root 淡入（已知限制）。
+- 散牌飛出畫面會造成水平溢出，手機 Chrome 會因此撐大 layout viewport（實測 393 → 871×1889），`position: fixed` 的 canvas 跟著變大、VT 以 `Viewport size changed` 中止。`html.is-resolving` 時 `body` 設 `overflow-x: clip`。
 
 ### 觸控與版面
 
@@ -78,7 +81,7 @@ GL 轉場最後一幀必須與結果頁底色相接。
 | `src/scripts/fx/gl.ts` | `createGL`、`compile`、全螢幕三角形、resize/DPR、`loop` 含看門狗、可見性、context lost | 1.3 KB |
 | `src/scripts/fx/collapse.ts` | 塌縮 shader 與 `play(origin): Promise<void>` | 1.2 KB |
 | `src/scripts/fx/particles.ts` | 粒子 | 1 KB |
-| `src/scripts/reveal.ts` | 結果頁：讀交棒、加 `.is-drawn`、`aria-live` | 0.3 KB |
+| `src/scripts/reveal.ts` | 結果頁：讀交棒、加 `.is-drawn`、`aria-live`；不 import 任何模組（建置後內嵌） | 0.4 KB |
 | `src/components/fx/FxCanvas.astro` | canvas 與 CSS overlay，只放首頁 | — |
 
 - 延遲載入：tier ≥ 2 時於 `requestIdleCallback`（無則 `setTimeout 1200`）或第一次 `pointerdown`/`focusin` 動態 `import()` GL 模組並預編譯 shader。點擊當下 import 未完成就播 CSS 版，不等待。

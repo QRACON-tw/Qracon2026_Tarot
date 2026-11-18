@@ -327,7 +327,7 @@ result ──重新抽一張──▶ 載入 tarotPath()（重新洗牌）
 
 **漸進增強（tier 3）：WebGL2 粒子。** 與塌縮轉場共用同一個 `<canvas>`，`gl.POINTS` ≤ 600 點，從六張牌的 rect 出發、菱形、單色，只播一次；沒有緩衝區，位置與壽命全由頂點 shader 的雜湊產生。tier 0–2 不載入。
 
-理由：不移植主站 `interference.ts`（全螢幕 shader 對六張小卡殺雞用牛刀）。塔羅自己手寫約 3 KB gzip 的 shader，延遲載入，並以分級、DPR 上限 1.5、看門狗（每 20 幀或累計 400ms 取平均，> 24ms 就把解析度乘 0.66 並把 tier 降一級寫入 `sessionStorage`；再超過一次就跳到最後一幀）、單一 context、只播一次來對應「低階手機掉幀」的顧慮。`webglcontextlost` 時隱藏 canvas，轉場中遇到就立刻導頁。
+理由：不移植主站 `interference.ts`（全螢幕 shader 對六張小卡殺雞用牛刀）。塔羅自己手寫約 3 KB gzip 的 shader，延遲載入，並以分級、DPR 上限 1.5、看門狗（每 20 幀或累計 400ms 取平均，> max(24ms, 閒置 rAF 間隔 × 1.4) 就把解析度乘 0.66 並把 tier 降一級寫入 `sessionStorage`；再超過一次就跳到最後一幀；30Hz 上限的裝置不會被誤判）、單一 context、只播一次來對應「低階手機掉幀」的顧慮。`webglcontextlost` 時隱藏 canvas，轉場中遇到就立刻導頁。
 
 ### 6.4 鍵盤與螢幕閱讀器
 
