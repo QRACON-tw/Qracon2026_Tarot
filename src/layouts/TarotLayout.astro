@@ -106,8 +106,14 @@ const homeCurrent = path === homePath ? 'page' : undefined;
     display: inline-flex;
     align-items: center;
     min-height: 2.75rem;
+    padding-inline: var(--space-2);
+    margin-inline: calc(var(--space-2) * -1);
     font-weight: var(--weight-bold);
     text-decoration: none;
+  }
+
+  .site-header__link:focus-visible {
+    outline-offset: calc(var(--rule-heavy) * -1);
   }
 
   .site-header__brand {
