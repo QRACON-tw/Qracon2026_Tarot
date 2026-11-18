@@ -1,5 +1,11 @@
 # 變更紀錄
 
+## 2026-11-18（第三次）
+
+- **新增 `PRODUCT.md`**（impeccable v4.9.1 `init`）：產品脈絡摘要，內容取自 `docs/01`–`04` 與訪談。訪談確認三件事：兩群使用者並重（還沒報名的學生從 IG／LINE 進來；已報名的參加者在會前或會場玩）；成功的主要標準是抽完去看議程或報名（截止後改會場）；定位與硬限制照 `docs/` 整理。待決事項沿用 `03-open-questions.md`（2026-11-16 狀態），沒有重新確認 K2、K3 是否已拍板。
+- 不寫 `DESIGN.md`，也沒有設定 impeccable 的 live 模式或 hook。
+- 本機工具：impeccable skill 從 v4.3.1 更新到 v4.9.1（全域安裝，`--no-hooks`），engine v0.1.24；另外裝了 4 個 `~/.claude/agents/impeccable-*` subagent。不影響本 repo。
+
 ## 2026-11-18（第二次）
 
 - **commit**：上一筆的修正拆成 `427c7b9`（fix）與 `50fe950`（docs）。

@@ -18,6 +18,7 @@ QRACON 2026 學生量子電腦年會（2026-12-13，中央研究院南部院區�
 | [`docs/05-fx-plan.md`](docs/05-fx-plan.md) | 視覺特效計畫：WebGL2 漸進增強、分級、看門狗、時間軸、檔案架構 | 工程 |
 | [`docs/SITEMAP.md`](docs/SITEMAP.md) | 路由表與檔案清單（用途、複製自主站或新增） | 工程 |
 | [`docs/LOG.md`](docs/LOG.md) | 文件與程式變更紀錄 | 全體 |
+| [`PRODUCT.md`](PRODUCT.md) | 產品脈絡摘要：使用者、目的、定位、硬限制、產品原則（impeccable 設計工具會讀） | 設計、工程 |
 
 原始需求是行銷組的 Google Doc〈QUACON量子塔羅〉，僅供參考（有多處物理錯誤與怪異用語），文案已全部改寫進 `01`。
 

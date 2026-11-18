@@ -30,6 +30,7 @@ P1 骨架與抽牌特效（2026-11-16）。主站來源一律指 `QRACON-tw/2026
 | `pnpm-workspace.yaml` | pnpm 12 的 `allowBuilds`（esbuild） | 複製 |
 | `tsconfig.json` | `astro/tsconfigs/strict` | 複製 |
 | `astro.config.mjs` | `site` 讀 `ASTRO_SITE`、`base` 讀 `ASTRO_BASE_PATH`（預設 `/Qracon2026_Tarot`，空字串視為 `/`）；`fonts` 的字族與字重與主站相同，但 Noto Sans TC 另外設定：`options.experimental.glyphs` 只抓 `src/` 內 `.astro`／`.ts`／`.css` 出現過的字（加上 ASCII 可列印字元），全站共用單一 woff2（Google Fonts `text=`）；`optimizedFallbacks: false`（Astro 產生的 Arial 備援會依中文字寬放大約 197%，字型載入前英數字變成兩倍大）；移除 `// @ts-check`（見下方備註） | 改寫 |
+| `PRODUCT.md` | 產品脈絡（impeccable `init` 產生）：使用者、目的、定位、使用情境、硬限制、品牌承諾、現有素材、產品原則、無障礙；給 impeccable 與之後的設計工作讀，細節仍以 `docs/` 為準 | 新增 |
 | `.gitignore` | 忽略 `dist/`、`.astro/`、`node_modules/`、`.env*` 等；不忽略 `docs/` | 新增 |
 | `.gitattributes` | `* text=auto`；`yml`／`yaml`／`mjs`／`sh` 固定 LF；圖檔標為 binary | 新增 |
 | `.github/workflows/deploy-pages.yml` | GitHub Pages 部署；`configure-pages` 移到建置前，並把 `origin`、`base_path` 以 `ASTRO_SITE`、`ASTRO_BASE_PATH` 傳給建置；觸發只留 `workflow_dispatch`（暫不部署） | 改寫 |
