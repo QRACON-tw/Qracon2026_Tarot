@@ -170,7 +170,7 @@ function boot(list: HTMLOListElement, canvas: HTMLCanvasElement, veil: HTMLEleme
 
   function collapse(origin: Point): void {
     if (state !== 'resolving') return;
-    if (fx && !fx.stage.lost) {
+    if (tier >= 2 && fx && !fx.stage.lost) {
       void fx.collapse.play(origin, slowMs).then((finished) => {
         if (finished) requestAnimationFrame(go);
         else go();

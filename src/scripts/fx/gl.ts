@@ -6,6 +6,8 @@ const WATCH_FRAMES = 20;
 const WATCH_MIN_FRAMES = 4;
 const WATCH_MS = 400;
 const SLOW_FRAME_MS = 24;
+const SLOW_FRAME_RATIO = 1.4;
+const CALIBRATE_FRAMES = 8;
 const MAX_STEP_MS = 100;
 
 export const FULLSCREEN_VERTEX = `#version 300 es
@@ -72,6 +74,25 @@ export function createStage(canvas: HTMLCanvasElement, onSlow: () => void): Stag
   let sampled = 0;
   let sampleTotal = 0;
   let trips = 0;
+  let slowFrame = SLOW_FRAME_MS;
+
+  // A display capped at 30 Hz (e.g. iOS Low Power Mode) runs smoothly at 33 ms
+  // per frame, so the limit scales with the refresh interval measured at idle.
+  function calibrate(): void {
+    const steps: number[] = [];
+    let previous = 0;
+    const sample = (now: number): void => {
+      if (previous) steps.push(now - previous);
+      previous = now;
+      if (steps.length < CALIBRATE_FRAMES) {
+        requestAnimationFrame(sample);
+        return;
+      }
+      steps.sort((a, b) => a - b);
+      slowFrame = Math.max(SLOW_FRAME_MS, steps[steps.length >> 1] * SLOW_FRAME_RATIO);
+    };
+    requestAnimationFrame(sample);
+  }
 
   function resize(): void {
     const ratio = Math.min(devicePixelRatio || 1, MAX_DPR) * resolution;
@@ -96,7 +117,7 @@ export function createStage(canvas: HTMLCanvasElement, onSlow: () => void): Stag
     const average = sampleTotal / sampled;
     sampled = 0;
     sampleTotal = 0;
-    if (average <= SLOW_FRAME_MS) return;
+    if (average <= slowFrame) return;
     if (++trips === 1) {
       resolution *= RESOLUTION_STEP;
       resize();
@@ -159,6 +180,8 @@ export function createStage(canvas: HTMLCanvasElement, onSlow: () => void): Stag
   addEventListener('resize', () => {
     if (!runs.size && !lost) resize();
   });
+
+  calibrate();
 
   return {
     gl,

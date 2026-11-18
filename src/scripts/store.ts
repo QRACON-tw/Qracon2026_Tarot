@@ -1,6 +1,6 @@
+// The result page reads DRAW_KEY in reveal.ts and deck/[slug].astro; it must not import this module.
 const DRAW_KEY = 'tarot-draw';
 const TIER_KEY = 'fx-tier';
-const DRAW_FRESH_MS = 15000;
 
 function read(key: string): string | null {
   try {
@@ -40,18 +40,5 @@ export const drawStore = {
   },
   clear(): void {
     drop(DRAW_KEY);
-  },
-  take(id: string): boolean {
-    const raw = read(DRAW_KEY);
-    drop(DRAW_KEY);
-    if (!raw) return false;
-    try {
-      const data: unknown = JSON.parse(raw);
-      if (typeof data !== 'object' || data === null) return false;
-      const { id: drawn, at } = data as { id?: unknown; at?: unknown };
-      return drawn === id && typeof at === 'number' && Date.now() - at < DRAW_FRESH_MS;
-    } catch {
-      return false;
-    }
   },
 };

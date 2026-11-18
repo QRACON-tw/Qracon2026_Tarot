@@ -120,6 +120,10 @@ import { cardPath } from '../utils/tarot';
     overflow: hidden;
   }
 
+  :global(html.is-resolving body) {
+    overflow-x: clip;
+  }
+
   :global(.has-vt) .draw__cards li.is-picked {
     position: relative;
     z-index: calc(var(--z-fx) + 1);
