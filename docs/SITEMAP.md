@@ -29,7 +29,7 @@ P1 骨架與抽牌特效（2026-11-16）。主站來源一律指 `QRACON-tw/2026
 | `pnpm-lock.yaml` | 鎖檔，解析結果與主站一致 | 複製 |
 | `pnpm-workspace.yaml` | pnpm 12 的 `allowBuilds`（esbuild） | 複製 |
 | `tsconfig.json` | `astro/tsconfigs/strict` | 複製 |
-| `astro.config.mjs` | `site` 讀 `ASTRO_SITE`、`base` 讀 `ASTRO_BASE_PATH`（預設 `/Qracon2026_Tarot`，空字串視為 `/`）；`fonts` 與主站相同；移除 `// @ts-check`（見下方備註） | 改寫 |
+| `astro.config.mjs` | `site` 讀 `ASTRO_SITE`、`base` 讀 `ASTRO_BASE_PATH`（預設 `/Qracon2026_Tarot`，空字串視為 `/`）；`fonts` 的字族與字重與主站相同，但 Noto Sans TC 另外設定：`options.experimental.glyphs` 只抓 `src/` 內 `.astro`／`.ts`／`.css` 出現過的字（加上 ASCII 可列印字元），全站共用單一 woff2（Google Fonts `text=`）；`optimizedFallbacks: false`（Astro 產生的 Arial 備援會依中文字寬放大約 197%，字型載入前英數字變成兩倍大）；移除 `// @ts-check`（見下方備註） | 改寫 |
 | `.gitignore` | 忽略 `dist/`、`.astro/`、`node_modules/`、`.env*` 等；不忽略 `docs/` | 新增 |
 | `.gitattributes` | `* text=auto`；`yml`／`yaml`／`mjs`／`sh` 固定 LF；圖檔標為 binary | 新增 |
 | `.github/workflows/deploy-pages.yml` | GitHub Pages 部署；`configure-pages` 移到建置前，並把 `origin`、`base_path` 以 `ASTRO_SITE`、`ASTRO_BASE_PATH` 傳給建置；觸發只留 `workflow_dispatch`（暫不部署） | 改寫 |
@@ -67,7 +67,7 @@ P1 骨架與抽牌特效（2026-11-16）。主站來源一律指 `QRACON-tw/2026
 | --- | --- | --- |
 | `Button.astro` | 按鈕；新增 `variant="on-ink"`（透明底白框白字，hover／焦點反白） | 改寫 |
 | `Icon.astro` | 只留 Button、頁尾與 404 用到的三個箭頭 | 改寫 |
-| `SeoHead.astro` | `<head>` 內的 meta、canonical、icon、OG／Twitter、字型；沒有 `image` 時不輸出 OG 圖標籤 | 新增（結構取自主站 `BaseLayout.astro`） |
+| `SeoHead.astro` | `<head>` 內的 meta、canonical、icon、OG／Twitter、字型（兩個字族都 `preload`）；沒有 `image` 時不輸出 OG 圖標籤 | 新增（結構取自主站 `BaseLayout.astro`） |
 | `tarot/Card.astro` | 字體牌（正面）：白面、雙框、羅馬數字（`--font-sign`）、直排角色名；4:7，字級用容器查詢單位。`flip` prop 為真時加上 CSS 占位牌背（墨底、白細框、菱格紋、中央菱形、一次性銀墨掃光）與 `rotateY` 翻面；沒有 `flip` 時外觀與 P1 相同，結果頁與牌組頁不受影響。`data-fx="0"`（reduced motion）下翻面改交叉淡化 | 新增 |
 | `fx/FxCanvas.astro` | 只放首頁：`<canvas data-fx-canvas aria-hidden>`（`position: fixed; height: 100lvh; pointer-events: none`，z-index `--z-fx`）與 CSS 塌縮用的墨色 `<div data-fx-veil>`（`clip-path: circle()` 從點擊點擴張） | 新增 |
 
@@ -75,15 +75,15 @@ P1 骨架與抽牌特效（2026-11-16）。主站來源一律指 `QRACON-tw/2026
 
 | 路徑 | 用途 | 來源 |
 | --- | --- | --- |
-| `TarotLayout.astro` | 暗場版型：跳到主要內容、兩個文字連結的頁首、`<main id="main">`、免責頁尾；呼叫 `validateCards()`，`noindex` 由 `TAROT_INDEXABLE` 控制；`<head>` 內有 `name="head"` slot（結果頁用來放進場判斷的行內腳本） | 新增 |
+| `TarotLayout.astro` | 暗場版型：跳到主要內容、兩個文字連結的頁首（連結左右 `padding` 加等量負 `margin`，點擊範圍至少 44×44 而文字位置不變；焦點框內縮 3px，避免在畫面頂端被切掉）、`<main id="main">`、免責頁尾；呼叫 `validateCards()`，`noindex` 由 `TAROT_INDEXABLE` 控制；`<head>` 內有 `name="head"` slot（結果頁用來放進場判斷的行內腳本） | 新增 |
 
 ### `src/pages/`
 
 | 路徑 | 用途 | 來源 |
 | --- | --- | --- |
-| `index.astro` | 抽牌頁：每張牌 `<a data-card>`、`flip` 牌、發牌 stagger（`:nth-child` 給 `--i`）、散去與選中牌的狀態樣式（`html.is-resolving` 時 `body` 加 `overflow-x: clip`，散牌不造成水平溢出，避免手機 Chrome 撐大 layout viewport）、`<FxCanvas />`；`<script>` 載入 `scripts/draw.ts` | 新增 |
+| `index.astro` | 抽牌頁：每張牌 `<a data-card>`、`flip` 牌、發牌 stagger（`:nth-child` 給 `--i`）、散去與選中牌的狀態樣式（`html.is-resolving` 時 `body` 加 `overflow-x: clip`，散牌不造成水平溢出，避免手機 Chrome 撐大 layout viewport）、橫向矮螢幕（`orientation: landscape` 且高度 ≤ 30rem）改為左文右牌兩欄，牌寬由 `100svh` 推算，兩列（4＋3）都在首屏內、`<FxCanvas />`；`<script>` 載入 `scripts/draw.ts` | 新增 |
 | `deck/index.astro` | 牌組頁 | 新增 |
-| `deck/[slug].astro` | 單張牌結果頁，`getStaticPaths` 由牌組資料產生；`head` slot 內的行內腳本在 `sessionStorage('tarot-draw')` 存在時先加 `html.is-drawn`（避免首幀閃爍）；`role="status"` 宣告區；`.is-drawn` 下的進場動畫與 `view-transition-name: tarot-card`；`<script>` 載入 `scripts/reveal.ts`（建置後內嵌為 `<script type="module">`，頁面沒有外部 JS）；不載入任何 WebGL | 新增 |
+| `deck/[slug].astro` | 單張牌結果頁，`getStaticPaths` 由牌組資料產生；`head` slot 內的行內腳本在 `sessionStorage('tarot-draw')` 存在時先加 `html.is-drawn`（避免首幀閃爍）；`role="status"` 宣告區；`.is-drawn` 下的進場動畫與 `view-transition-name: tarot-card`；橫向矮螢幕時牌寬上限 `55svh × 4/7`，整張牌在首屏內（跨頁 VT 的落點）；契合度連結 `min-width: 2.75rem`（牌名「塔」只有一個字）；`<script>` 載入 `scripts/reveal.ts`（建置後內嵌為 `<script type="module">`，頁面沒有外部 JS）；不載入任何 WebGL | 新增 |
 | `404.astro` | 找不到頁面 | 改寫 |
 | `sitemap.xml.ts` | 依 `getIndexablePaths()` 產生 sitemap | 改寫 |
 | `robots.txt.ts` | robots | 複製 |

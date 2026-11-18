@@ -1,5 +1,21 @@
 # 變更紀錄
 
+## 2026-11-18（第二次）
+
+- **commit**：上一筆的修正拆成 `427c7b9`（fix）與 `50fe950`（docs）。
+- **字型冷載入**：每頁 1.06–1.21 MB（Noto Sans TC 111 個 unicode-range 分片命中 18–20 個）降到 192 KB（3 個檔）。`astro.config.mjs` 用 unifont Google provider 的 `options.experimental.glyphs`，只抓 `src/` 出現過的 554 個字元（非 ASCII 459 個），可變字重 400–900 子集為單一 woff2 約 163 KB，全站共用，並在 `SeoHead.astro` 加 `preload`。`dist/_astro/fonts` 從 107 個檔、4.4 MB 降到 3 個檔、192 KB。
+- **字型載入前英數字放大兩倍**：Astro 預設替 Noto Sans TC 產生 `local("Arial")` 備援並設 `size-adjust: 197%`（依中文字寬計算），Arial 沒有中文，結果只有英數字被放大，Slow 4G 下約 2–6 秒內頁首「QRACON 2026」是兩倍大。改為 `optimizedFallbacks: false`，載入前直接用 PingFang TC／Microsoft JhengHei／sans-serif。
+- **點擊範圍**：頁首「牌組」32×44 → 48×44（`TarotLayout.astro` 連結左右 `padding` ＋等量負 `margin`，文字位置不變）；契合度連結加 `min-width: 2.75rem`（原本 36–40 寬，指向「塔」時只剩一個字寬）。頁首連結的焦點框改為內縮 3px：原本 3px 外框＋3px 偏移在畫面頂端被切掉上緣（改動前就存在）。
+- **橫向手機**：`orientation: landscape` 且高度 ≤ 30rem 時，首頁改為左文右牌兩欄，牌寬 `clamp(4rem, (100svh − 3rem − 2rem − 0.75rem) × 2/7, 8.25rem)`，4＋3 兩列填滿首屏；`h1` 降為 `--text-2xl`；提示句 `word-break: keep-all` 讓窄欄在逗號處換行。結果頁同條件下牌寬上限 `55svh × 4/7`，整張牌在首屏內。
+- 驗證（本機實際執行；`astro preview`＋無頭 Chrome 157 CDP，同上一筆的方法）：
+  - `pnpm check` 0 錯誤 0 警告 0 提示；`pnpm build` 10 頁；impeccable 偵測器 0 項。
+  - 版面：320／375／393 直向、852×393、667×375、915×360 橫向、1180×820 平板、1440 桌機，首頁、結果頁、牌組頁都沒有水平捲軸，也沒有小於 44×44 的連結。橫向首屏完整可見的牌：852×393 0 → 7、667×375 0 → 7、915×360 0 → 7；直向數值不變（iPhone 15 仍是 6 張）。
+  - 抽牌：852×393、667×375 橫向與 iPhone 15 直向各抽一次，跨頁 VT `ready`／`finished` 都成功、散牌時 `innerWidth` 不變、`role="status"` 宣告正常、console 零錯誤。翻開的牌面直排在 3 倍截圖下字距正常。
+  - Slow 4G＋4×CPU（Pixel 7）：首頁總重約 215 KB（預算 300 KB），FCP／LCP 1.47 秒；結果頁 LCP 1.87 秒（原 2.01）；字型 2.5 秒載完（原 5.9 秒仍在載）；CLS 0；`draw.ts` 1.81 秒執行，與首次繪製同時（preload 沒有拖慢）。Fast 3G 全頁載完約 4.2 秒（原約 15 秒）。
+  - 鍵盤：桌機 Tab 到頁首「牌組」，焦點框四邊完整。
+- **未驗證**：真機 iOS Safari／WebKit 的 `svh` 與網址列伸縮、IG 與 LINE 內建瀏覽器、Android 實機的系統中文字型（備援只在載入前短暫出現）。
+- **注意**：`glyphs` 在建置時讀 `src/`，新增文案後重新建置就會自動涵蓋；若日後有不在 `src/` 的文字（例如外部資料），那些字會逐字退回系統字型，不會缺字。
+
 ## 2026-11-18
 
 - **行動裝置測試**：正式建置（`astro preview`，http）＋無頭 Chrome 157（CDP、實體 GPU）模擬 iPhone SE／15、Pixel 7、Galaxy A、320 寬、橫向，送真的觸控事件（`hover: none`、`pointer: coarse` 生效），逐格錄影檢查動畫。找到四個問題並修正：

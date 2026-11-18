@@ -550,7 +550,7 @@ Canvas 分享卡（Later）若要做，才需要「偵測 UA 含 `Instagram`／`
 | CLS | < 0.05 |
 | INP | < 200ms |
 
-主站預算是首屏 JS ≤ 50 KB、LCP ≤ 2.5s，塔羅較嚴，相容。沒有 Three.js、沒有動畫函式庫。WebGL2 是手寫、延遲載入的漸進增強層：塌縮 shader、粒子與 context 管理合計約 3 KB gzip，各自是獨立 chunk，首頁初始 JS 與結果頁都不含，也不計入首頁預算；分級、DPR 上限、看門狗與 context lost 備援見 `05-fx-plan.md`。字型走 Astro Fonts API 的 unicode-range 切片。
+主站預算是首屏 JS ≤ 50 KB、LCP ≤ 2.5s，塔羅較嚴，相容。沒有 Three.js、沒有動畫函式庫。WebGL2 是手寫、延遲載入的漸進增強層：塌縮 shader、粒子與 context 管理合計約 3 KB gzip，各自是獨立 chunk，首頁初始 JS 與結果頁都不含，也不計入首頁預算；分級、DPR 上限、看門狗與 context lost 備援見 `05-fx-plan.md`。字型走 Astro Fonts API：Noto Sans TC 依 `src/` 實際用到的字子集化成單一檔（約 163 KB，可變字重 400–900），全站共用並 preload；Barlow Condensed 只取 latin。
 
 **[v2.2]** 首頁總重從 350 KB 降到 300 KB：活動當天場地網路擁塞是主要瓶頸。
 
