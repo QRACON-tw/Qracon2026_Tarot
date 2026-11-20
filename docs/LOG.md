@@ -8,6 +8,7 @@
 - 文件同步：`README`（部署段、網址、狀態）、`02` §0 D4、§5、§11（部署架構表新增 D、軟上線改為合併主站 PR、協作風險與 R9）、驗收清單、`03`（K1／K6 已定案列、最後更新日期）、`SITEMAP`（base、路由表、workflow 列）、`PRODUCT`、`handoff`（印刷 QR 網址）。
 - 驗證（本機實際執行）：`pnpm check` 0 錯誤 0 警告 0 提示；`pnpm build` 10 頁，預設 base 下 canonical、OG、sitemap、robots 全為 `/2026/tarot/`；`ASTRO_BASE_PATH=/2026/tarot` 明確覆寫亦同；`src/` 無殘留舊 base 引用。
 - 注意：本 repo 推 `main` 後不會自動上線，要等主站 repo 下一次部署（推 `main` 或手動 `workflow_dispatch`）。
+- 線上驗收（2026-11-20 合併 [QRACON-tw/2026#12](https://github.com/QRACON-tw/2026/pull/12) 後自動部署，[run 44689960183](https://github.com/QRACON-tw/2026/actions/runs/44689960183)）`https://qracon.entangletech.tw/2026/tarot/`：10 頁全 200（首頁、牌組、七張單牌、404）、OG ×9 與字型、AVIF 資產全 200；canonical／OG 絕對網址正確；`robots.txt` 允許、sitemap 空集合、全站 `noindex, follow`（軟上線狀態）；主站 `/2026/` 未受影響。**軟上線（原定 11/27）提前於 11-20 生效**。
 
 ## 2026-11-20
 
