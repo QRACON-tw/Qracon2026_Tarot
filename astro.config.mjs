@@ -21,7 +21,7 @@ function siteGlyphs() {
 
 export default defineConfig({
   site: env.ASTRO_SITE || 'https://qracon.entangletech.tw',
-  base: (env.ASTRO_BASE_PATH ?? '/Qracon2026_Tarot') || '/',
+  base: (env.ASTRO_BASE_PATH ?? '/2026/tarot') || '/',
   fonts: [
     {
       provider: fontProviders.google(),

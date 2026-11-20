@@ -1,5 +1,14 @@
 # 變更紀錄
 
+## 2026-11-20（第二次）
+
+- **K1 修訂：部署改「主站掛載」**（取代 11-16 定案的 C：獨立 Pages 專案）。主站 repo `QRACON-tw/2026` 的 deploy workflow 另 checkout 本 repo `main`（公開 repo，免 token）建置後掛到主站 `dist/tarot/`，兩站同一個 GitHub Pages artifact；正式網址改為 `https://qracon.entangletech.tw/2026/tarot/`（[QRACON-tw/2026#12](https://github.com/QRACON-tw/2026/pull/12)，含做法與驗證說明）。
+- `astro.config.mjs`：預設 `ASTRO_BASE_PATH` `/Qracon2026_Tarot` → `/2026/tarot`；`pnpm dev` 網址同步改。
+- 移除 `.github/workflows/deploy-pages.yml`（本 repo 不再有自己獲 Pages 部署）；新增 `.github/workflows/ci.yml`：push／PR 跑 `pnpm check`＋`pnpm build`，避免壞建置進 `main` 後擋住主站部署（R9 回來了）。
+- 文件同步：`README`（部署段、網址、狀態）、`02` §0 D4、§5、§11（部署架構表新增 D、軟上線改為合併主站 PR、協作風險與 R9）、驗收清單、`03`（K1／K6 已定案列、最後更新日期）、`SITEMAP`（base、路由表、workflow 列）、`PRODUCT`、`handoff`（印刷 QR 網址）。
+- 驗證（本機實際執行）：`pnpm check` 0 錯誤 0 警告 0 提示；`pnpm build` 10 頁，預設 base 下 canonical、OG、sitemap、robots 全為 `/2026/tarot/`；`ASTRO_BASE_PATH=/2026/tarot` 明確覆寫亦同；`src/` 無殘留舊 base 引用。
+- 注意：本 repo 推 `main` 後不會自動上線，要等主站 repo 下一次部署（推 `main` 或手動 `workflow_dispatch`）。
+
 ## 2026-11-20
 
 - 使用 imagegen 完成七張灰階牌面插畫（1440 × 2520、單張 ≤ 400 KB）與同版型牌背；牌背參考官網給未設定頭像的團隊成員使用的黑貓預設圖。牌面已接入抽牌頁、牌組頁及結果頁，保留七款 40 × 40 線稿字體牌作為備援。

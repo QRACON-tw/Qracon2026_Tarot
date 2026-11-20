@@ -4,16 +4,16 @@
 
 ## 路由
 
-預設 base 為 `/Qracon2026_Tarot`；部署時由 `ASTRO_BASE_PATH`、`ASTRO_SITE` 覆寫（見 `README.md`）。
+預設 base 為 `/2026/tarot`；建置時可由 `ASTRO_BASE_PATH`、`ASTRO_SITE` 覆寫（見 `README.md`）。部署由主站 repo `QRACON-tw/2026` 的 workflow 掛載（`02` §11）。
 
 | URL（預設 base） | 檔案 | 狀態 |
 | --- | --- | --- |
-| `/Qracon2026_Tarot/` | `src/pages/index.astro` | 七張牌面插畫與同一張牌背；有 JS 時洗牌、翻牌、散去、塌縮轉場；OG 使用 `/og/tarot.png` |
-| `/Qracon2026_Tarot/deck/` | `src/pages/deck/index.astro` | 七張牌面插畫清單；OG 使用 `/og/tarot-deck.png` |
-| `/Qracon2026_Tarot/deck/fool/`、`lovers/`、`hermit/`、`wheel/`、`death/`、`tower/`、`sun/` | `src/pages/deck/[slug].astro` | 單牌圖文結果頁；從首頁抽到時有進場動畫，並以 `role="status"` 宣告「你抽到〔角色名〕。」；每張牌有對應 OG 圖 |
-| `/Qracon2026_Tarot/404.html` | `src/pages/404.astro` | `noindex`、無 canonical |
-| `/Qracon2026_Tarot/sitemap.xml` | `src/pages/sitemap.xml.ts` | `TAROT_INDEXABLE = false` 時沒有任何 `<loc>` |
-| `/Qracon2026_Tarot/robots.txt` | `src/pages/robots.txt.ts` | 全部允許，附 sitemap 網址 |
+| `/2026/tarot/` | `src/pages/index.astro` | 七張牌面插畫與同一張牌背；有 JS 時洗牌、翻牌、散去、塌縮轉場；OG 使用 `/og/tarot.png` |
+| `/2026/tarot/deck/` | `src/pages/deck/index.astro` | 七張牌面插畫清單；OG 使用 `/og/tarot-deck.png` |
+| `/2026/tarot/deck/fool/`、`lovers/`、`hermit/`、`wheel/`、`death/`、`tower/`、`sun/` | `src/pages/deck/[slug].astro` | 單牌圖文結果頁；從首頁抽到時有進場動畫，並以 `role="status"` 宣告「你抽到〔角色名〕。」；每張牌有對應 OG 圖 |
+| `/2026/tarot/404.html` | `src/pages/404.astro` | `noindex`、無 canonical |
+| `/2026/tarot/sitemap.xml` | `src/pages/sitemap.xml.ts` | `TAROT_INDEXABLE = false` 時沒有任何 `<loc>` |
+| `/2026/tarot/robots.txt` | `src/pages/robots.txt.ts` | 全部允許，附 sitemap 網址 |
 
 建置產出 10 個 HTML：首頁、deck、七張牌、404。
 
@@ -29,11 +29,11 @@
 | `pnpm-lock.yaml` | 鎖檔，解析結果與主站一致 | 複製 |
 | `pnpm-workspace.yaml` | pnpm 12 的 `allowBuilds`（esbuild） | 複製 |
 | `tsconfig.json` | `astro/tsconfigs/strict` | 複製 |
-| `astro.config.mjs` | `site` 讀 `ASTRO_SITE`、`base` 讀 `ASTRO_BASE_PATH`（預設 `/Qracon2026_Tarot`，空字串視為 `/`）；`fonts` 的字族與字重與主站相同，但 Noto Sans TC 另外設定：`options.experimental.glyphs` 只抓 `src/` 內 `.astro`／`.ts`／`.css` 出現過的字（加上 ASCII 可列印字元），全站共用單一 woff2（Google Fonts `text=`）；`optimizedFallbacks: false`（Astro 產生的 Arial 備援會依中文字寬放大約 197%，字型載入前英數字變成兩倍大）；移除 `// @ts-check`（見下方備註） | 改寫 |
+| `astro.config.mjs` | `site` 讀 `ASTRO_SITE`、`base` 讀 `ASTRO_BASE_PATH`（預設 `/2026/tarot`，空字串視為 `/`）；`fonts` 的字族與字重與主站相同，但 Noto Sans TC 另外設定：`options.experimental.glyphs` 只抓 `src/` 內 `.astro`／`.ts`／`.css` 出現過的字（加上 ASCII 可列印字元），全站共用單一 woff2（Google Fonts `text=`）；`optimizedFallbacks: false`（Astro 產生的 Arial 備援會依中文字寬放大約 197%，字型載入前英數字變成兩倍大）；移除 `// @ts-check`（見下方備註） | 改寫 |
 | `PRODUCT.md` | 產品脈絡（impeccable `init` 產生）：使用者、目的、定位、使用情境、硬限制、品牌承諾、現有素材、產品原則、無障礙；給 impeccable 與之後的設計工作讀，細節仍以 `docs/` 為準 | 新增 |
 | `.gitignore` | 忽略 `dist/`、`.astro/`、`node_modules/`、`.env*` 等；不忽略 `docs/` | 新增 |
 | `.gitattributes` | `* text=auto`；`yml`／`yaml`／`mjs`／`sh` 固定 LF；圖檔標為 binary | 新增 |
-| `.github/workflows/deploy-pages.yml` | GitHub Pages 部署；`configure-pages` 移到建置前，並把 `origin`、`base_path` 以 `ASTRO_SITE`、`ASTRO_BASE_PATH` 傳給建置；觸發只留 `workflow_dispatch`（暫不部署） | 改寫 |
+| `.github/workflows/ci.yml` | push／PR 跑 `pnpm check`＋`pnpm build`。部署改由主站 repo `QRACON-tw/2026` 的 `deploy-pages.yml` 掛載（`02` §11）；原 `deploy-pages.yml`（本 repo 自己的 Pages 部署）已移除 | 改寫 |
 
 ### `public/`
 

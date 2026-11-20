@@ -31,7 +31,7 @@ QRACON 2026 學生量子電腦年會（第四屆、學生主導；2026-12-13，�
 
 - **入口**：IG 限時動態、LINE 分享，多在 IG／LINE 內建瀏覽器開啟。分享只帶網址；結果頁第一屏是 9:16 構圖，讓人直接截圖貼限動。
 - **會場**：12/13 現場網路擁塞，首頁首次載入總重上限 300 KB（`docs/02-plan.md` §10）。
-- **網址與 repo**：本站 repo 是 `QRACON-tw/Qracon2026_Tarot`，網址 `https://qracon.entangletech.tw/Qracon2026_Tarot/`（GitHub Pages 專案頁，部署目前只能手動觸發）。主站是 `QRACON-tw/2026`；主站入口另開主站 PR，正式上線時才加。
+- **網址與 repo**：本站 repo 是 `QRACON-tw/Qracon2026_Tarot`，網址 `https://qracon.entangletech.tw/2026/tarot/`（掛在主站 repo `QRACON-tw/2026` 的 GitHub Pages 子目錄，由主站 workflow 建置與部署）。主站入口另開主站 PR，正式上線時才加。
 - **協作**：文案定稿在 `docs/01-copy-deck.md`；設計組交牌面插畫與牌背，主辦提供報名截止日與物理校稿署名（`docs/04-asset-requirements.md`）。
 
 ## Capabilities and Constraints
