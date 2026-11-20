@@ -1,4 +1,11 @@
 import type { ImageMetadata } from 'astro';
+import foolArt from '../assets/tarot/tarot-fool.png';
+import loversArt from '../assets/tarot/tarot-lovers.png';
+import hermitArt from '../assets/tarot/tarot-hermit.png';
+import wheelArt from '../assets/tarot/tarot-wheel.png';
+import deathArt from '../assets/tarot/tarot-death.png';
+import towerArt from '../assets/tarot/tarot-tower.png';
+import sunArt from '../assets/tarot/tarot-sun.png';
 
 export const CARD_IDS = ['fool', 'lovers', 'hermit', 'wheel', 'death', 'tower', 'sun'] as const;
 
@@ -44,7 +51,7 @@ export const cards: readonly TarotCard[] = [
       line: '觀測之前，兩種結果同時存在，還能互相干涉。',
       note: '疊加態跟「蓋著牌還不知道答案」不一樣。觀測前，幾種可能同時存在，而且會互相干涉；到你觀測的那一刻，才塌縮成一個結果。',
     },
-    art: null,
+    art: foolArt,
     reading: {
       fortune: '接下來是新的開始。還沒決定的事，現在都還留著每一種可能。',
       quote: '「選擇困難？不，我全都同時存在。」',
@@ -68,7 +75,7 @@ export const cards: readonly TarotCard[] = [
       line: '兩個系統共用同一個量子態，沒辦法拆開單獨描述。',
       note: '糾纏的兩顆粒子，測量前沒有各自的確定狀態；量了其中一顆，另一顆立刻對應。但單看一邊只是隨機，不能用來超光速傳訊息。',
     },
-    art: null,
+    art: loversArt,
     reading: {
       fortune: '你離自己真正的想法越來越近。接下來會比較清楚自己想要什麼。',
       quote: '「就算隔著很遠，我也知道你現在在想什麼。」',
@@ -92,7 +99,7 @@ export const cards: readonly TarotCard[] = [
       line: '被測量的那一刻，你就只剩一種樣子。',
       note: '測量會讓疊加態投影到單一結果。至於為什麼會塌縮，量子力學到現在還沒有共識。',
     },
-    art: null,
+    art: hermitArt,
     reading: {
       fortune: '你已經想得夠久了。想不會讓事情前進。',
       quote: '「勿擾模式。別隨便觀測我，但我一眼就能看穿你。」',
@@ -116,7 +123,7 @@ export const cards: readonly TarotCard[] = [
       line: '吸收一顆能量剛好的光子，跳上更高的能階。',
       note: '原子這類束縛系統的能量不連續，只能停在特定能階，吸收能量剛好的光子才跳得上去；什麼時候掉回來、放出光子，是真正的量子隨機。',
     },
-    art: null,
+    art: wheelArt,
     reading: {
       fortune: '停滯會結束，接下來會出現一個明顯的轉折。',
       quote: '「等到剛好的那顆光子，我就跳。」',
@@ -140,7 +147,7 @@ export const cards: readonly TarotCard[] = [
       line: '跟環境糾纏得越多，干涉條紋就越淡。',
       note: '退相干抹掉的是條紋的對比，波本身沒有變成直線。系統跟環境接觸越久，看起來就越像普通的機率。',
     },
-    art: null,
+    art: deathArt,
     reading: {
       fortune: '接下來會有一次大的變動。舊的版本不用硬留。',
       quote: '「舊的檔案刪掉，新的程式才跑得動。」',
@@ -164,7 +171,7 @@ export const cards: readonly TarotCard[] = [
       line: '能量規則突然換了一套，狀態來不及跟上。',
       note: '淬火是系統的能量規則瞬間改變。狀態來不及反應，在新規則下變成好幾個能態的疊加，帶著多出來的能量隨時間震盪。',
     },
-    art: null,
+    art: towerArt,
     reading: {
       fortune: '原本的狀態會瓦解。拆掉之後，才看得清楚剩下什麼。',
       quote: '「閃電打下來的時候，我剛好站在那裡。」',
@@ -188,7 +195,7 @@ export const cards: readonly TarotCard[] = [
       line: '相位對齊的光，疊起來會更亮。',
       note: '雷射是相干光：整束光波的相位整齊、步調一致，能集中成很細很亮的一束；燈泡的光相位雜亂，不相干。',
     },
-    art: null,
+    art: sunArt,
     reading: {
       fortune: '事情會明朗。接下來會有一種鬆開來的感覺。',
       quote: '「我走到哪裡，哪裡就是光源。」',

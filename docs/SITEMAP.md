@@ -1,6 +1,6 @@
 # 站台地圖與檔案清單
 
-P1 骨架與抽牌特效（2026-11-16）。主站來源一律指 `QRACON-tw/2026` 的 `257b790`。特效設計見 `05-fx-plan.md`。
+牌面與 OG 素材完成（2026-11-20）；主站來源一律指 `QRACON-tw/2026` 的 `257b790`。特效設計見 `05-fx-plan.md`。
 
 ## 路由
 
@@ -8,9 +8,9 @@ P1 骨架與抽牌特效（2026-11-16）。主站來源一律指 `QRACON-tw/2026
 
 | URL（預設 base） | 檔案 | 狀態 |
 | --- | --- | --- |
-| `/Qracon2026_Tarot/` | `src/pages/index.astro` | 無 JS：七張牌正面的連結清單。有 JS：洗牌、牌背、發牌、翻牌、散去、塌縮轉場（`05-fx-plan.md`）。版面仍是格狀，牌扇未做 |
-| `/Qracon2026_Tarot/deck/` | `src/pages/deck/index.astro` | P1：七張牌清單；「關於這副牌」未做 |
-| `/Qracon2026_Tarot/deck/fool/`、`lovers/`、`hermit/`、`wheel/`、`death/`、`tower/`、`sun/` | `src/pages/deck/[slug].astro` | 純文字結果頁，屬性為數字（屬性條、票券、狀態章在 P3）；從首頁抽到時有進場動畫，並以 `role="status"` 宣告「你抽到〔角色名〕。」 |
+| `/Qracon2026_Tarot/` | `src/pages/index.astro` | 七張牌面插畫與同一張牌背；有 JS 時洗牌、翻牌、散去、塌縮轉場；OG 使用 `/og/tarot.png` |
+| `/Qracon2026_Tarot/deck/` | `src/pages/deck/index.astro` | 七張牌面插畫清單；OG 使用 `/og/tarot-deck.png` |
+| `/Qracon2026_Tarot/deck/fool/`、`lovers/`、`hermit/`、`wheel/`、`death/`、`tower/`、`sun/` | `src/pages/deck/[slug].astro` | 單牌圖文結果頁；從首頁抽到時有進場動畫，並以 `role="status"` 宣告「你抽到〔角色名〕。」；每張牌有對應 OG 圖 |
 | `/Qracon2026_Tarot/404.html` | `src/pages/404.astro` | `noindex`、無 canonical |
 | `/Qracon2026_Tarot/sitemap.xml` | `src/pages/sitemap.xml.ts` | `TAROT_INDEXABLE = false` 時沒有任何 `<loc>` |
 | `/Qracon2026_Tarot/robots.txt` | `src/pages/robots.txt.ts` | 全部允許，附 sitemap 網址 |
@@ -40,6 +40,15 @@ P1 骨架與抽牌特效（2026-11-16）。主站來源一律指 `QRACON-tw/2026
 | 路徑 | 用途 | 來源 |
 | --- | --- | --- |
 | `favicon.ico`、`favicon-96x96.png`、`apple-touch-icon.png` | 網站圖示 | 複製 |
+| `og/tarot.png`、`og/tarot-deck.png`、`og/{fool,lovers,hermit,wheel,death,tower,sun}.png` | 1200 × 630 PNG 分享圖；墨底、字標、頁面文案與相應牌面／牌背，由 `scripts/build-og.mjs` 產生 | 生成 |
+
+### `src/assets/`
+
+| 路徑 | 用途 | 來源 |
+| --- | --- | --- |
+| `brand/qracon-wordmark.png` | 官網字標，供 OG 分享圖使用 | 主站素材 |
+| `tarot/tarot-{fool,lovers,hermit,wheel,death,tower,sun}.png` | 七張 1440 × 2520 灰階牌面插畫；單張 ≤ 400 KB | imagegen |
+| `tarot/tarot-back.png` | 同一張 1440 × 2520 牌背；以官網預設黑貓團隊頭像為視覺參考 | imagegen |
 
 ### `src/styles/`
 
@@ -69,7 +78,8 @@ P1 骨架與抽牌特效（2026-11-16）。主站來源一律指 `QRACON-tw/2026
 | `Button.astro` | 按鈕；新增 `variant="on-ink"`（透明底白框白字，hover／焦點反白） | 改寫 |
 | `Icon.astro` | 只留 Button、頁尾與 404 用到的三個箭頭 | 改寫 |
 | `SeoHead.astro` | `<head>` 內的 meta、canonical、icon、OG／Twitter、字型（兩個字族都 `preload`）；沒有 `image` 時不輸出 OG 圖標籤 | 新增（結構取自主站 `BaseLayout.astro`） |
-| `tarot/Card.astro` | 字體牌（正面）：白面、雙框、羅馬數字（`--font-sign`）、直排角色名；4:7，字級用容器查詢單位。`flip` prop 為真時加上 CSS 占位牌背（墨底、白細框、菱格紋、中央菱形、一次性銀墨掃光）與 `rotateY` 翻面；沒有 `flip` 時外觀與 P1 相同，結果頁與牌組頁不受影響。`data-fx="0"`（reduced motion）下翻面改交叉淡化 | 新增 |
+| `tarot/Card.astro` | 圖像牌面：灰階牌面、雙框、羅馬數字與直排牌名，4:7；沒有牌面圖時以字體牌線稿作備援。`flip` prop 使用生成的同一張牌背與 `rotateY` 翻面；`data-fx="0"`（reduced motion）下翻面改交叉淡化 | 新增 |
+| `tarot/TarotGlyph.astro` | 七張量子概念的 40 × 40 線稿字體牌符號，作為無牌面圖時的備援 | 新增 |
 | `fx/FxCanvas.astro` | 只放首頁：`<canvas data-fx-canvas aria-hidden>`（`position: fixed; height: 100lvh; pointer-events: none`，z-index `--z-fx`）與 CSS 塌縮用的墨色 `<div data-fx-veil>`（`clip-path: circle()` 從點擊點擴張） | 新增 |
 
 ### `src/layouts/`
@@ -82,7 +92,7 @@ P1 骨架與抽牌特效（2026-11-16）。主站來源一律指 `QRACON-tw/2026
 
 | 路徑 | 用途 | 來源 |
 | --- | --- | --- |
-| `index.astro` | 抽牌頁：每張牌 `<a data-card>`、`flip` 牌、發牌 stagger（`:nth-child` 給 `--i`）、散去與選中牌的狀態樣式（`html.is-resolving` 時 `body` 加 `overflow-x: clip`，散牌不造成水平溢出，避免手機 Chrome 撐大 layout viewport）、橫向矮螢幕（`orientation: landscape` 且高度 ≤ 30rem）改為左文右牌兩欄，牌寬由 `100svh` 推算，兩列（4＋3）都在首屏內、`<FxCanvas />`；`<script>` 載入 `scripts/draw.ts` | 新增 |
+| `index.astro` | 抽牌頁：七張圖像牌、發牌 stagger、散牌與塌縮狀態；點牌時預載該牌插畫及結果頁；橫向矮螢幕兩列（4＋3）都在首屏內；`<FxCanvas />`；首頁 OG 分享圖 | 新增 |
 | `deck/index.astro` | 牌組頁 | 新增 |
 | `deck/[slug].astro` | 單張牌結果頁，`getStaticPaths` 由牌組資料產生；`head` slot 內的行內腳本在 `sessionStorage('tarot-draw')` 存在時先加 `html.is-drawn`（避免首幀閃爍）；`role="status"` 宣告區；`.is-drawn` 下的進場動畫與 `view-transition-name: tarot-card`；橫向矮螢幕時牌寬上限 `55svh × 4/7`，整張牌在首屏內（跨頁 VT 的落點）；契合度連結 `min-width: 2.75rem`（牌名「塔」只有一個字）；`<script>` 載入 `scripts/reveal.ts`（建置後內嵌為 `<script type="module">`，頁面沒有外部 JS）；不載入任何 WebGL | 新增 |
 | `404.astro` | 找不到頁面 | 改寫 |
@@ -98,7 +108,8 @@ P1 骨架與抽牌特效（2026-11-16）。主站來源一律指 `QRACON-tw/2026
 | 路徑 | 用途 | 來源 |
 | --- | --- | --- |
 | `store.ts` | `sessionStorage` 的 `try/catch` 包裝，只給首頁用：`fx-tier`（看門狗降級結果）的讀寫、`tarot-draw`（首頁到結果頁的交棒）的寫入與清除；建置時併入首頁入口檔 | 新增 |
-| `draw.ts` | 首頁狀態機（`idle → resolving → navigating`）：`crypto.getRandomValues` Fisher–Yates 洗牌（重排七個 `<a>` 在格子裡的位置，並寫 `aria-label="第 N 張牌"`）、鎖輸入（`inert`、`aria-busy`）、prefetch、時間軸、1600ms 保底導頁、bfcache（`pageshow` persisted 時重置）、GL 預載（idle 或第一次 `pointerdown`／`focusin`）、tier 0 的 200ms 交叉淡化導頁 | 新增 |
+| `draw.ts` | 首頁狀態機（`idle → resolving → navigating`）：隨機洗牌、鎖輸入、預載所選牌面與結果頁、時間軸、1600ms 保底導頁、bfcache 復原、GL 預載、tier 0 的交叉淡化導頁 | 新增 |
+| `scripts/build-og.mjs` | 從 `src/data/tarot.ts` 讀取牌名與定義，以 sharp 產生首頁、牌組及七張單牌共 9 張 OG 分享圖 | 新增 |
 | `reveal.ts` | 結果頁：讀取並清除交棒（自帶 `tarot-draw` 鍵名與 15 秒時效，不 import `store.ts`）、核對牌 id、確認 `.is-drawn`、0.5 秒後在 `role="status"` 寫入宣告 | 新增 |
 | `fx/tier.ts` | 分級：reduced motion → 0；save-data、cores ≤ 2 或 deviceMemory ≤ 2 → 1；cores ≥ 6 且 deviceMemory ≥ 4（未提供時當 4）→ 3；其餘 2；取 `sessionStorage` 降級值的較小者；只在 DEV 支援 `?fx=0..3`（正式版會被移除） | 新增 |
 | `fx/gl.ts` | WebGL2 舞台：context（`failIfMajorPerformanceCaveat`）、shader 編譯與連結、全螢幕三角形頂點 shader、DPR ≤ 1.5 的 resize、單一 rAF 迴圈與 `play(duration, draw)`、看門狗（建立舞台時先量 8 幀閒置 rAF 間隔取中位數當基準；播放時每 20 幀或累計 400ms 取平均，> max(24ms, 基準 × 1.4) → 解析度 ×0.66 並降一級寫入 `fx-tier`，再超過一次 → 跳到最後一幀）、`visibilitychange` 暫停、`webglcontextlost` 隱藏 canvas 並讓進行中的播放回傳 `false`、`token()` 把 CSS token 轉成 shader 顏色 | 新增 |
