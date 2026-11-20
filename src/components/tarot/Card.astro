@@ -1,5 +1,8 @@
 ---
+import { Image } from 'astro:assets';
 import type { TarotCard } from '../../data/tarot';
+import TarotGlyph from './TarotGlyph.astro';
+import backArt from '../../assets/tarot/tarot-back.png';
 
 interface Props {
   card: TarotCard;
@@ -10,16 +13,46 @@ interface Props {
 const { card, class: className, flip = false } = Astro.props;
 ---
 
-<span class:list={['card', { 'card--flip': flip }, className]}>
+<span
+  class:list={['card', { 'card--flip': flip }, className]}
+>
   <span class="card__inner">
     <span class="card__face">
+      {
+        card.art ? (
+          <Image
+            src={card.art}
+            alt=""
+            aria-hidden="true"
+            class="card__art"
+            widths={[112, 168, 224, 336, 448]}
+            sizes="(min-width: 48rem) 168px, (max-width: 34rem) 26vw, 132px"
+            format="avif"
+            quality={45}
+            loading="lazy"
+          />
+        ) : (
+          <span class="card__glyph" aria-hidden="true">
+            <TarotGlyph id={card.id} />
+          </span>
+        )
+      }
       <span class="card__numeral">{card.numeral}</span>
-      <span class="card__persona">{card.persona}</span>
+      <span class="card__name">{card.name}</span>
     </span>
     {
       flip && (
         <span class="card__back" aria-hidden="true">
-          <span class="card__sigil" />
+          <Image
+            src={backArt}
+            alt=""
+            aria-hidden="true"
+            class="card__back-art"
+            width={448}
+            format="avif"
+            quality={70}
+            loading="eager"
+          />
         </span>
       )
     }
@@ -43,6 +76,7 @@ const { card, class: className, flip = false } = Astro.props;
     content: '';
     position: absolute;
     inset: var(--space-2);
+    z-index: 1;
     border: var(--rule-hair) solid var(--color-ink);
     border-radius: var(--radius-tile);
     pointer-events: none;
@@ -53,14 +87,30 @@ const { card, class: className, flip = false } = Astro.props;
   }
 
   .card__face {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6cqw;
-    padding: 14cqw 8cqw;
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: inherit;
+    background: var(--color-white);
+  }
+
+  .card__art {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .card__numeral {
+    position: absolute;
+    inset-block-start: 5cqw;
+    inset-inline: 0;
+    z-index: 2;
+    text-align: center;
     font-family: var(--font-sign);
     font-weight: var(--weight-sign-heavy);
     font-size: 18cqw;
@@ -69,13 +119,27 @@ const { card, class: className, flip = false } = Astro.props;
     padding-inline-start: 0.08em;
   }
 
-  .card__persona {
+  .card__name {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-end: 2cqw;
+    z-index: 2;
+    translate: 0 -50%;
     font-family: var(--font-sans);
     font-weight: var(--weight-black);
-    font-size: 12cqw;
+    font-size: 9cqw;
     line-height: var(--leading-tight);
     letter-spacing: 0.02em;
     writing-mode: vertical-rl;
+  }
+
+  .card__glyph {
+    position: absolute;
+    inset-block-start: 50%;
+    inset-inline-start: 50%;
+    width: min(40cqw, 2.5rem);
+    aspect-ratio: 1;
+    translate: -50% -50%;
   }
 
   .card--flip {
@@ -104,15 +168,14 @@ const { card, class: className, flip = false } = Astro.props;
   }
 
   .card--flip .card__face {
-    position: relative;
     border: var(--rule-thin) solid var(--color-ink);
-    background: var(--color-white);
   }
 
   .card--flip .card__face::before {
     content: '';
     position: absolute;
     inset: var(--space-2);
+    z-index: 1;
     border: var(--rule-hair) solid var(--color-ink);
     border-radius: var(--radius-tile);
     pointer-events: none;
@@ -126,45 +189,13 @@ const { card, class: className, flip = false } = Astro.props;
     transform: rotateY(180deg);
   }
 
-  .card__back::before {
-    content: '';
-    position: absolute;
-    inset: var(--space-2);
-    border: var(--rule-hair) solid var(--color-on-ink-rule);
-    border-radius: var(--radius-tile);
-    background-image:
-      linear-gradient(
-        45deg,
-        transparent calc(50% - var(--rule-hair)),
-        var(--color-on-ink-rule) calc(50% - var(--rule-hair)) 50%,
-        transparent 50%
-      ),
-      linear-gradient(
-        -45deg,
-        transparent calc(50% - var(--rule-hair)),
-        var(--color-on-ink-rule) calc(50% - var(--rule-hair)) 50%,
-        transparent 50%
-      );
-    background-size: 12cqw 12cqw;
-    background-position: center;
-  }
-
-  .card__sigil {
+  .card__back-art {
     position: absolute;
     inset: 0;
-    margin: auto;
-    width: 24cqw;
-    height: 24cqw;
-    border: var(--rule-thin) solid var(--color-white);
-    background: var(--color-ink-raised);
-    rotate: 45deg;
-  }
-
-  .card__sigil::after {
-    content: '';
-    position: absolute;
-    inset: 22%;
-    border: var(--rule-hair) solid var(--color-on-ink-soft);
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .card__back::after {

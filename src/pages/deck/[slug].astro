@@ -28,7 +28,12 @@ const matches = [
 const registrationOpen = site.registration.status === 'open';
 ---
 
-<TarotLayout title={`${card.persona}｜${site.name}`} description={`${concept.zh}：${concept.line}`}>
+<TarotLayout
+  title={`${card.persona}｜${site.name}`}
+  description={`${concept.zh}：${concept.line}`}
+  image={`/og/${card.id}.png`}
+  imageAlt={`${card.numeral} ${card.name}｜${card.persona}牌面插畫`}
+>
   <script slot="head" is:inline>
     try {
       if (sessionStorage.getItem('tarot-draw')) document.documentElement.classList.add('is-drawn');
