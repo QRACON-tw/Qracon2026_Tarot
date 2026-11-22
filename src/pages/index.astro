@@ -5,6 +5,9 @@ import FxCanvas from '../components/fx/FxCanvas.astro';
 import { site } from '../data/site';
 import { cards } from '../data/tarot';
 import { cardPath } from '../utils/tarot';
+import { sitePath } from '../utils/paths';
+
+const deckPath = sitePath('/deck/');
 ---
 
 <TarotLayout title={site.name} description={site.description}>
@@ -15,6 +18,7 @@ import { cardPath } from '../utils/tarot';
       <div class="draw__hint">
         <p>翻開之前，你不知道會是哪一張。</p>
         <p>翻開一張，其他六張就散了。</p>
+        <a class="draw__deck-link" href={deckPath}>想快速看完七張牌？點「牌組」。</a>
       </div>
     </header>
     <ol class="draw__cards is-dealing" role="list" aria-label="七張牌，選一張翻開">
@@ -62,6 +66,22 @@ import { cardPath } from '../utils/tarot';
 
   .draw__hint {
     color: var(--color-on-ink-soft);
+  }
+
+  .draw__deck-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    margin-block-start: var(--space-1);
+    color: var(--color-on-ink-soft);
+    font-weight: var(--weight-bold);
+    text-decoration-thickness: var(--rule-mid);
+    text-underline-offset: 0.28em;
+  }
+
+  .draw__deck-link:hover,
+  .draw__deck-link:focus-visible {
+    color: var(--color-white);
   }
 
   .draw__cards {
