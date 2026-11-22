@@ -14,6 +14,7 @@ const { card, class: className, flip = false } = Astro.props;
   <span class="card__inner">
     <span class="card__face">
       <span class="card__numeral">{card.numeral}</span>
+      <span class="card__name-en">{card.nameEn}</span>
       <span class="card__persona">{card.persona}</span>
     </span>
     {
@@ -56,8 +57,9 @@ const { card, class: className, flip = false } = Astro.props;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6cqw;
-    padding: 14cqw 8cqw;
+    justify-content: space-evenly;
+    padding: 12cqw 6cqw;
+    text-align: center;
   }
 
   .card__numeral {
@@ -69,13 +71,25 @@ const { card, class: className, flip = false } = Astro.props;
     padding-inline-start: 0.08em;
   }
 
+  .card__name-en {
+    font-family: var(--font-sign);
+    font-weight: var(--weight-sign-heavy);
+    font-size: 10.5cqw;
+    line-height: 1.1;
+    letter-spacing: 0.14em;
+    padding-inline-start: 0.14em;
+    text-transform: uppercase;
+    text-wrap: balance;
+  }
+
   .card__persona {
     font-family: var(--font-sans);
     font-weight: var(--weight-black);
-    font-size: 12cqw;
+    font-size: 11cqw;
     line-height: var(--leading-tight);
     letter-spacing: 0.02em;
-    writing-mode: vertical-rl;
+    padding-inline-start: 0.02em;
+    text-wrap: balance;
   }
 
   .card--flip {
