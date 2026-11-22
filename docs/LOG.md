@@ -1,5 +1,14 @@
 # 變更紀錄
 
+## 2026-11-22（第二次）
+
+- **牌面底字**（`Card.astro`）：使用者提議「文字當背景、淺灰、大字半填滿」。先在暫時的比較頁並排四案（現行／A 大數字出血／B 英文牌名字紋／C 外框半填滿數字），桌機與 375 手機、14rem 與 7rem 都看過，使用者選 A。實作：`.card__face` 第一個子元素 `.card__ghost`（`aria-hidden`、`user-select: none`），絕對定位在髮絲內框內緣（`inset: space-2 + rule-hair`，第一版貼齊 `space-2` 會蓋掉髮絲框，已修），淺灰 `--color-dim-surface-strong`、118cqw、下緣出血 14%、水平置中對稱裁切；三個文字元素加 `position: relative` 疊在上面。比較頁已刪除，未進 repo。規格見 `02` §7.2（v2.5）。
+- 驗證（本機實際執行，dev server＋內建瀏覽器）：結果頁大卡數字中心偏差 0、髮絲框四邊可見、角色名位置 `elementFromPoint` 命中文字；首頁翻牌結構（`card--flip`）牌面正確、牌背不受影響；375 行動模擬抽牌一次正常（導頁、`is-drawn`、`role="status"`）；牌組頁桌機與手機正常；320／375／1440 首頁、牌組頁、結果頁無水平溢出。`pnpm check` 0／0／0、`pnpm build` 10 頁（dist 含 `card__ghost`、無 lab 頁）；impeccable 偵測器 0 項。
+- 備註：dev server 改 `Card.astro` 後一度供應舊的 scoped CSS（新規則沒進來），重開 dev server 後正常。日後改元件樣式看不到效果時，先確認 `?astro&type=style` 模組內容再除錯。
+- **結果頁按鈕間距**（`[slug].astro`）：`.report__again` 原本是 block，「重新抽一張」（`<a>`）與「分享／複製連結」（`<button>`）兩顆 inline-flex 按鈕間距 0、垂直差 3px（`09b33b2` 帶入）。改為 flex＋`gap: var(--space-4)`＋`align-items: center`，網址退路連結 `flex-basis: 100%` 自成一行。
+- 驗證（本機實際執行，dev server＋內建瀏覽器 375×812 行動模擬）：兩顆按鈕同列 y 相同、間距 16px；模擬剪貼簿不可用時網址退路換到下一行，`scrollWidth = 375` 無溢出。`pnpm check` 0／0／0、`pnpm build` 通過；impeccable 偵測器 0 項。
+- RWD 複查（dev，iframe 量測）：320×568、375×812、393×852、667×375、852×393、915×360、768×1024、1180×820、1440×900 五個頁面（首頁、牌組、兩張結果頁、404）皆無水平溢出、無小於 44px 的連結或按鈕。首屏完整可見牌數：320×568 2 張、直向手機 6 張、橫向手機 7 張、1180×820 與 1440×900 只有 4 張（桌機第二列在首屏外）。375 手機實測抽牌一次：導到洗牌對應結果頁、`role="status"` 宣告正常、無 `navigator.share` 時按鈕顯示「複製連結」。
+
 ## 2026-11-22
 
 - **行銷組四項回饋落地**（規劃與查證經過見當日對話；文案凍結後的增補都已在 docs 標注）：

@@ -69,7 +69,7 @@ P1 骨架與抽牌特效（2026-11-16）。主站來源一律指 `QRACON-tw/2026
 | `Button.astro` | 按鈕；新增 `variant="on-ink"`（透明底白框白字，hover／焦點反白） | 改寫 |
 | `Icon.astro` | 只留 Button、頁尾與 404 用到的三個箭頭 | 改寫 |
 | `SeoHead.astro` | `<head>` 內的 meta、canonical、icon、OG／Twitter、字型（兩個字族都 `preload`）；沒有 `image` 時不輸出 OG 圖標籤 | 新增（結構取自主站 `BaseLayout.astro`） |
-| `tarot/Card.astro` | 字體牌（正面）：白面、雙框、羅馬數字、英文牌名（全大寫 `--font-sign`）、橫排角色名（`text-wrap: balance`），三元素 `space-evenly` 垂直置中；4:7，字級用容器查詢單位。`flip` prop 為真時加上 CSS 占位牌背（墨底、白細框、菱格紋、中央菱形、一次性銀墨掃光）與 `rotateY` 翻面；沒有 `flip` 時外觀與 P1 相同，結果頁與牌組頁不受影響。`data-fx="0"`（reduced motion）下翻面改交叉淡化 | 新增 |
+| `tarot/Card.astro` | 字體牌（正面）：白面、雙框、羅馬數字、英文牌名（全大寫 `--font-sign`）、橫排角色名（`text-wrap: balance`），三元素 `space-evenly` 垂直置中；底層 `.card__ghost` 是淺灰大羅馬數字（下緣出血、被內框裁切、`aria-hidden`）；4:7，字級用容器查詢單位。`flip` prop 為真時加上 CSS 占位牌背（墨底、白細框、菱格紋、中央菱形、一次性銀墨掃光）與 `rotateY` 翻面；沒有 `flip` 時外觀與 P1 相同，結果頁與牌組頁不受影響。`data-fx="0"`（reduced motion）下翻面改交叉淡化 | 新增 |
 | `fx/FxCanvas.astro` | 只放首頁：`<canvas data-fx-canvas aria-hidden>`（`position: fixed; height: 100lvh; pointer-events: none`，z-index `--z-fx`）與 CSS 塌縮用的墨色 `<div data-fx-veil>`（`clip-path: circle()` 從點擊點擴張） | 新增 |
 
 ### `src/layouts/`
