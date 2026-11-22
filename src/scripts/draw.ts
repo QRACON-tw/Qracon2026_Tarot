@@ -154,6 +154,22 @@ function boot(list: HTMLOListElement, canvas: HTMLCanvasElement, veil: HTMLEleme
     document.head.append(link);
   }
 
+  function preloadCardArt(card: Element | null): void {
+    const image = card?.querySelector<HTMLImageElement>('.card__art');
+    const src = image?.currentSrc || image?.src;
+    const existing = Array.from(document.head.querySelectorAll<HTMLLinkElement>('link[rel="preload"][as="image"]'))
+      .some((link) => link.href === src);
+    if (!src || existing) return;
+
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = src;
+    link.type = 'image/avif';
+    link.fetchPriority = 'high';
+    document.head.append(link);
+  }
+
   function go(): void {
     if (state === 'navigating' || !target) return;
     state = 'navigating';
@@ -207,6 +223,7 @@ function boot(list: HTMLOListElement, canvas: HTMLCanvasElement, veil: HTMLEleme
     setTier(detectTier());
     drawStore.put(link.dataset.card ?? '');
     prefetch(targets.get(link) ?? link.href);
+    preloadCardArt(card ?? null);
 
     list.setAttribute('aria-busy', 'true');
     list.inert = true;

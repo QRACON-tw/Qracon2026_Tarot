@@ -3,6 +3,7 @@
 **版本**：v2.2（2026-11-16，實作前審查後修訂，並依主站 `origin/main@257b790` 實況改寫部署）
 **狀態**：**基準版，待 K2–K6 拍板**（`03-open-questions.md`）。v2.1 的設計決策維持；部署、範圍、時程與規格補洞為 v2.2 新增。
 **[K1=C，2026-11-16]** 部署方案定案為 C：獨立 repo。§0、§2、§5、§11、R7、R9、R12 已據此改寫；其餘章節寫「直接 import／直接共用主站」之處，一律改讀為「複製自主站 `257b790`」，`tarotPath()` 改讀為 `sitePath()`、路由前綴 `/tarot/` 改讀為 §5 的 `/`、`/deck/`、`/deck/[slug]/`。
+**[K1 修訂，2026-11-20]** 部署改為「主站掛載」：主站 repo `QRACON-tw/2026` 的 deploy workflow 另 checkout 本 repo `main`，以 `ASTRO_BASE_PATH=/2026/tarot` 建置後掛到主站 `dist/tarot/`，與主站同一個 GitHub Pages artifact；正式網址 `https://qracon.entangletech.tw/2026/tarot/`。本 repo 不再有自己獲 Pages 部署（詳 §11）。
 **範圍**：只做規劃。本文件不含任何程式碼實作。
 **配套**：`01-copy-deck.md`（文案）、`03-open-questions.md`（待決）、`04-asset-requirements.md`（素材需求）、`LOG.md`（變更紀錄）
 
@@ -34,7 +35,7 @@
 | D1 | 色彩方向 | **A 暗房（純灰階）**：墨黑場、紙白牌面、銀墨壓紋 | Gemini 4 核准 |
 | D2 | 牌面插畫 | 設計組交付 7 張；先用「字體牌」上線 | 核准 |
 | D3 | CTA 目標 | 只導向議程與報名（KKTIX），報名截止後改導向會場頁 | 定案 |
-| D4 | 部署位置 | 獨立 repo（C，§11） | K1 定案（2026-11-16） |
+| D4 | 部署位置 | 主站 repo workflow 掛載（K1 修訂，§11） | K1 定案（2026-11-16，C）→ 修訂（2026-11-20） |
 
 ---
 
@@ -255,7 +256,7 @@
 export const cardPath = (id: CardId) => sitePath(`/deck/${id}/`);
 ```
 
-路由與正式網址（`<base>` 為 `/Qracon2026_Tarot`（repo `QRACON-tw/Qracon2026_Tarot`），由 `ASTRO_BASE_PATH` 決定）：
+路由與正式網址（`<base>` 預設 `/2026/tarot`，由 `ASTRO_BASE_PATH` 決定）：
 
 ```
 https://qracon.entangletech.tw<base>/                抽牌
@@ -431,6 +432,8 @@ try {
 
 **[v2.5 2026-11-22] 底字**：牌面加一層淺灰大羅馬數字當底（`--color-dim-surface-strong`，Barlow 800，牌寬 118%），水平置中、下緣出血約 14%，被髮絲內框內緣裁切，壓在文字底下、`aria-hidden`。七張同字級，寬數字（XIII、XVI、XIX）左右對稱裁切，避免裁成看似另一張牌的數字（例如只剩「XI」）。目的是讓字體牌下半張有重量，不像佔位牌；插畫到位後這層隨字體牌一起換掉。比較過的另兩案（英文牌名滿版字紋、外框半填滿數字）未採用：前者與前景英文牌名重複且雜，後者外框線在 7rem 小卡上太細、七張數字大小不一。
 
+**[v2.6 2026-11-22] 插畫牌面＋橫排文字**（合併遠端 11-20 插畫版時定案，取代 v2.5 底字與遠端的直排中文牌名）：牌面為灰階插畫鋪滿 4:7，插畫縮放 88%（插畫邊緣是純白，縮放無接縫），讓上下留白都約 20%；上方羅馬數字（Barlow 800，牌寬 16%）收在髮絲內框內；下方一條白底文字帶放英文牌名（Barlow 800 全大寫，7.5%）與橫排角色名（Noto 900，10%，`text-wrap: balance`）。理由：行銷組 11-22 要的橫排與英文牌名套在插畫上；遠端版羅馬數字貼頂壓到內框線、直排牌名有字型未載入時微歪的風險，一併移除。實測（7 張插畫非白像素範圍：上緣 15.9–31.4%、下緣 68.9–84.2%，塔最滿）：牌組頁 112px、結果頁 204px 文字與線稿全有間距；首頁 98px 只有塔被白底帶切掉約 1px 線稿。沒有牌面圖時以 `TarotGlyph` 線稿備援。
+
 **牌面放三件事**：羅馬數字、英文牌名、角色名。牌寬最小 5.5rem（首頁翻牌的一瞬間，角色名約 11px）；常駐閱讀的尺寸是牌組頁 7rem（約 13px）與結果頁 14rem。「一句定義」只出現在結果頁的文字區，不上牌面。
 
 七個 SVG 圖示（**未實作備案**，全部 `var(--rule-thin)` 線稿，墨色）：
@@ -582,8 +585,9 @@ iOS Safari 16+、Android Chrome 最近兩版、IG 與 LINE 內建瀏覽器（iOS
 | --- | --- | --- |
 | A1（原建議，K1 未採用） | 在主站 repo 加 `src/pages/tarot/*` + `TarotLayout`，沿用主站 `base` 與 `sitePath()` | 單一建置、元件不分叉、共用網域與 sitemap。不需要改部署 |
 | A（v2.1） | `apps/tarot` 獨立 Astro 專案 | 主站不是 workspace，還要合併兩份 dist，放棄 |
-| B | 兩個 repo，主站 CI 拉塔羅產物 | 要改主站 workflow 與 cross-repo token，放棄 |
-| **C（K1 定案，2026-11-16）** | 共用網域下另一個 GitHub Pages 專案，獨立 repo、複製元件 | **採用**。程式碼不進主站 repo；元件分叉風險見 R7 |
+| B | 兩個 repo，主站 CI 拉塔羅產物 | 要 cross-repo token，當初放棄；2026-11-20 修正前提（本 repo 為公開，主站 workflow 直接 checkout 不需 token），部分採用為 D |
+| C（K1 定案，2026-11-16） | 共用網域下另一個 GitHub Pages 專案，獨立 repo、複製元件 | 2026-11-16 採用；**2026-11-20 改由 D 取代**（塔羅 repo 不再有自己 Pages 部署）。元件分叉風險見 R7 |
+| **D（K1 修訂，2026-11-20 採用）** | 主站 repo `QRACON-tw/2026` 的 `deploy-pages.yml`：另 checkout 本 repo `main`（公開 repo，免 token），`ASTRO_BASE_PATH=/2026/tarot` 建置後掛到主站 `dist/tarot/`，與主站同一個 Pages artifact（[QRACON-tw/2026#12](https://github.com/QRACON-tw/2026/pull/12)） | **採用**。程式碼仍不進主站 repo（R7 漂移風險照舊）；網址與主站同網域同部署；缺點：塔羅更新要等主站重新部署才生效，且塔羅 build 失敗會擋主站部署（R9 回來了，由本 repo CI 先擋） |
 
 以下是 A1 要動到的主站檔案（未採用，僅供備查）：
 
@@ -599,12 +603,12 @@ iOS Safari 16+、Android Chrome 最近兩版、IG 與 LINE 內建瀏覽器（iOS
 **[v2.2] 沒有分支預覽**：GitHub Pages 只部署 `main`，不像 Cloudflare Pages 有分支預覽網址。所以：
 
 1. **開發**在本 repo 的功能分支，本機 `pnpm build` + `pnpm preview`；真機用同一個區網連開發機（`pnpm dev --host`）。
-2. **軟上線**（11/27）：合併進 `main`，但塔羅頁全部 `noindex`、不進 sitemap、主站不加入口。這樣才能在正式網址上測 IG／LINE WebView 與 OG 預覽。
-3. **正式上線**（12/02）：拿掉 `noindex`、加進 sitemap、主站加入口。
+2. **軟上線**（11/27）：主站 repo 合併掛載 workflow（或手動重跑部署）；塔羅頁全部 `noindex`、不進 sitemap、主站不加入口。這樣才能在正式網址上測 IG／LINE WebView 與 OG 預覽。
+3. **正式上線**（12/02）：拿掉 `noindex`、加進 sitemap、主站加入口；改動推本 repo `main` 後，主站 repo 手動重跑一次部署。
 
-**協作風險**：K1＝C 後塔羅 repo 與主站互不影響，不需要 rebase 主站，也不改主站共用檔。取而代之的是複製檔漂移（R7）：主站改了 `tokens.css`、`global.css`、`Button.astro`、`paths.ts`、`Icon.astro` 時，人工比對並同步。push 與開 PR 由你手動做。
+**協作風險**：K1 修訂後，主站 workflow 固定抓本 repo `main` 的最新 commit，但本 repo 推 `main` **不會自動上線**，要等主站 repo 下一次部署（推 `main` 或手動 `workflow_dispatch`）；凍結期（12/06 後）主站部署頻率低，改完塔羅記得到主站 repo 手動重跑。複製檔漂移（R7）照舊：主站改了 `tokens.css`、`global.css`、`Button.astro`、`paths.ts`、`Icon.astro` 時，人工比對並同步。push 與開 PR 由你手動做。
 
-R9 改寫：K1＝C 後塔羅有自己的 workflow 與 Pages 專案，build 失敗只影響本站，不會擋住主站部署。合進 `main` 前本機仍須 `pnpm check`、`pnpm build` 都過。
+R9（K1 修訂後再度適用）：塔羅建置在主站 workflow 內執行，build 失敗會擋住主站部署。緩解：本 repo 的 CI 在 push／PR 先跑 `pnpm check`＋`pnpm build`（`.github/workflows/ci.yml`），合進 `main` 前本機也要過。
 
 ### 範圍
 
@@ -642,7 +646,7 @@ R9 改寫：K1＝C 後塔羅有自己的 workflow 與 Pages 專案，build 失�
 ### 驗收清單
 
 - [ ] `pnpm check`、`pnpm build` 通過
-- [ ] `ASTRO_BASE_PATH=/` 與預設 `/Qracon2026_Tarot` 兩種 base 都能建置、連結都正確
+- [ ] `ASTRO_BASE_PATH=/` 與預設 `/2026/tarot` 兩種 base 都能建置、連結都正確
 - [ ] 1440 / 375 兩個寬度實際看過（牌扇、結果頁）
 - [ ] 關掉 JS 仍能點牌進結果頁
 - [ ] 只用鍵盤完成一次抽牌；焦點框在墨底上看得見
@@ -672,7 +676,7 @@ R9 改寫：K1＝C 後塔羅有自己的 workflow 與 Pages 專案，build 失�
 | R6 | OG 圖字型在 CI 不一致 | 圖壞掉 | 本機產生、commit PNG |
 | R7 | 元件分叉（K1＝C 後成真） | 複製的 tokens、`Button`、`paths.ts` 與主站漂移，兩站不一致 | `docs/SITEMAP.md` 標註複製自 `257b790`；主站改動共用檔時人工比對並同步 |
 | R8 | 塔羅在台灣的宗教聯想 | 受眾排斥 | 定位「娛樂 + 科普」，不做吉凶斷言 |
-| R9（K1＝C 後不適用） | 塔羅 build 失敗擋住主站部署（同一個 workflow） | 主站議程無法更新 | 合進 `main` 前本機 check + build 必過；軟上線提早到 11/27 |
+| R9（K1 修訂後再度適用） | 塔羅 build 失敗擋住主站部署（同一個 workflow） | 主站議程無法更新 | 本 repo CI 在 push／PR 先擋（check＋build）；軟上線提早到 11/27；12/06 後主站部署前先手動跑一次塔羅建置 |
 | R10 | IG／LINE WebView 擋下載與 Web Share | 分享失效 | Must 只分享網址，退回複製連結（§9.3） |
 | R11 | 1300ms 動畫結束才請求目標頁，4G 下卡住 | 轉場失敗 | 點擊 0ms 就 prefetch；1600ms 保底直接跳頁 |
 | **R12**（K1＝C 後不適用） | **協作者頻繁推 `main`，`feat/tarot` 衝突** | **合併延誤** | 每兩天 rebase；共用檔改動拆小 PR 先合（§11） |
@@ -684,4 +688,4 @@ R9 改寫：K1＝C 後塔羅有自己的 workflow 與 Pages 專案，build 失�
 
 ## 13. 待決事項
 
-見 `03-open-questions.md`。擋上線的是 K2（報名截止日）、K3（上線日）、K4（物理校稿者）、K6（repo 擁有者與名稱 → 正式網址）；K1（部署方案）已於 2026-11-16 定案為 C。插畫排程**不擋上線**。
+見 `03-open-questions.md`。擋上線的是 K2（報名截止日）、K3（上線日）、K4（物理校稿者）、K6（repo 擁有者與名稱 → 正式網址）；K1（部署方案）2026-11-16 定案為 C，2026-11-20 修訂為主站掛載（§11）。插畫排程**不擋上線**。

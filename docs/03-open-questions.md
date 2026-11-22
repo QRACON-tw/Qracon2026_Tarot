@@ -3,7 +3,7 @@
 **規則**：拍板後回寫 `01-copy-deck.md` 或 `02-plan.md` 為規格，並從本檔移除。
 分三級：**擋上線**（12/02 前必須決定）、**影響設計**（影響 P2–P4）、**可延後**。
 
-最後更新：2026-11-16（v2.2 + K1、K6 定案；主站以 `origin/main@257b790` 為準）
+最後更新：2026-11-20（K1 修訂：部署改「主站掛載」，與 K6 網址一併改寫；其餘同 11-16 版）
 
 ---
 
@@ -22,8 +22,8 @@
 | 多語系 | 不做（原 Q10） | `02` §1 |
 | 主站入口 | 另做一個主站 PR，12/02 正式上線時加（原 Q9） | `02` §11 |
 | 屆數 | 「第四屆」，出處為主站 `PRODUCT.md` | `01` §10 |
-| 部署方案（原 K1） | **C：獨立 repo**。塔羅站有自己的 Astro 專案與 GitHub Pages 部署，不放進主站 repo；tokens、`Button`、`sitePath()` 等從主站 `257b790` 複製（漂移風險見 `02` R7）。網址見下一列 | `02` §2、§5、§11 |
-| 網域與 repo（原 K6） | repo 為 **`QRACON-tw/Qracon2026_Tarot`**，正式網址 `https://qracon.entangletech.tw/Qracon2026_Tarot/`（GitHub Pages 專案頁，共用組織網域）。公開後改名會讓已分享的連結失效。部署暫停，只能手動觸發 | `02` §2、§5 |
+| 部署方案（原 K1） | **修訂（2026-11-20）：主站掛載**。程式碼仍是獨立 repo，但部署併入主站 repo `QRACON-tw/2026` 的 GitHub Pages：主站 deploy workflow checkout 本 repo `main` 建置（`ASTRO_BASE_PATH=/2026/tarot`）後掛到 `dist/tarot/`，兩站同一個 Pages artifact（[QRACON-tw/2026#12](https://github.com/QRACON-tw/2026/pull/12)）。本 repo 移除自己的 Pages workflow，只留 CI（check＋build）。原定案 C（獨立 Pages 專案）不再採用 | `02` §11 |
+| 網域與 repo（原 K6） | repo 維持 **`QRACON-tw/Qracon2026_Tarot`**，正式網址 `https://qracon.entangletech.tw/2026/tarot/`（主站 GitHub Pages 子目錄）。已分享連結在 12/06 凍結前維持不變；上線時機由主站 repo 的部署與 K3 決定 | `02` §5、§11 |
 
 ---
 

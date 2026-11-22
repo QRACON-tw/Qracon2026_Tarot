@@ -1,5 +1,16 @@
 # 變更紀錄
 
+## 2026-11-22（第三次）
+
+- **合併 `origin/main`**（遠端 4 個 commit：插畫素材 PR #1、改掛主站 `/2026/tarot/`、文件；本地 8 個 commit 自 `db8be62` 分岔）。衝突 4 檔，處理方式：
+  - `Card.astro`：使用者選「插畫＋行銷回饋」。以遠端插畫牌為底（`astro:assets` AVIF 牌面、牌背圖、`TarotGlyph` 備援），文字改橫排：上方羅馬數字收在髮絲內框內（遠端版 `5cqw` 貼頂壓到內框線，已修）、下方白底文字帶放英文牌名＋角色名；插畫 `scale: 0.88` 讓上下留白約 20%。本地 v2.5 淺灰底字隨字體牌移除（插畫已填滿牌面）。規格見 `02` §7.2（v2.6）。
+  - `draw.ts`：兩邊都留——prefetch 走本地 `targets` Map（翻牌前不揭曉），再呼叫遠端的 `preloadCardArt`。
+  - `SITEMAP.md`：路由改 `/2026/tarot/`，各列合併兩邊內容（引導連結、href 停在 `/deck/`、分享按鈕＋插畫、OG）；`Card.astro` 列改寫，`TarotGlyph`、`build-og.mjs` 列沿用遠端。
+  - `LOG.md`：兩邊紀錄都保留，依日期排列。
+  - 自動合併：`[slug].astro`（本地按鈕間距＋遠端 OG）、`index.astro`（本地引導連結＋遠端 OG）、`02-plan.md`（本地 v2.4／v2.5＋遠端 K1 修訂）。
+- 驗證（本機實際執行，dev server 重開後，base `/2026/tarot/`）：七張插畫非白像素範圍以 sharp 量測（上緣 15.9–31.4%、下緣 68.9–84.2%）；DOM 量測文字與線稿間距——牌組頁 112px 全為正值（塔最小 0.7px）、結果頁 204px 塔 7.7px、首頁 98px 只有塔 −1px（白底帶切掉約 1px 線稿）；英文牌名七張都一行，角色名只有死神兩行。375 行動模擬抽牌一次：導到洗牌對應結果頁、`role="status"`「你抽到淬火災難大師。」、按鈕「複製連結」；首頁七個 href 皆停在 `/2026/tarot/deck/`；375／1440 無水平溢出。`pnpm check` 0／0／0、`pnpm build` 10 頁（OG 絕對網址 `/2026/tarot/og/…`、無 JS 備援 href 正確）；impeccable 偵測器 0 項。dev 的 console 只有已知的跨文件 VT `InvalidStateError`（dev 外部 script 造成，正式建置沒有）。
+- 未驗證：真機 iOS Safari／Android、IG 與 LINE 內建瀏覽器上的插畫牌面；正式建置的 preview 與 CDP 真 375 量測這輪沒跑。
+
 ## 2026-11-22（第二次）
 
 - **牌面底字**（`Card.astro`）：使用者提議「文字當背景、淺灰、大字半填滿」。先在暫時的比較頁並排四案（現行／A 大數字出血／B 英文牌名字紋／C 外框半填滿數字），桌機與 375 手機、14rem 與 7rem 都看過，使用者選 A。實作：`.card__face` 第一個子元素 `.card__ghost`（`aria-hidden`、`user-select: none`），絕對定位在髮絲內框內緣（`inset: space-2 + rule-hair`，第一版貼齊 `space-2` 會蓋掉髮絲框，已修），淺灰 `--color-dim-surface-strong`、118cqw、下緣出血 14%、水平置中對稱裁切；三個文字元素加 `position: relative` 疊在上面。比較頁已刪除，未進 repo。規格見 `02` §7.2（v2.5）。
@@ -26,6 +37,22 @@
   - impeccable 偵測器（v4.9.1）對三個改動的 UI 檔案：0 項發現。
 - **截圖工具教訓**：無頭 Chrome `--screenshot --window-size=375` 在 Windows 會被**最小視窗寬度 500px** clamp（CDP 實測 `innerWidth=500`），而 `--screenshot` 又只擷取左側 375px——產出「版面按 500 排、右緣被裁」的假破版截圖，deepseek 兩輪的 P0 判讀皆源於此（2× 版本另有判讀端量測不一致）。日後手機版面驗證一律用 CDP device metrics（本 repo 既有做法），不要用 `--screenshot` CLI。
 - **未驗證**：真機 iOS Safari／Android、IG 與 LINE 內建瀏覽器（軟上線前補）；行銷組手機截圖覆核（已邀請提供，用 deepseek 再判讀一次）。
+
+## 2026-11-20（第二次）
+
+- **K1 修訂：部署改「主站掛載」**（取代 11-16 定案的 C：獨立 Pages 專案）。主站 repo `QRACON-tw/2026` 的 deploy workflow 另 checkout 本 repo `main`（公開 repo，免 token）建置後掛到主站 `dist/tarot/`，兩站同一個 GitHub Pages artifact；正式網址改為 `https://qracon.entangletech.tw/2026/tarot/`（[QRACON-tw/2026#12](https://github.com/QRACON-tw/2026/pull/12)，含做法與驗證說明）。
+- `astro.config.mjs`：預設 `ASTRO_BASE_PATH` `/Qracon2026_Tarot` → `/2026/tarot`；`pnpm dev` 網址同步改。
+- 移除 `.github/workflows/deploy-pages.yml`（本 repo 不再有自己獲 Pages 部署）；新增 `.github/workflows/ci.yml`：push／PR 跑 `pnpm check`＋`pnpm build`，避免壞建置進 `main` 後擋住主站部署（R9 回來了）。
+- 文件同步：`README`（部署段、網址、狀態）、`02` §0 D4、§5、§11（部署架構表新增 D、軟上線改為合併主站 PR、協作風險與 R9）、驗收清單、`03`（K1／K6 已定案列、最後更新日期）、`SITEMAP`（base、路由表、workflow 列）、`PRODUCT`、`handoff`（印刷 QR 網址）。
+- 驗證（本機實際執行）：`pnpm check` 0 錯誤 0 警告 0 提示；`pnpm build` 10 頁，預設 base 下 canonical、OG、sitemap、robots 全為 `/2026/tarot/`；`ASTRO_BASE_PATH=/2026/tarot` 明確覆寫亦同；`src/` 無殘留舊 base 引用。
+- 注意：本 repo 推 `main` 後不會自動上線，要等主站 repo 下一次部署（推 `main` 或手動 `workflow_dispatch`）。
+- 線上驗收（2026-11-20 合併 [QRACON-tw/2026#12](https://github.com/QRACON-tw/2026/pull/12) 後自動部署，[run 44689960183](https://github.com/QRACON-tw/2026/actions/runs/44689960183)）`https://qracon.entangletech.tw/2026/tarot/`：10 頁全 200（首頁、牌組、七張單牌、404）、OG ×9 與字型、AVIF 資產全 200；canonical／OG 絕對網址正確；`robots.txt` 允許、sitemap 空集合、全站 `noindex, follow`（軟上線狀態）；主站 `/2026/` 未受影響。**軟上線（原定 11/27）提前於 11-20 生效**。
+
+## 2026-11-20
+
+- 使用 imagegen 完成七張灰階牌面插畫（1440 × 2520、單張 ≤ 400 KB）與同版型牌背；牌背參考官網給未設定頭像的團隊成員使用的黑貓預設圖。牌面已接入抽牌頁、牌組頁及結果頁，保留七款 40 × 40 線稿字體牌作為備援。
+- `draw.ts` 點牌時預載該張牌面圖；各路由加入 OG 圖片中繼資料。新增 `scripts/build-og.mjs` 與 `pnpm build:og`，產生首頁、牌組及七張單牌共九張 1200 × 630 PNG 分享圖，包含主站字標及牌面素材。
+- 素材清單與 `SITEMAP.md` 同步記錄交付狀態。
 
 ## 2026-11-18（第三次）
 

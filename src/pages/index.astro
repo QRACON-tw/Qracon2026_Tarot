@@ -10,7 +10,12 @@ import { sitePath } from '../utils/paths';
 const deckPath = sitePath('/deck/');
 ---
 
-<TarotLayout title={site.name} description={site.description}>
+<TarotLayout
+  title={site.name}
+  description={site.description}
+  image="/og/tarot.png"
+  imageAlt="七張量子塔羅牌插畫與牌背"
+>
   <div class="draw wrap">
     <header class="draw__intro">
       <h1>你現在是哪一種量子態？</h1>
