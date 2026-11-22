@@ -8,9 +8,9 @@ P1 骨架與抽牌特效（2026-11-16）。主站來源一律指 `QRACON-tw/2026
 
 | URL（預設 base） | 檔案 | 狀態 |
 | --- | --- | --- |
-| `/Qracon2026_Tarot/` | `src/pages/index.astro` | 無 JS：七張牌正面的連結清單。有 JS：洗牌、牌背、發牌、翻牌、散去、塌縮轉場（`05-fx-plan.md`）。版面仍是格狀，牌扇未做 |
+| `/Qracon2026_Tarot/` | `src/pages/index.astro` | 無 JS：七張牌正面的連結清單。有 JS：洗牌、牌背、發牌、翻牌、散去、塌縮轉場（`05-fx-plan.md`）；洗牌後七個 `<a>` 的 href 停在 `/deck/`、真目標存記憶體，翻牌前不破梗。提示句下有通往牌組頁的引導連結。版面仍是格狀，牌扇未做 |
 | `/Qracon2026_Tarot/deck/` | `src/pages/deck/index.astro` | P1：七張牌清單；「關於這副牌」未做 |
-| `/Qracon2026_Tarot/deck/fool/`、`lovers/`、`hermit/`、`wheel/`、`death/`、`tower/`、`sun/` | `src/pages/deck/[slug].astro` | 純文字結果頁，屬性為數字（屬性條、票券、狀態章在 P3）；從首頁抽到時有進場動畫，並以 `role="status"` 宣告「你抽到〔角色名〕。」 |
+| `/Qracon2026_Tarot/deck/fool/`、`lovers/`、`hermit/`、`wheel/`、`death/`、`tower/`、`sun/` | `src/pages/deck/[slug].astro` | 純文字結果頁，屬性為數字（屬性條、票券、狀態章在 P3）；從首頁抽到時有進場動畫，並以 `role="status"` 宣告「你抽到〔角色名〕。」；[ 重新抽一張 ] 旁有「分享」按鈕（Web Share → 複製連結退路，`reveal.ts` 內嵌） |
 | `/Qracon2026_Tarot/404.html` | `src/pages/404.astro` | `noindex`、無 canonical |
 | `/Qracon2026_Tarot/sitemap.xml` | `src/pages/sitemap.xml.ts` | `TAROT_INDEXABLE = false` 時沒有任何 `<loc>` |
 | `/Qracon2026_Tarot/robots.txt` | `src/pages/robots.txt.ts` | 全部允許，附 sitemap 網址 |
@@ -69,7 +69,7 @@ P1 骨架與抽牌特效（2026-11-16）。主站來源一律指 `QRACON-tw/2026
 | `Button.astro` | 按鈕；新增 `variant="on-ink"`（透明底白框白字，hover／焦點反白） | 改寫 |
 | `Icon.astro` | 只留 Button、頁尾與 404 用到的三個箭頭 | 改寫 |
 | `SeoHead.astro` | `<head>` 內的 meta、canonical、icon、OG／Twitter、字型（兩個字族都 `preload`）；沒有 `image` 時不輸出 OG 圖標籤 | 新增（結構取自主站 `BaseLayout.astro`） |
-| `tarot/Card.astro` | 字體牌（正面）：白面、雙框、羅馬數字（`--font-sign`）、直排角色名；4:7，字級用容器查詢單位。`flip` prop 為真時加上 CSS 占位牌背（墨底、白細框、菱格紋、中央菱形、一次性銀墨掃光）與 `rotateY` 翻面；沒有 `flip` 時外觀與 P1 相同，結果頁與牌組頁不受影響。`data-fx="0"`（reduced motion）下翻面改交叉淡化 | 新增 |
+| `tarot/Card.astro` | 字體牌（正面）：白面、雙框、羅馬數字、英文牌名（全大寫 `--font-sign`）、橫排角色名（`text-wrap: balance`），三元素 `space-evenly` 垂直置中；4:7，字級用容器查詢單位。`flip` prop 為真時加上 CSS 占位牌背（墨底、白細框、菱格紋、中央菱形、一次性銀墨掃光）與 `rotateY` 翻面；沒有 `flip` 時外觀與 P1 相同，結果頁與牌組頁不受影響。`data-fx="0"`（reduced motion）下翻面改交叉淡化 | 新增 |
 | `fx/FxCanvas.astro` | 只放首頁：`<canvas data-fx-canvas aria-hidden>`（`position: fixed; height: 100lvh; pointer-events: none`，z-index `--z-fx`）與 CSS 塌縮用的墨色 `<div data-fx-veil>`（`clip-path: circle()` 從點擊點擴張） | 新增 |
 
 ### `src/layouts/`
@@ -98,8 +98,8 @@ P1 骨架與抽牌特效（2026-11-16）。主站來源一律指 `QRACON-tw/2026
 | 路徑 | 用途 | 來源 |
 | --- | --- | --- |
 | `store.ts` | `sessionStorage` 的 `try/catch` 包裝，只給首頁用：`fx-tier`（看門狗降級結果）的讀寫、`tarot-draw`（首頁到結果頁的交棒）的寫入與清除；建置時併入首頁入口檔 | 新增 |
-| `draw.ts` | 首頁狀態機（`idle → resolving → navigating`）：`crypto.getRandomValues` Fisher–Yates 洗牌（重排七個 `<a>` 在格子裡的位置，並寫 `aria-label="第 N 張牌"`）、鎖輸入（`inert`、`aria-busy`）、prefetch、時間軸、1600ms 保底導頁、bfcache（`pageshow` persisted 時重置）、GL 預載（idle 或第一次 `pointerdown`／`focusin`）、tier 0 的 200ms 交叉淡化導頁 | 新增 |
-| `reveal.ts` | 結果頁：讀取並清除交棒（自帶 `tarot-draw` 鍵名與 15 秒時效，不 import `store.ts`）、核對牌 id、確認 `.is-drawn`、0.5 秒後在 `role="status"` 寫入宣告 | 新增 |
+| `draw.ts` | 首頁狀態機（`idle → resolving → navigating`）：`crypto.getRandomValues` Fisher–Yates 洗牌（重排七個 `<a>` 在格子裡的位置，並寫 `aria-label="第 N 張牌"`；洗完把 href 停在 `/deck/`、真目標存 `Map`，點擊才導頁，翻牌前不破梗）、鎖輸入（`inert`、`aria-busy`）、prefetch、時間軸、1600ms 保底導頁、bfcache（`pageshow` persisted 時重置）、GL 預載（idle 或第一次 `pointerdown`／`focusin`）、tier 0 的 200ms 交叉淡化導頁 | 新增 |
+| `reveal.ts` | 結果頁：讀取並清除交棒（自帶 `tarot-draw` 鍵名與 15 秒時效，不 import `store.ts`）、核對牌 id、確認 `.is-drawn`、0.5 秒後在 `role="status"` 寫入宣告；分享按鈕（`navigator.share({ title, text, url })`，無 share 時按鈕改「複製連結」，取消靜默，其他錯誤退複製連結，剪貼簿也被擋時顯示網址連結供長按複製） | 新增 |
 | `fx/tier.ts` | 分級：reduced motion → 0；save-data、cores ≤ 2 或 deviceMemory ≤ 2 → 1；cores ≥ 6 且 deviceMemory ≥ 4（未提供時當 4）→ 3；其餘 2；取 `sessionStorage` 降級值的較小者；只在 DEV 支援 `?fx=0..3`（正式版會被移除） | 新增 |
 | `fx/gl.ts` | WebGL2 舞台：context（`failIfMajorPerformanceCaveat`）、shader 編譯與連結、全螢幕三角形頂點 shader、DPR ≤ 1.5 的 resize、單一 rAF 迴圈與 `play(duration, draw)`、看門狗（建立舞台時先量 8 幀閒置 rAF 間隔取中位數當基準；播放時每 20 幀或累計 400ms 取平均，> max(24ms, 基準 × 1.4) → 解析度 ×0.66 並降一級寫入 `fx-tier`，再超過一次 → 跳到最後一幀）、`visibilitychange` 暫停、`webglcontextlost` 隱藏 canvas 並讓進行中的播放回傳 `false`、`token()` 把 CSS token 轉成 shader 顏色 | 新增 |
 | `fx/collapse.ts` | 塌縮 shader：從點擊點擴張的兩源同心干涉環，硬邊、單色；前緣之後的環隨時間與距離變細，最後一幀為純 `--color-ink`（與結果頁底色相同） | 新增 |

@@ -1,5 +1,23 @@
 # 變更紀錄
 
+## 2026-11-22
+
+- **行銷組四項回饋落地**（規劃與查證經過見當日對話；文案凍結後的增補都已在 docs 標注）：
+  1. **首頁引導句**（`index.astro`）：提示句下方新增整行連結「想快速看完七張牌？點「牌組」。」，通往 `/deck/`（經 `sitePath()`），`min-height: 2.75rem` 點擊範圍。文案回寫 `01` §3（註明行銷組要求）。
+  2. **翻牌前不揭曉**（`draw.ts`）：`shuffleCards()` 洗完後把七個 `<a>` 的 `href` 停在 `/deck/`，真目標存 `Map`；`prefetch` 與 `go()` 改從 `Map` 取目標。懸停狀態列、長按預覽、中鍵／Ctrl 開新分頁只會看到牌組頁；報讀器連結清單顯示「第 N 張牌 → /deck/」。無 JS 備援不變（建置產物仍含七個真實 href）。規格同步 `02` §6.1、§6.2（v2.4：翻牌前不揭曉）。
+  3. **結果頁分享**（`[slug].astro`、`reveal.ts`）：[ 重新抽一張 ] 旁新增「分享」按鈕，`navigator.share({ title, text, url })`，text 為「我抽到〔角色名〕。QRACON 2026 量子塔羅」；無 `navigator.share` 時按鈕改「複製連結」；取消（`AbortError`）靜默；其他錯誤退複製連結，成功以 `role="status"` 宣告「連結已複製。」；剪貼簿也被擋時顯示網址連結供長按複製。`reveal.ts` 維持 import-free，建置後結果頁仍是零外部 JS。
+  4. **牌面橫排改版**（`Card.astro`）：移除 `writing-mode: vertical-rl`；牌面改為羅馬數字 → 英文牌名（全大寫、Barlow 800、10.5cqw）→ 角色名（Noto 900、11cqw、`text-wrap: balance`），flex `space-evenly` 置中分布，letter-spacing 尾隙以等量 `padding-inline-start` 補償。英文照資料庫 `nameEn`（The Lovers 等；行銷組清單的 THE LOVER／THE WORLD 屬出入，已回報確認）。規格同步 `02` §4.2、§7.2。
+- **「文字歪」查證結論**：行銷組實機回報牌面文字微歪。deepseek v4.1 flash 子代理判讀四張桌機截圖（字型正確載入）：直排無歪斜、置中在數像素內、8 字不裁切；根因推測為手機字型未載入時 fallback 直排度量差異＋小卡縮放錯覺。**改橫排把這個風險類別整個移除**（判讀同時發現的真實版面問題：內容偏上、下方留白過多，已隨 `space-evenly` 修掉；大卡整塊右偏數 px 為 letter-spacing 尾隙，已補償）。
+- **角色名字級 12 → 11.5 → 11cqw**：兩輪視覺判讀都指出 7 字角色名（糾纏態純愛戰士）在 7rem 小卡上貼髮絲內框；DOM 實測依序為 1.5 → 3.5 → 5px 餘裕，定案 11cqw（8 字死神在 7rem 小卡仍為 4+4 平衡換行 49+49，在結果頁大卡為 104+104）。
+- 驗證（本機實際執行）：
+  - `pnpm check` 0 錯誤 0 警告；`pnpm build` 10 頁。dist 檢查：結果頁 `<script>` 全內嵌（無 src）、分享文案與按鈕都在 HTML／內嵌 JS 裡；首頁入口 chunk 6729 bytes raw；無 JS 備援的七個 `deck/<id>/` href 仍在。
+  - 瀏覽器實測（dev 與 preview 各一輪）：七個連結 href 全為 `/Qracon2026_Tarot/deck/`、`aria-label`「第 N 張牌」、`data-card` 保留；點牌後正確導到洗牌對應的結果頁、`is-drawn` 進場、`role="status"` 宣告（實測抽中躍遷幸運星與疊加態混亂人）；無 `navigator.share` 的環境按鈕自動變「複製連結」，剪貼簿被擋時顯示網址退路（兩層退路都實測）。
+  - DOM 量測（preview、pane 1000px）：七張牌數字／英文／角色名 `centerDelta` 全 0；`docScrollWidth` 985 < 1000；WHEEL OF FORTUNE 換行 55+50 無孤字。
+  - **CDP 真 375 驗證**（`Emulation.setDeviceMetricsOverride`，正式建置）：首頁／結果頁／牌組頁 `scrollWidth = innerWidth = 375` 零溢出；牌寬 98px；結果頁大卡中心偏差 1px；頁尾右緣 358 < 375 完整。
+  - impeccable 偵測器（v4.9.1）對三個改動的 UI 檔案：0 項發現。
+- **截圖工具教訓**：無頭 Chrome `--screenshot --window-size=375` 在 Windows 會被**最小視窗寬度 500px** clamp（CDP 實測 `innerWidth=500`），而 `--screenshot` 又只擷取左側 375px——產出「版面按 500 排、右緣被裁」的假破版截圖，deepseek 兩輪的 P0 判讀皆源於此（2× 版本另有判讀端量測不一致）。日後手機版面驗證一律用 CDP device metrics（本 repo 既有做法），不要用 `--screenshot` CLI。
+- **未驗證**：真機 iOS Safari／Android、IG 與 LINE 內建瀏覽器（軟上線前補）；行銷組手機截圖覆核（已邀請提供，用 deepseek 再判讀一次）。
+
 ## 2026-11-18（第三次）
 
 - **新增 `PRODUCT.md`**（impeccable v4.9.1 `init`）：產品脈絡摘要，內容取自 `docs/01`–`04` 與訪談。訪談確認三件事：兩群使用者並重（還沒報名的學生從 IG／LINE 進來；已報名的參加者在會前或會場玩）；成功的主要標準是抽完去看議程或報名（截止後改會場）；定位與硬限制照 `docs/` 整理。待決事項沿用 `03-open-questions.md`（2026-11-16 狀態），沒有重新確認 K2、K3 是否已拍板。
