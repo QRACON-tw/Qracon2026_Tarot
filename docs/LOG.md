@@ -1,5 +1,16 @@
 # 變更紀錄
 
+## 2026-11-22（第四次）
+
+- **線上驗收**：主站 `QRACON-tw/2026` 的 `main` 推到 `d271d0f`（PR #13、#14 等 8 個 commit）觸發部署，塔羅 `main` 為 `4eadc3e`。`/2026/tarot/` 的 Last-Modified 為 2026-11-22 14:59:14 GMT（原為 11-20 06:45）。
+- 驗證（實際執行）：
+  - 本機以主站 workflow 相同的 `ASTRO_SITE`／`ASTRO_BASE_PATH=/2026/tarot` 建置後逐檔比對線上：78 檔全部 200；10 個 HTML 與 JS、CSS、字型、9 張 OG 圖逐位元相同。43 個 AVIF 檔名相同、位元不同，以 sharp 解碼比對尺寸一致、平均像素差 0.96–1.64／255，判斷為 Windows 與 Linux 的 AVIF 編碼器差異，不是版本不同。
+  - 全站 `noindex, follow`、canonical 皆為 `/2026/tarot/…`、`robots.txt` 允許、`sitemap.xml` 無 `<loc>`（軟上線狀態不變）。主站 `/2026/` 200，首頁 16 個站內連結全 200，主站沒有塔羅入口。
+  - 內建瀏覽器 375×812 行動模擬：首頁七個 href 皆停在 `/2026/tarot/deck/`、引導連結在、無水平溢出；點第 1 張導到洗牌對應的 `/deck/lovers/`，`role="status"`「你抽到糾纏態純愛戰士。」，兩顆按鈕同列、間距 16px、無 `navigator.share` 時顯示「複製連結」；牌組頁七張、無溢出、無小於 44px 的點擊目標；牌面為新版插畫橫排。
+  - 跨文件 VT：內建瀏覽器那次出現 `InvalidStateError: … Page already revealed`，當時瀏覽器窗格是隱藏狀態（背景分頁節流渲染）。改用無頭 Chrome 157（CDP、真 GPU、375 mobile、前景渲染）在線上抽三次：`pageswap` 帶 VT、`pagereveal` 的 `viewTransition.ready` 都成功、0 個 console 錯誤。**正式建置於 https 上的跨文件 VT morph 已驗證**（11-16 列為未驗證）。另重載首頁 8 次，排列皆不同，洗牌正常。
+- 已知、不影響本站：`/2026/tarot/` 底下不存在的路徑顯示主站 404（GitHub Pages 只用根目錄的 404）；網域根目錄鏡像（`QRACON-tw.github.io` 排程建置主站）不含塔羅，`/tarot/` 為 404，塔羅只在 `/2026/tarot/`。
+- 未驗證：真機 iOS Safari／Android、IG 與 LINE 內建瀏覽器。
+
 ## 2026-11-22（第三次）
 
 - **合併 `origin/main`**（遠端 4 個 commit：插畫素材 PR #1、改掛主站 `/2026/tarot/`、文件；本地 8 個 commit 自 `db8be62` 分岔）。衝突 4 檔，處理方式：
