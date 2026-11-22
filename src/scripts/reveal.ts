@@ -33,4 +33,44 @@ if (report && takeDraw(report.dataset.card ?? '')) {
   root.classList.remove('is-drawn');
 }
 
+const shareButton = document.querySelector<HTMLButtonElement>('[data-share]');
+
+if (shareButton) setupShare(shareButton);
+
+function setupShare(button: HTMLButtonElement): void {
+  const url = location.href;
+  const text = button.dataset.shareText ?? '';
+
+  if (!navigator.share) {
+    button.textContent = '複製連結';
+    button.addEventListener('click', () => void copyLink(url));
+    return;
+  }
+
+  button.addEventListener('click', () => {
+    void navigator.share({ title: document.title, text, url }).catch((error: unknown) => {
+      if (error instanceof DOMException && error.name === 'AbortError') return;
+      void copyLink(url);
+    });
+  });
+}
+
+async function copyLink(url: string): Promise<void> {
+  const shareStatus = document.querySelector<HTMLElement>('[data-share-status]');
+  const fallback = document.querySelector<HTMLAnchorElement>('[data-share-fallback]');
+
+  try {
+    if (!navigator.clipboard) throw new Error('no clipboard');
+    await navigator.clipboard.writeText(url);
+    if (shareStatus) shareStatus.textContent = '連結已複製。';
+  } catch {
+    // Some in-app browsers block the clipboard; surface the link for a long-press copy.
+    if (fallback) {
+      fallback.href = url;
+      fallback.textContent = url;
+      fallback.hidden = false;
+    }
+  }
+}
+
 export {};
