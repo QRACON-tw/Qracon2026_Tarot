@@ -13,6 +13,7 @@ const { card, class: className, flip = false } = Astro.props;
 <span class:list={['card', { 'card--flip': flip }, className]}>
   <span class="card__inner">
     <span class="card__face">
+      <span class="card__ghost" aria-hidden="true"><span>{card.numeral}</span></span>
       <span class="card__numeral">{card.numeral}</span>
       <span class="card__name-en">{card.nameEn}</span>
       <span class="card__persona">{card.persona}</span>
@@ -60,6 +61,35 @@ const { card, class: className, flip = false } = Astro.props;
     justify-content: space-evenly;
     padding: 12cqw 6cqw;
     text-align: center;
+  }
+
+  /* Oversized numeral printed light behind the face, cropped by the hairline frame. */
+  .card__ghost {
+    position: absolute;
+    inset: calc(var(--space-2) + var(--rule-hair));
+    overflow: hidden;
+    border-radius: max(0px, var(--radius-tile) - var(--rule-hair));
+    color: var(--color-dim-surface-strong);
+    font-family: var(--font-sign);
+    font-weight: var(--weight-sign-heavy);
+    font-size: 118cqw;
+    line-height: 0.8;
+    white-space: nowrap;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  .card__ghost > span {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    translate: -50% 14%;
+  }
+
+  .card__numeral,
+  .card__name-en,
+  .card__persona {
+    position: relative;
   }
 
   .card__numeral {
