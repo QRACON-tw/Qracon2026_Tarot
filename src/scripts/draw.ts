@@ -1,5 +1,6 @@
 import { capTier, detectTier, type Tier } from './fx/tier';
 import { drawStore } from './store';
+import { sitePath } from '../utils/paths';
 import type { Stage } from './fx/gl';
 import type { Collapse, Point } from './fx/collapse';
 import type { Particles } from './fx/particles';
@@ -64,6 +65,7 @@ function boot(list: HTMLOListElement, canvas: HTMLCanvasElement, veil: HTMLEleme
   let target: HTMLAnchorElement | null = null;
   let loading: Promise<Fx | null> | null = null;
   let fx: Fx | null = null;
+  const targets = new Map<HTMLAnchorElement, string>();
 
   const items = (): HTMLLIElement[] => [...list.children] as HTMLLIElement[];
 
@@ -127,6 +129,12 @@ function boot(list: HTMLOListElement, canvas: HTMLCanvasElement, veil: HTMLEleme
     const links = shuffle(slots.map((slot) => slot.querySelector('a') as HTMLAnchorElement));
     slots.forEach((slot, index) => {
       const link = links[index];
+      // Park the link on the deck page until the flip: hover previews, link
+      // lists and new tabs would otherwise reveal the draw before it happens.
+      if (!targets.has(link)) {
+        targets.set(link, link.href);
+        link.href = sitePath('/deck/');
+      }
       slot.append(link);
       link.setAttribute('aria-label', `第 ${index + 1} 張牌`);
       link.querySelector('.card')?.setAttribute('aria-hidden', 'true');
@@ -150,7 +158,7 @@ function boot(list: HTMLOListElement, canvas: HTMLCanvasElement, veil: HTMLEleme
     if (state === 'navigating' || !target) return;
     state = 'navigating';
     clearTimers();
-    location.assign(target.href);
+    location.assign(targets.get(target) ?? target.href);
   }
 
   function scatter(rects: Map<HTMLLIElement, DOMRect>, from: Point): void {
@@ -198,7 +206,7 @@ function boot(list: HTMLOListElement, canvas: HTMLCanvasElement, veil: HTMLEleme
     target = link;
     setTier(detectTier());
     drawStore.put(link.dataset.card ?? '');
-    prefetch(link.href);
+    prefetch(targets.get(link) ?? link.href);
 
     list.setAttribute('aria-busy', 'true');
     list.inert = true;
