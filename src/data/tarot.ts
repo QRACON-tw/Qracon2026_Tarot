@@ -32,6 +32,8 @@ export interface TarotCard {
     fortune: string;
     quote: string;
     traits: [string, string];
+    /** Daily reading supplied by marketing; the result page renders its section only when this is set. */
+    today?: string;
   };
   partner: { id: CardId; why: string };
   rival: { id: CardId; why: string };

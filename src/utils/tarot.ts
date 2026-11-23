@@ -5,6 +5,7 @@ export const TAROT_INDEXABLE: boolean = false;
 
 const LINE_MAX = 24;
 const NOTE_MAX = 70;
+const TODAY_MAX = 80;
 const STAT_KEYS = ['superposition', 'entanglement', 'coherence', 'energy'] as const;
 const FORBIDDEN_TERMS = ['坍縮', 'SSS', 'NFC', 'QXP', '冒險者'] as const;
 const ROMAN: readonly (readonly [number, string])[] = [
@@ -100,6 +101,13 @@ export function validateCards(list: readonly TarotCard[]): void {
     if (lineLength > LINE_MAX) problems.push(`${tag} concept.line is ${lineLength} chars (max ${LINE_MAX})`);
     const noteLength = [...card.concept.note].length;
     if (noteLength > NOTE_MAX) problems.push(`${tag} concept.note is ${noteLength} chars (max ${NOTE_MAX})`);
+
+    const today = card.reading.today;
+    if (today !== undefined) {
+      const todayLength = [...today].length;
+      if (today.trim() === '') problems.push(`${tag} reading.today must not be empty`);
+      else if (todayLength > TODAY_MAX) problems.push(`${tag} reading.today is ${todayLength} chars (max ${TODAY_MAX})`);
+    }
 
     const strings: [string, string][] = [];
     collectStrings(card, tag, strings);

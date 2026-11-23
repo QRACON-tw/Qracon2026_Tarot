@@ -59,6 +59,15 @@ const registrationOpen = site.registration.status === 'open';
       <p class="concept__line">{concept.line}</p>
     </section>
 
+    {
+      reading.today && (
+        <section class="report__section">
+          <h2>今日塔羅</h2>
+          <p>{reading.today}</p>
+        </section>
+      )
+    }
+
     <section class="report__section">
       <h2>最近的運勢</h2>
       <p>{reading.fortune}</p>
