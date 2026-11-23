@@ -1,12 +1,15 @@
 // Keep this file import-free: Astro then inlines it. An external script still
 // loading at first paint makes Chrome drop the cross-document view transition.
 const DRAW_KEY = 'tarot-draw';
+// Read by the inline script in pages/index.astro; keep the key and the { id, day } shape in sync.
+const TODAY_KEY = 'qracon.tarot.today';
 const DRAW_FRESH_MS = 15000;
 const ANNOUNCE_DELAY_MS = 500;
 
 const root = document.documentElement;
 const report = document.querySelector<HTMLElement>('[data-card]');
 const status = document.querySelector<HTMLElement>('[data-draw-status]');
+const cardId = report?.dataset.card ?? '';
 
 function takeDraw(id: string): boolean {
   try {
@@ -22,8 +25,18 @@ function takeDraw(id: string): boolean {
   }
 }
 
-if (report && takeDraw(report.dataset.card ?? '')) {
+function rememberToday(id: string): void {
+  const now = new Date();
+  const pad = (value: number): string => String(value).padStart(2, '0');
+  const day = `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+  try {
+    localStorage.setItem(TODAY_KEY, JSON.stringify({ id, day }));
+  } catch {}
+}
+
+if (report && takeDraw(cardId)) {
   root.classList.add('is-drawn');
+  rememberToday(cardId);
   if (status) {
     setTimeout(() => {
       status.textContent = `你抽到${status.dataset.persona ?? ''}。`;

@@ -8,6 +8,9 @@ import { cardPath } from '../utils/tarot';
 import { sitePath } from '../utils/paths';
 
 const deckPath = sitePath('/deck/');
+const todayCards = Object.fromEntries(
+  cards.map((card) => [card.id, { persona: card.persona, href: cardPath(card.id) }]),
+);
 ---
 
 <TarotLayout
@@ -20,6 +23,41 @@ const deckPath = sitePath('/deck/');
     <header class="draw__intro">
       <h1>你現在是哪一種量子態？</h1>
       <p class="draw__sub">七張牌，七種量子態。</p>
+      <p class="draw__today" data-today data-cards={JSON.stringify(todayCards)} hidden>你今天抽到：<span class="draw__today-persona" data-today-persona></span><a class="draw__today-link" data-today-link href={deckPath}>再看一次</a></p>
+      {/* Runs before first paint, so the line shows without shifting the layout. scripts/reveal.ts writes the key and its shape. */}
+      <script is:inline>
+        (() => {
+          const KEY = 'qracon.tarot.today';
+          const line = document.querySelector('[data-today]');
+          if (!line) return;
+
+          const fill = () => {
+            try {
+              const raw = localStorage.getItem(KEY);
+              if (!raw) return;
+              const saved = JSON.parse(raw);
+              const now = new Date();
+              const pad = (value) => String(value).padStart(2, '0');
+              const day = now.getFullYear() + '-' + pad(now.getMonth() + 1) + '-' + pad(now.getDate());
+              if (!saved || saved.day !== day) {
+                localStorage.removeItem(KEY);
+                return;
+              }
+              const cards = JSON.parse(line.dataset.cards);
+              if (!Object.prototype.hasOwnProperty.call(cards, saved.id)) return;
+              line.querySelector('[data-today-persona]').textContent = cards[saved.id].persona;
+              line.querySelector('[data-today-link]').href = cards[saved.id].href;
+              line.hidden = false;
+            } catch (e) {}
+          };
+
+          fill();
+          // A page restored from the back/forward cache does not run this script again.
+          addEventListener('pageshow', (event) => {
+            if (event.persisted) fill();
+          });
+        })();
+      </script>
       <div class="draw__hint">
         <p>翻開之前，你不知道會是哪一張。</p>
         <p>翻開一張，其他六張就散了。</p>
@@ -73,19 +111,43 @@ const deckPath = sitePath('/deck/');
     color: var(--color-on-ink-soft);
   }
 
-  .draw__deck-link {
+  /* keep-all: a long persona wraps as a whole instead of leaving its last character beside the link. */
+  .draw__today {
+    color: var(--color-on-ink-soft);
+    word-break: keep-all;
+    overflow-wrap: anywhere;
+  }
+
+  .draw__today-persona {
+    color: var(--color-white);
+    font-weight: var(--weight-bold);
+  }
+
+  /* A real space, not a margin: it disappears when the link wraps, so the link stays aligned with the line above. */
+  .draw__today-persona::after {
+    content: ' ';
+    word-spacing: var(--space-2);
+  }
+
+  .draw__deck-link,
+  .draw__today-link {
     display: inline-flex;
     align-items: center;
     min-height: 2.75rem;
-    margin-block-start: var(--space-1);
     color: var(--color-on-ink-soft);
     font-weight: var(--weight-bold);
     text-decoration-thickness: var(--rule-mid);
     text-underline-offset: 0.28em;
   }
 
+  .draw__deck-link {
+    margin-block-start: var(--space-1);
+  }
+
   .draw__deck-link:hover,
-  .draw__deck-link:focus-visible {
+  .draw__deck-link:focus-visible,
+  .draw__today-link:hover,
+  .draw__today-link:focus-visible {
     color: var(--color-white);
   }
 
