@@ -15,7 +15,7 @@
 | 網址 | `/tarot/`（網域未定） | `https://qracon.entangletech.tw/2026/tarot/`（§5） |
 | 時程 | P0–P6 共 14 工作天，無目標日 | **12/02 上線、12/06 凍結**（§11） |
 | 範圍 | 全部必做 | Must／Should／Later（§11） |
-| 分享 | Canvas 9:16 分享卡 + Web Share 帶檔案 | 結果頁第一屏 9:16 可截圖 + 只分享網址；Canvas 分享卡移到 Later（§9） |
+| 分享 | Canvas 9:16 分享卡 + Web Share 帶檔案 | 結果頁第一屏 9:16 可截圖 + 只分享網址；Canvas 分享卡移到 Later（§9）。**[v2.8 2026-11-23]** Later 的分享卡改為七張預先生成的靜態限動圖加 dialog，列入 Must；另加今日紀錄與今日塔羅（§6.7、§8、§9.2） |
 | 碎裂動畫 | 必做 | Should；Must 用淡出（§6.3） |
 | 關於頁 | 獨立頁 | Must 併入 `/tarot/deck/`（§5） |
 | 規格 | — | 補 S1–S12（標 `[v2.2]`） |
@@ -360,18 +360,18 @@ result ──重新抽一張──▶ 載入 tarotPath()（重新洗牌）
 - 結果頁有「重新抽一張」，回到塔羅首頁重洗。
 - 同一 session 內允許無限重抽（沒有集點，沒有理由限制）。
 - 不做「今天已經抽過」的鎖——那會讓分享連結進來的人卡住。
+- **[v2.8 2026-11-23]** 首頁的今日紀錄（§6.7）只是顯示，不鎖重抽：首頁的牌照常可翻，翻開就覆寫今天的紀錄。
 
-### 6.7 回訪（Should）
+### 6.7 今日紀錄（Must）
 
-**[v2.2] 只在 `?draw=1` 時寫入**（S2），單純瀏覽牌頁或從分享連結進來都不寫：
+**[v2.8 2026-11-23] 取代 v2.2 的 7 天回訪橫幅（Should）**：行銷組要求「塔羅每日紀錄」，專案負責人決定首頁顯示這台裝置今天抽到的牌，取代原本規劃的 7 天「你上次抽到」。原規劃的 `qracon.tarot.last`（`{ slug, at }`、7 天過期）從未實作，沒有舊鍵要清。
 
-```ts
-try {
-  localStorage.setItem('qracon.tarot.last', JSON.stringify({ slug, at: Date.now() }));
-} catch {}
-```
-
-首頁讀取時同樣 `try/catch`；`at` 超過 7 天不顯示。顯示文案見 `01` §3：「再看一次」連到該牌頁（不帶 `?draw=1`），牌扇照常顯示。
+- **鍵與值**：`localStorage['qracon.tarot.today']` ＝ `{ id, day }`；`id` 是牌的 slug，`day` 是這台裝置的當地日期 `YYYY-MM-DD`。
+- **寫入**：`reveal.ts` 只在首頁交棒成功（`takeDraw()` 通過）時寫入，包在 `try/catch` 裡。這就是 S2 當初對 `?draw=1` 訂的規則，v2.3 起改以交棒判斷（§6.8）。分享連結、重新整理、「再看一次」與牌組頁都不寫；同一天抽多次，以最後一次為準。只存在這台裝置，不上傳。
+- **讀取**：首頁副標與提示之間有一行「你今天抽到：〈角色名〉　再看一次」（文案見 `01` §3），預設 `hidden`；緊接其後的 inline script 在首次繪製前填入，所以不造成版面位移。角色名與牌頁網址在建置時以 `data-cards` 帶進這一行。`day` 等於今天才顯示；不是今天就移除這個鍵；`id` 不是七張牌之一（含 `__proto__` 這類原型鍵名）、JSON 損毀或 `localStorage` 讀取失敗，一律靜默略過，什麼都不顯示。
+- **bfcache**：頁面從 back/forward cache 還原時 inline script 不會重跑，所以監聽 `pageshow`，`event.persisted` 為真時再填一次。
+- **同步**：`reveal.ts` 與 `index.astro` 的 inline script 都不能 import 共用模組（`reveal.ts` 的限制見 `SITEMAP.md`），鍵名與 `{ id, day }` 形狀各寫一份，改一邊要改另一邊。
+- 「再看一次」連到該牌頁，沒有交棒，所以不播進場動畫，也不會再寫入。首頁沒有「重新抽一張」，因為牌就在下面。不鎖重抽（§6.6）。
 
 ### 6.8 [v2.2] `?draw=1` 的處理（S1）
 
@@ -479,6 +479,7 @@ export interface TarotCard {
     fortune: string;         // 最近的運勢
     quote: string;           // 牌義引言
     traits: [string, string]; // 兩條行為
+    today?: string;          // 今日塔羅（v2.8，行銷組提供；沒有就不顯示該區塊，≤ 80 字）
   };
   partner: { id: CardId; why: string };
   rival: { id: CardId; why: string };
@@ -486,7 +487,7 @@ export interface TarotCard {
 }
 ```
 
-`src/data/tarot.ts`（放在主站 `src/data/`，與 `site.ts` 同層）是唯一來源；結果頁、`/deck/`、OG 產生腳本都從它推導。文案改動只改這個檔。
+`src/data/tarot.ts`（放在主站 `src/data/`，與 `site.ts` 同層）是唯一來源；結果頁、`/deck/`、OG 與限動圖產生腳本都從它推導。文案改動只改這個檔。
 
 驗證（`astro check` 抓不到的）：
 
@@ -496,6 +497,7 @@ export interface TarotCard {
 - `numeral` 與 `arcana` 對應。
 - `concept.note` ≤ 70 字、`concept.line` ≤ 24 字。
 - **[v2.2]** 文案不含 emoji、不含「坍縮」、不含 `SSS`／`NFC`／`QXP`／`冒險者`。
+- **[v2.8 2026-11-23]** `reading.today`（`TODAY_MAX = 80`）：有設定時，trim 後不得為空、不得超過 80 字；emoji 與禁用字樣的檢查照樣涵蓋它。行銷組交付文字時只要寫進 `src/data/tarot.ts` 再重建（字型子集會自動涵蓋新字）。已用暫時文字驗證：80 字可建置；81 字讓 build 以 `[death] reading.today is 81 chars (max 80)` 失敗；只有空白以 `reading.today must not be empty` 失敗；驗證後已還原，目前七張都沒有文字。
 
 寫成 `validateCards()`，在 build 時跑，錯就讓 build 失敗。
 
@@ -515,15 +517,33 @@ export interface TarotCard {
 
 ### 9.2 站內分享
 
-**[v2.2] Must：只分享網址。**
+**[v2.2] Must：分享連結。**（v2.8 起結果頁另有「分享限動圖」，見下）
 
-- 「分享」按鈕：`navigator.share` 存在就呼叫 `navigator.share({ title, text, url })`（文案見 `01` §8）。只帶網址，不需要等待產圖，不會失去 user activation。
+- 「分享連結」按鈕（v2.8 前叫「分享」，因為頁面上現在有兩個分享動作而改名，行為不變）：`navigator.share` 存在就呼叫 `navigator.share({ title, text, url })`（文案見 `01` §8）。只帶網址，不需要等待產圖，不會失去 user activation。
 - 不支援時，按鈕改成「複製連結」，用 `navigator.clipboard.writeText`。
 - 使用者取消（`AbortError`）不顯示任何訊息；其他錯誤退回複製連結。
 
 **[v2.2] 截圖分享**：結果頁第一屏本身就是 9:16 構圖（§4.3）。學生習慣直接截圖貼 IG 限時動態，這條路不需要任何 JS。
 
-**Later：Canvas 分享卡**（v2.1 規格保留備查）：
+**[v2.8 2026-11-23] 限動圖：七張預先生成的靜態 PNG，取代下方的 Canvas 分享卡**
+
+- **需求與決定**：2026-11-23 行銷組要求「塔羅每日紀錄」（§6.7）與分享到 Instagram 限時動態，參考 Gemini Canvas 草稿（牌選單、選填 @帳號欄位、「下載限動圖 (1080×1920)」與「分享限動」兩顆按鈕）。草稿裡自訂的夥伴與對手資料、藍色強調色不採用：契合度仍以 `01` §6 為準，網站維持零色相。專案負責人決定不做 @帳號欄位：限時動態本來就會顯示發文者的帳號；站內預先生成的靜態圖，在內建瀏覽器裡存圖與下載比在手機上現場產圖可靠；結果頁也不放輸入欄位。
+- **為什麼是靜態圖，不是手機上用 canvas 畫**：一個真正的 https 圖片網址，才是 Android WebView 的長按存圖與下載處理器用得上的；`blob:` 網址在那裡會失敗（§9.3）。圖也不依賴使用者手機的字型。
+- **產生**：`pnpm build:story`（`scripts/build-story.mjs`）輸出 `public/story/{fool,lovers,hermit,wheel,death,tower,sun}.png`，每張 1080×1920、8-bit 調色盤 PNG（256 階灰；整張是純灰階，所以無損），大小 fool 95.8、lovers 70.0、hermit 89.8、wheel 78.6、death 85.7、tower 84.9、sun 77.6 KB。腳本以和 `build-og.mjs` 同風格的正規表示式讀 `src/data/tarot.ts` 的文字，每張牌渲染一頁 HTML，用無頭 Google Chrome（`--headless=new`、1080×1920、device scale factor 1、一次性的 `--user-data-dir`）截圖，再用 sharp 寫成調色盤 PNG。
+- **為什麼用 Chrome**：sharp 內建的 FreeType 沒有 brotli，讀不了 WOFF2；網站字型（Noto Sans TC 子集、Barlow Condensed 600／800）在 `.astro/fonts` 裡只有 WOFF2。OG 腳本改靠系統字型（'Noto Sans CJK TC'），而這台機器沒有。
+- **護欄**：（1）圖上每個字都必須出現在 `src/`（與 `astro.config.mjs` 的 `siteGlyphs()` 字型子集同一條規則），並且在最新的 Noto 檔的 cmap 裡，否則腳本失敗並提示先跑 `pnpm build`；（2）每個像素必須是中性灰，安全帶（y 250–1669、x 96–983）以外必須是純黑；（3）截圖必須是 1080×1920；（4）七張全部通過才寫入 `public/story/`。連跑兩次，產出逐位元相同；反向測試（用 `src/` 裡沒有的「龘」）會失敗並點名該字。
+- **前置與限制**：需要 Google Chrome（或用 `CHROME_PATH` 指定）與先跑過 `pnpm build`（填 `.astro/fonts`）。與 OG 圖一樣在本機執行並 commit PNG，不在 CI 跑。只在 macOS 跑過，Windows／Linux 的 Chrome 路徑沒測。
+- **重跑條件**：`name`、`nameEn`、`persona`、`concept.zh`、`reading.quote`、`stats`、`partner`、`rival` 或牌面插畫改動時。
+- **版面**：內容只放在安全帶 y 250–1670（Meta 建議的上 14%／250 px；Instagram 會在限動的上下蓋自己的介面），左右各留 96 px。由上到下：白色 QRACON 字標與「量子狀態觀測報告」，下接 3 px 白線；牌面（`Card.astro` 以 340/204 等比放大，340×595）；角色名 84 px／900；一行灰字 `{name} {nameEn} / {concept.zh}`（用半形斜線，因為全形空格 U+3000 與全形斜線 U+FF0F 不在字型子集裡）；牌義引言 34 px／700；四項屬性（標籤、Barlow 數值、6 px 條）；「最佳量子夥伴」與「最強相剋量子」，各接 `{numeral} {name}`；頁尾「也抽一張你的量子態」與 `qracon.entangletech.tw/2026/tarot`（由 `ASTRO_SITE` 與 `ASTRO_BASE_PATH` 推得）。圖上沒有 @帳號、今日塔羅文字與 QR code（今日塔羅要不要進圖，之後再決定）。
+- **結果頁的 dialog**（`src/pages/deck/[slug].astro`、`src/scripts/reveal.ts`）：`.report__again` 現在是 [重新抽一張] [分享限動圖] [分享連結]。「分享限動圖」是連到 `/story/<id>.png` 的連結：沒有 JS（或不支援 `<dialog>`）時直接開這張 PNG；有 JS 時開啟標題「限動圖」的 modal `<dialog>`，內有 9:16 圖片（`loading="lazy"`，dialog 開啟前不下載）、提示、狀態列與按鈕（文案見 `01` §7）。帶修飾鍵或非左鍵的點擊維持瀏覽器預設行為。
+- **按鈕顯示規則**：「分享圖片」與提示「按「分享圖片」，選 Instagram 再選限時動態。」只在 `navigator.canShare({ files: [png] })` 為 true 時顯示；「也可以長按圖片存進相簿，再到限時動態選這張圖。」一律顯示；「下載圖片」（`<a download>` 指向 PNG）在 iOS 隱藏（UA 含 iPhone／iPad／iPod，或 `navigator.platform` 為 `MacIntel` 且 `maxTouchPoints` > 1），因為 iOS 的下載落在「檔案」，Instagram 的挑選器拿不到；「開啟 Instagram」（`https://www.instagram.com/create/story`，一般連結）一律顯示；「用瀏覽器開啟」只在 LINE 內建瀏覽器（UA 含 ` Line/`）顯示，連到目前網址加 `openExternalBrowser=1`；「關閉」一律顯示。
+- **分享流程**：dialog 開啟時就把 PNG `fetch` 成 `File`（有快取；失敗後下次開啟會重試），備妥之前「分享圖片」維持停用：`share()` 必須在點擊事件裡同步呼叫，先 `await` 任何東西，iOS 就會丟掉 user activation。點擊時同步呼叫 `navigator.share({ files: [file] })`，**只帶檔案**，不帶 title、text、url（Instagram 可能改收文字而不是圖）。`AbortError` 不顯示任何訊息；其他錯誤，或 `canShare` 回 false，顯示「沒有叫出分享選單。長按圖片也能存進相簿。」；`fetch` 失敗顯示「圖片沒有載入，檢查網路後再試一次。」。
+- **關閉與焦點**：「關閉」、Esc、點 dialog 外的遮罩都能關；關閉時狀態列清空、焦點回到「分享限動圖」。dialog 開啟時背後的頁面不能捲動（`:root:has(.story[open])`）。開啟時焦點落在 dialog 本身（`tabindex="-1"`）：若讓瀏覽器自己挑，焦點會落在第一個可聚焦的控制項，矮螢幕上為了顯示它，會把上方的圖捲出畫面。
+- **體積限制**：`reveal.ts` 仍不 import 任何模組，建置後必須小於 4096 bytes（Vite 的 `assetsInlineLimit`；Astro 只內嵌小於這個值的 script），目前 3359 bytes；結果頁仍沒有 `<script src>`。再往 `reveal.ts` 加功能前先量建置後大小。
+- **真機證據**（測試 1，2026-11-23 16:59，iPhone 14、iOS Safari 27.2，在暫時頁 `/2026/tarot/lab/share-test/`）：只帶檔案的 `navigator.share()` 面板出現 Instagram → 限時動態，圖片進入限動編輯畫面；面板的「儲存影像」存進相簿；長按網址圖片存進相簿；`<a download>` 存進「檔案」；`https://www.instagram.com/create/story` 開啟 Instagram 限動相機；LINE 的 `?openExternalBrowser=1` 跳到 Safari（測試者回答）。
+- **尚未驗證**：iOS 的 Instagram 與 LINE 內建瀏覽器、Android Chrome、Android 的 Instagram 與 LINE；這個 dialog 在 iOS Safari 真機上叫出的分享面板（測試 1 用的是暫時頁；dialog 只用替身 `canShare`／`share`，在內建瀏覽器與 Playwright WebKit 的 iPhone 模擬裡測過）；螢幕報讀器；`pnpm build:story` 在 Windows／Linux。
+
+**Canvas 分享卡**（v2.1 規格保留備查；**[v2.8 2026-11-23] 已由上方的靜態限動圖取代，不再列在 Later**）：
 
 - Canvas 2D 產 1080×1920 PNG，`<a download>`；上下各留 15% 安全區。
 - 字型：先用 `getComputedStyle(document.documentElement).getPropertyValue('--font-sans')` 取實際字族名，再 `document.fonts.load()`。
@@ -532,9 +552,9 @@ export interface TarotCard {
 
 ### 9.3 In-App WebView（R10）
 
-受眾從 IG 限時動態或 LINE 點進來。Must 版只分享網址、不下載檔案，所以 IG／LINE 擋 `blob:` 下載的問題不存在；`navigator.share` 不存在時自動退到複製連結。
+受眾從 IG 限時動態或 LINE 點進來。分享連結不下載檔案，所以 IG／LINE 擋 `blob:` 下載的問題不影響它；`navigator.share` 不存在時自動退到複製連結。
 
-Canvas 分享卡（Later）若要做，才需要「偵測 UA 含 `Instagram`／`Line` 時彈出 `<img>` 預覽層，提示長按存圖」的退路。
+**[v2.8 2026-11-23]** 限動圖是檔案，會碰到 WebView 的限制。做法是不產 `blob:`、不靠 Web Share，讓 dialog 裡的 `<img>` 本身就是一個真正的 https 圖片網址（`/story/<id>.png`）：Android WebView 的長按存圖與下載處理器用得上這種網址，`blob:` 則會失敗。因此沒有 `navigator.share` 或 `canShare({ files })` 為 false 的環境（例如 R10 擔心的 WebView）仍有三條路：一律顯示的「也可以長按圖片存進相簿」提示、非 iOS 的「下載圖片」、一律顯示的「開啟 Instagram」連結；LINE 內建瀏覽器（UA 含 ` Line/`）另有「用瀏覽器開啟」，連到目前網址加 `openExternalBrowser=1`。UA 偵測只用在 LINE 這一顆連結與 iOS 的下載按鈕，Instagram 內建瀏覽器不另外偵測。真機行為見 §9.2 的證據與尚未驗證清單。
 
 ### 9.4 結果頁 QR（Should）
 
@@ -617,9 +637,9 @@ R9（K1 修訂後再度適用）：塔羅建置在主站 workflow 內執行，bu
 
 | 級別 | 內容 |
 | --- | --- |
-| **Must（12/02）** | 牌扇 + 洗位置 + 無 JS + 鍵盤 + reduced motion；被選牌翻開、其餘散去、塌縮轉場與結果頁進場（CSS 版；WebGL2 塌縮與粒子為漸進增強層，見 `05-fx-plan.md`）；7 張結果頁（字體牌、9:16 第一屏）；`/tarot/deck/`（含關於）；OG ×9；只分享網址 + 複製連結；CTA 接報名狀態；S1–S6、S9、S10 |
-| **Should（12/03–06 有餘力）** | 碎裂動畫；回訪橫幅；獨立 `/tarot/about/`；結果頁 QR（§9.4） |
-| **Later** | Canvas 9:16 分享卡與 WebView 長按退路、4:5 版本、插畫替換、音效（塵埃粒子已改為 tier 3 的 WebGL2 粒子，不再列在 Later） |
+| **Must（12/02）** | 牌扇 + 洗位置 + 無 JS + 鍵盤 + reduced motion；被選牌翻開、其餘散去、塌縮轉場與結果頁進場（CSS 版；WebGL2 塌縮與粒子為漸進增強層，見 `05-fx-plan.md`）；7 張結果頁（字體牌、9:16 第一屏）；`/tarot/deck/`（含關於）；OG ×9；分享連結 + 複製連結；CTA 接報名狀態；S1–S6、S9、S10；**[v2.8 2026-11-23]** 七張限動圖與分享 dialog（§9.2、§9.3）、今日紀錄（§6.7）、「今日塔羅」區塊（§8；文字待行銷組提供，沒有文字時不顯示） |
+| **Should（12/03–06 有餘力）** | 碎裂動畫；獨立 `/tarot/about/`；結果頁 QR（§9.4）（v2.8：回訪橫幅已由 Must 的今日紀錄取代） |
+| **Later** | 4:5 版本、插畫替換、音效（塵埃粒子已改為 tier 3 的 WebGL2 粒子，不再列在 Later；v2.8：Canvas 9:16 分享卡與 WebView 長按退路已由 Must 的限動圖與分享 dialog 取代） |
 
 ### 時程
 
@@ -659,7 +679,7 @@ R9（K1 修訂後再度適用）：塔羅建置在主站 workflow 內執行，bu
 - [ ] LCP ≤ 2.0s、CLS < 0.05、INP < 200ms（手機模擬）
 - [ ] Lighthouse：Accessibility ≥ 95、Performance ≥ 90（手機模擬）
 - [ ] 九張 OG 圖在 Facebook / X / LINE 各預覽一次
-- [ ] IG 與 LINE 內建瀏覽器各開一次，分享或複製連結可用
+- [ ] IG 與 LINE 內建瀏覽器各開一次，分享連結、複製連結與限動圖 dialog（長按存圖、開啟 Instagram）可用
 - [ ] 分享出去的網址不帶 `?draw=1`
 - [ ] `01-copy-deck.md` 的文案 100% 上線，沒有殘留 emoji
 - [ ] 物理名詞由校稿者簽過
@@ -680,7 +700,7 @@ R9（K1 修訂後再度適用）：塔羅建置在主站 workflow 內執行，bu
 | R7 | 元件分叉（K1＝C 後成真） | 複製的 tokens、`Button`、`paths.ts` 與主站漂移，兩站不一致 | `docs/SITEMAP.md` 標註複製自 `257b790`；主站改動共用檔時人工比對並同步 |
 | R8 | 塔羅在台灣的宗教聯想 | 受眾排斥 | 定位「娛樂 + 科普」，不做吉凶斷言 |
 | R9（K1 修訂後再度適用） | 塔羅 build 失敗擋住主站部署（同一個 workflow） | 主站議程無法更新 | 本 repo CI 在 push／PR 先擋（check＋build）；軟上線提早到 11/27；12/06 後主站部署前先手動跑一次塔羅建置 |
-| R10 | IG／LINE WebView 擋下載與 Web Share | 分享失效 | Must 只分享網址，退回複製連結（§9.3） |
+| R10 | IG／LINE WebView 擋下載與 Web Share | 分享失效 | 分享連結不下載，退回複製連結；限動圖用真正的 https 圖片網址，dialog 提供長按存圖、非 iOS 的下載與外部瀏覽器連結（§9.3）；WebView 內的真機行為尚未驗證 |
 | R11 | 1300ms 動畫結束才請求目標頁，4G 下卡住 | 轉場失敗 | 點擊 0ms 就 prefetch；1600ms 保底直接跳頁 |
 | **R12**（K1＝C 後不適用） | **協作者頻繁推 `main`，`feat/tarot` 衝突** | **合併延誤** | 每兩天 rebase；共用檔改動拆小 PR 先合（§11） |
 | **R13** | **GitHub Pages 沒有分支預覽** | **WebView、OG 只能在正式網址測** | 11/27 軟上線（noindex、無入口） |

@@ -36,6 +36,7 @@ QRACON 2026 學生量子電腦年會（2026-12-13，中央研究院南部院區�
 | `pnpm dev` | 開發伺服器，預設網址 <http://localhost:4321/2026/tarot/> |
 | `pnpm check` | `astro check`，型別檢查 |
 | `pnpm build` | 靜態輸出到 `dist/` |
+| `pnpm build:story` | 產生七張 1080 × 1920 限動圖到 `public/story/`；需要 Google Chrome（或設 `CHROME_PATH`），且要先跑過 `pnpm build`；本機執行後 commit PNG，不在 CI 跑 |
 
 環境變數（建置時讀取，沒設就用預設值）：
 
@@ -66,7 +67,7 @@ PowerShell 建在根目錄：`$env:ASTRO_BASE_PATH = '/'; pnpm build`，用完 `
 
 **視覺**：暗房（墨黑場 + 紙白牌面 + 銀墨高光，零色相）。見 `02-plan.md` §3。
 
-**時程**：11/27 軟上線（noindex、無入口）→ **12/02 正式上線** → 12/06 程式凍結 → 12/13 活動日。範圍分 Must／Should／Later，Canvas 分享卡與碎裂動畫不在 Must；WebGL2 塌縮與粒子是 Must 特效之上的增強層，不擋上線。
+**時程**：11/27 軟上線（noindex、無入口）→ **12/02 正式上線** → 12/06 程式凍結 → 12/13 活動日。範圍分 Must／Should／Later，碎裂動畫不在 Must；Canvas 分享卡改為預先生成的靜態限動圖，列入 Must（`docs/02-plan.md` §9.2）；WebGL2 塌縮與粒子是 Must 特效之上的增強層，不擋上線。
 
 ---
 
@@ -77,7 +78,7 @@ PowerShell 建在根目錄：`$env:ASTRO_BASE_PATH = '/'; pnpm build`，用完 `
 | 文案 v2.2 | 完成，**待物理校稿**（11/21 凍結） |
 | 網站計劃 v2.2 | 完成，**待 K1–K6 拍板** |
 | 素材需求 | 完成，**待設計組 11/18 確認墨底方向（A3）** |
-| 實作 | 抽牌頁、牌組頁與七張結果頁完成（插畫牌面已接入，字體牌保留為備援）；特效與行動裝置驗證見 `LOG.md`；OG ×9 已產生並接入。待辦：物理校稿簽核（K4）、主站入口 PR、IG／LINE WebView 真機驗證 |
+| 實作 | 抽牌頁、牌組頁與七張結果頁完成（插畫牌面已接入，字體牌保留為備援）；特效與行動裝置驗證見 `LOG.md`；OG ×9 已產生並接入。限動圖 ×7（`public/story/`）已產生，結果頁有「分享限動圖」dialog；首頁有今日紀錄「你今天抽到」；結果頁的「今日塔羅」區塊已就位，等行銷組提供文字（沒有文字就不顯示）。待辦：物理校稿簽核（K4）、主站入口 PR、今日塔羅文字（`docs/03-open-questions.md` Q11）、IG／LINE WebView 與限動圖分享的真機驗證 |
 | 部署 | K1 修訂（2026-11-20）：主站掛載。主站 workflow 建置本 repo 並掛到 `/2026/tarot/`（[QRACON-tw/2026#12](https://github.com/QRACON-tw/2026/pull/12)）；本 repo 只留 CI，無獨立 Pages |
 
 擋上線的決策見 `docs/03-open-questions.md`：K2 報名截止日、K3 上線日、K4 物理校稿者（K1 已修訂為主站掛載、K6 已定案：repo `QRACON-tw/Qracon2026_Tarot`、正式網址 `https://qracon.entangletech.tw/2026/tarot/`）。插畫排程不擋上線（字體牌為備援）。
