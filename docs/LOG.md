@@ -1,5 +1,16 @@
 # 變更紀錄
 
+## 2026-11-23（第二次）
+
+- **死神角色名換行**（`Card.astro`、`src/data/tarot.ts`、`src/utils/tarot.ts`）：行銷組回報牌組頁的死神牌面把「退相干爆肝工程師」切成「退相干爆／肝工程師」（`text-wrap: balance` 平分成 4／4 字，「爆肝」被拆開），要求改成「退相干／爆肝工程師」。`TarotCard` 加選填欄位 `personaParts`，死神設為 `['退相干', '爆肝工程師']`；牌面遇到這個欄位就在各段之間放 `<wbr>`，並加 `word-break: keep-all`（`.card__persona--parts`），只在段落交界換行，一行放得下時照舊一行。`validateCards()` 新增檢查：各段接起來必須等於 `persona`。`<title>`、分享文字、OG 圖仍用 `persona`，不受影響。規格見 `02` §7.2（v2.7）、§8。
+- 驗證（本機實際執行）：
+  - `pnpm check`：0 錯誤 0 警告 0 提示（27 個檔案）。`pnpm build`：10 頁；首頁、牌組頁、死神結果頁的 HTML 都是 `退相干<wbr>爆肝工程師`；`public/og/` 沒有變動。
+  - 反向測試：暫時把死神的 `personaParts` 改成接不回 `persona`，`pnpm build` 以 `[death] personaParts must join into persona "退相干爆肝工程師"` 失敗；還原後重建通過。
+  - dev server＋內建瀏覽器逐字量測行位置：牌組頁 112px 牌（1024 寬、375 行動模擬）與首頁翻牌（375 寬 104px、320×640 寬 86px）的死神都是「退相干／爆肝工程師」、無溢出；死神結果頁 204px 大卡仍是一行；其餘六張在量測到的 83–112px 都是一行；`scrollWidth` 等於視窗寬。
+  - 備註：dev server 又一次供應舊的 scoped CSS（新的 `.card__persona--parts` 規則沒進來，build 產物裡有），重開 dev server 後正常，與 11-22（第二次）的狀況相同。
+- **上線**：塔羅 `main` 推到 `eec3c22`（CI 通過），手動觸發主站 `deploy-pages.yml`（[run 45166507611](https://github.com/QRACON-tw/2026/actions/runs/45166507611)；主站 `main` 維持 `d271d0f`，與上次部署相同，所以只多出這次修改），build、deploy 皆 success。
+- 線上驗證（實際執行）：塔羅首頁、牌組頁、死神結果頁 200，`Last-Modified` 2026-11-23 11:35:47–48 GMT（原為 07:51:43），HTML 與本機 `dist/` 逐位元相同、都含 `退相干<wbr>爆肝工程師`；`Card.De_GyWwO.css` 含 `.card__persona--parts{word-break:keep-all}`；`og/death.png` 與 repo 相同；`deck/fool/`、`lab/share-test/`、主站 `/2026/` 皆 200；塔羅首頁仍 `noindex, follow`、`sitemap.xml` 無 `<loc>`。內建瀏覽器開正式網址（375 行動模擬）：死神牌面「退相干／爆肝工程師」、`word-break: keep-all`，其餘六張都是一行，七張插畫都載入，無水平溢出。
+
 ## 2026-11-23
 
 - **實機分享測試頁（暫時）**：行銷組要求結果頁能把 9:16 圖分享到 IG 限時動態。網頁沒有直接發佈到 IG 限動的做法，能做到哪一步取決於各 App 在真機上的行為，而這些目前都沒有實測資料：Web Share 帶圖片時面板有沒有 IG 限動、帶文字與網址時 IG 是否只收到文字（有人回報 iOS 會）、剪貼簿圖片能不能貼進限動、下載與長按存圖的落點、`instagram.com/create/story` 從網頁點開會落到哪、LINE 的 `?openExternalBrowser=1` 有沒有跳出內建瀏覽器。先收真機資料，再決定分享鈕怎麼做。
