@@ -40,7 +40,9 @@ const { card, class: className, flip = false } = Astro.props;
       <span class="card__numeral">{card.numeral}</span>
       <span class="card__caption">
         <span class="card__name-en">{card.nameEn}</span>
-        <span class="card__persona">{card.persona}</span>
+        <span class:list={['card__persona', { 'card__persona--parts': card.personaParts }]}>
+          {card.personaParts ? card.personaParts.map((part, index) => <>{index > 0 && <wbr />}{part}</>) : card.persona}
+        </span>
       </span>
     </span>
     {
@@ -157,6 +159,11 @@ const { card, class: className, flip = false } = Astro.props;
     letter-spacing: 0.02em;
     padding-inline-start: 0.02em;
     text-wrap: balance;
+  }
+
+  /* With listed parts, a persona that needs two lines breaks only at the <wbr> between them, never mid-word. */
+  .card__persona--parts {
+    word-break: keep-all;
   }
 
   .card__glyph {

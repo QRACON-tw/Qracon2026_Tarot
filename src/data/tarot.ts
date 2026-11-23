@@ -18,6 +18,8 @@ export interface TarotCard {
   name: string;
   nameEn: string;
   persona: string;
+  /** Optional break points for the card face: a two-line persona breaks only between these parts, which must join into `persona`. */
+  personaParts?: readonly string[];
   personaEn: string;
   concept: {
     zh: string;
@@ -140,6 +142,7 @@ export const cards: readonly TarotCard[] = [
     name: '死神',
     nameEn: 'Death',
     persona: '退相干爆肝工程師',
+    personaParts: ['退相干', '爆肝工程師'],
     personaEn: 'Decoherence Engineer',
     concept: {
       zh: '退相干',

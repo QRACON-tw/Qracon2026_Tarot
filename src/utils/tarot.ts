@@ -87,6 +87,10 @@ export function validateCards(list: readonly TarotCard[]): void {
       }
     }
 
+    if (card.personaParts && card.personaParts.join('') !== card.persona) {
+      problems.push(`${tag} personaParts must join into persona "${card.persona}"`);
+    }
+
     const expected = toRoman(card.arcana);
     if (card.numeral !== expected) {
       problems.push(`${tag} numeral "${card.numeral}" does not match arcana ${card.arcana} ("${expected}")`);
