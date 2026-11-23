@@ -14,8 +14,9 @@
 | `/2026/tarot/404.html` | `src/pages/404.astro` | `noindex`、無 canonical |
 | `/2026/tarot/sitemap.xml` | `src/pages/sitemap.xml.ts` | `TAROT_INDEXABLE = false` 時沒有任何 `<loc>` |
 | `/2026/tarot/robots.txt` | `src/pages/robots.txt.ts` | 全部允許，附 sitemap 網址 |
+| `/2026/tarot/lab/share-test/` | `public/lab/share-test/index.html` | 實機分享測試頁（暫時）：測 Web Share 帶圖、複製圖片、下載、長按存圖、IG 限動連結、LINE 外部瀏覽器參數；`noindex, nofollow`、不進 sitemap、站內沒有任何連結；測完即刪 |
 
-建置產出 10 個 HTML：首頁、deck、七張牌、404。
+建置產出 10 個 Astro 頁面 HTML：首頁、deck、七張牌、404；另有 `public/lab/share-test/index.html` 原樣複製進 `dist/`（靜態測試頁，不是 Astro 頁面，測完即刪），`dist/` 內共 11 個 HTML。
 
 ## 檔案
 
@@ -41,6 +42,7 @@
 | --- | --- | --- |
 | `favicon.ico`、`favicon-96x96.png`、`apple-touch-icon.png` | 網站圖示 | 複製 |
 | `og/tarot.png`、`og/tarot-deck.png`、`og/{fool,lovers,hermit,wheel,death,tower,sun}.png` | 1200 × 630 PNG 分享圖；墨底、字標、頁面文案與相應牌面／牌背，由 `scripts/build-og.mjs` 產生 | 生成 |
+| `lab/share-test/index.html` | 實機分享測試頁（暫時）：單一檔案、行內樣式與腳本、不載入外部資源；瀏覽器以 canvas 產生 1080 × 1920 測試圖（引用 `og/fool.png`），測 Web Share 帶圖、剪貼簿圖片、下載、長按存圖、IG 限動連結、LINE 外部瀏覽器參數；結果存該手機的 `localStorage`，可複製成純文字回報；測完即刪 | 新增 |
 
 ### `src/assets/`
 

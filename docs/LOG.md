@@ -1,5 +1,22 @@
 # 變更紀錄
 
+## 2026-11-23
+
+- **實機分享測試頁（暫時）**：行銷組要求結果頁能把 9:16 圖分享到 IG 限時動態。網頁沒有直接發佈到 IG 限動的做法，能做到哪一步取決於各 App 在真機上的行為，而這些目前都沒有實測資料：Web Share 帶圖片時面板有沒有 IG 限動、帶文字與網址時 IG 是否只收到文字（有人回報 iOS 會）、剪貼簿圖片能不能貼進限動、下載與長按存圖的落點、`instagram.com/create/story` 從網頁點開會落到哪、LINE 的 `?openExternalBrowser=1` 有沒有跳出內建瀏覽器。先收真機資料，再決定分享鈕怎麼做。
+- **測什麼**：T1 只分享圖片、T2 圖片加文字與網址、T3 只分享網址（現行結果頁做法）、T4 複製圖片、T5／T6 下載（產生的圖／網址圖片）、T7／T8 長按存圖（產生的圖／網址圖片）、T9 開 IG 限動相機連結、T10 LINE 外部瀏覽器參數；環境涵蓋 iOS Safari、Android Chrome 與 IG、LINE、Facebook 內建瀏覽器。測試者逐項點擊並勾選看到的結果，按「複製結果」貼回純文字報告；沒有後端，紀錄只存在該手機的 `localStorage`。
+- **放哪裡、怎麼收**：`public/lab/share-test/index.html`，單一檔案（行內 CSS 與一段 `<script type="module">`，不載入外部資源；測試圖由瀏覽器用 canvas 產生，只引用站內 `og/fool.png`），建置時原樣複製，網址 `/2026/tarot/lab/share-test/`。暫時性質：`noindex, nofollow`、不進 sitemap、站內沒有任何連結；測完即刪（連同 `SITEMAP.md` 的兩列）。未動 `src/`、`scripts/`、`astro.config.mjs`、依賴與 CI。
+- 驗證（本機實際執行）：
+  - `pnpm check`：0 錯誤 0 警告 0 提示（27 個檔案）。
+  - `pnpm build`：10 頁；`dist/lab/share-test/index.html` 存在，與 `public/` 來源逐位元相同；`dist/` 內共 11 個 HTML。
+  - 把行內 module script 抽成 `.mjs`，`node --check`：通過。
+  - 對新檔案 grep：沒有 emoji；十六進位色除 canvas 專用的五個色（`#08090a`、`#141516`、`#5a5c5a`、`#8a8c88`、`#d4d5d2`）外皆為灰階；`await` 只在產圖函式 `generateImage()` 內，呼叫 `navigator.share()`／`clipboard.write()` 的路徑上沒有任何 `await`；沒有 `confirm(`、`-webkit-touch-callout`、`user-select`、`pointer-events`；沒有 `/2026/` 絕對路徑；沒有 `fetch`／XHR／動態 `import()`，唯一的絕對網址是 T9 的 IG 連結。
+  - 暫存 Node 腳本（未進 repo）把頁面的純邏輯抽出來跑：25 組 UA 的系統與瀏覽器判斷（含 IG、LINE、Facebook、Messenger、Threads、Samsung、iPadOS 桌面版 UA）、時區標籤、測試編號字元集、報告逐行比對、損毀或型別錯誤的 `localStorage` 內容、會丟例外的 storage，全部通過。審核時另補未列名 App 的 WebView 判斷（Android `; wv)`、iOS 缺 `Safari/` token），10 組 UA 重跑通過。
+  - dev server＋內建瀏覽器（375×812 行動模擬，Android Chrome UA）：測試圖 1080×1920、約 260 KB、25–40 ms 產生，安全區帶、標題、`og/fool.png`、測試編號都在；網路請求只有本頁、`og/fool.png` 與 blob。T1 點擊記錄「不支援（navigator.share 不存在）」；T4 以替身剪貼簿（避免覆寫系統剪貼簿）記錄「完成」並寫入 `image/png`；勾選與備註即時進報告、寫入 `localStorage`，重新整理後全部還原；「複製結果」寫入完整報告並顯示「已複製。」；「清除這台的紀錄」第一下變「再按一次確認清除」、3 秒內第二下清空後重載。320×640：`scrollWidth = 320` 無溢出，71 個可點目標（展開 `<details>`）皆 ≥ 44px。console 無本頁錯誤。
+  - 注意：Astro dev server 不會把 `public/` 的目錄網址對到 `index.html`（`/2026/tarot/lab/share-test/` 回 404），本機要開 `…/share-test/index.html`；正式站 GitHub Pages 用目錄網址即可。
+- **上線**：塔羅 `main` 推到 `a5ca654`（CI 通過），手動觸發主站 `deploy-pages.yml`（[run 45134049338](https://github.com/QRACON-tw/2026/actions/runs/45134049338)；主站 `main` 維持 `d271d0f`，與上次部署相同，所以只多出這一頁），build、deploy 皆 success。
+- 線上驗證（實際執行）：`/2026/tarot/lab/share-test/` 200、`Last-Modified` 2026-11-23 07:51:43 GMT、內容與 repo 檔案逐位元相同、`noindex, nofollow`；不帶斜線的網址 301 到帶斜線版本，相對路徑因此成立；`og/fool.png`、`favicon.ico`、塔羅首頁、牌組、`deck/fool/` 與主站 `/2026/` 皆 200；塔羅首頁仍 `noindex, follow`、`sitemap.xml` 無 `<loc>`。內建瀏覽器開正式網址：安全連線「是」，測試圖以線上 `og/fool.png` 產生（261 KB），T5／T6／T9／T10 的連結解析正確，`localStorage` 可用，console 無錯誤。
+- 未驗證：真機與各 App 內建瀏覽器（這頁就是要拿去測的）；`navigator.share` 帶檔案的實際呼叫（內建瀏覽器沒有 `navigator.share`）。
+
 ## 2026-11-22（第四次）
 
 - **線上驗收**：主站 `QRACON-tw/2026` 的 `main` 推到 `d271d0f`（PR #13、#14 等 8 個 commit）觸發部署，塔羅 `main` 為 `4eadc3e`。`/2026/tarot/` 的 Last-Modified 為 2026-11-22 14:59:14 GMT（原為 11-20 06:45）。
