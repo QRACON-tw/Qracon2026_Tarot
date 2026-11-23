@@ -6,6 +6,7 @@ import Button from '../../components/Button.astro';
 import { mainSite, site } from '../../data/site';
 import { cards } from '../../data/tarot';
 import { cardById, cardPath } from '../../utils/tarot';
+import { sitePath } from '../../utils/paths';
 
 export const getStaticPaths = (() =>
   cards.map((card) => ({ params: { slug: card.id }, props: { card } }))) satisfies GetStaticPaths;
@@ -26,6 +27,9 @@ const matches = [
 ];
 
 const registrationOpen = site.registration.status === 'open';
+
+const storyPath = `/story/${card.id}.png`;
+const storyFile = `qracon-tarot-${card.id}.png`;
 ---
 
 <TarotLayout
@@ -132,10 +136,34 @@ const registrationOpen = site.registration.status === 'open';
 
     <div class="report__again">
       <Button href="/" variant="on-ink" icon="arrow-left" iconAt="start">重新抽一張</Button>
-      <Button variant="on-ink" data-share data-share-text={`我抽到${card.persona}。QRACON 2026 量子塔羅`}>分享</Button>
+      <Button href={storyPath} variant="on-ink" data-story data-story-file={storyFile}>分享限動圖</Button>
+      <Button variant="on-ink" data-share data-share-text={`我抽到${card.persona}。QRACON 2026 量子塔羅`}>分享連結</Button>
       <a class="report__share-url" data-share-fallback hidden></a>
     </div>
   </article>
+
+  <dialog class="story" data-story-dialog aria-labelledby="story-title">
+    <h2 id="story-title">限動圖</h2>
+    <img
+      class="story__image"
+      src={sitePath(storyPath)}
+      width="1080"
+      height="1920"
+      alt={`${card.persona}的限動圖`}
+      loading="lazy"
+      decoding="async"
+    />
+    <p class="story__hint" data-story-hint-share hidden>按「分享圖片」，選 Instagram 再選限時動態。</p>
+    <p class="story__hint">也可以長按圖片存進相簿，再到限時動態選這張圖。</p>
+    <p class="story__status" role="status" data-story-status></p>
+    <div class="story__actions">
+      <Button variant="on-ink" data-story-share hidden>分享圖片</Button>
+      <Button href={storyPath} variant="on-ink" download={storyFile} data-story-download hidden>下載圖片</Button>
+      <a class="story__link" href="https://www.instagram.com/create/story" data-story-ig>開啟 Instagram</a>
+      <a class="story__link" data-story-line hidden>用瀏覽器開啟</a>
+      <Button variant="on-ink" data-story-close>關閉</Button>
+    </div>
+  </dialog>
 </TarotLayout>
 
 <script>
@@ -307,6 +335,104 @@ const registrationOpen = site.registration.status === 'open';
     overflow-wrap: anywhere;
     color: var(--color-on-ink-soft);
     font-size: var(--text-sm);
+  }
+
+  /* Browsers without <dialog> support would otherwise render the markup inline. */
+  .story:not([open]) {
+    display: none;
+  }
+
+  .story {
+    width: min(100% - var(--gutter) * 2, 26rem);
+    max-width: none;
+    max-height: calc(100svh - 2rem);
+    /* The global `* { margin: 0 }` reset would otherwise cancel the dialog's centering `margin: auto`. */
+    margin: auto;
+    padding: var(--space-5) var(--space-4);
+    overflow: auto;
+    overscroll-behavior: contain;
+    border: var(--rule-hair) solid var(--color-on-ink-rule);
+    border-radius: var(--radius-dialog);
+    background: var(--color-ink);
+    color: var(--color-white);
+    text-align: center;
+  }
+
+  /* Only the script focuses the dialog itself; a ring around the whole box would be noise. */
+  .story:focus-visible {
+    outline: none;
+  }
+
+  .story::backdrop {
+    background: var(--color-backdrop);
+  }
+
+  /* Margins instead of grid gaps: the empty status line collapses and adds no space. */
+  .story > * + * {
+    margin-top: var(--space-3);
+  }
+
+  .story h2 {
+    font-size: var(--text-xl);
+    letter-spacing: 0.02em;
+  }
+
+  .story__image {
+    display: block;
+    height: min(58svh, 34rem);
+    width: auto;
+    aspect-ratio: 9 / 16;
+    margin-inline: auto;
+    border: var(--rule-hair) solid var(--color-on-ink-rule);
+    /* If max-width ever clamps the box, letterbox instead of stretching. */
+    object-fit: contain;
+  }
+
+  .story__hint {
+    color: var(--color-on-ink-soft);
+    font-size: var(--text-sm);
+    line-height: var(--leading-snug);
+    text-wrap: balance;
+  }
+
+  .story__status {
+    font-size: var(--text-sm);
+    font-weight: var(--weight-bold);
+    line-height: var(--leading-snug);
+  }
+
+  .story__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-3);
+  }
+
+  .story__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    color: var(--color-on-ink-soft);
+    font-weight: var(--weight-bold);
+    text-decoration-thickness: var(--rule-mid);
+    text-underline-offset: 0.28em;
+  }
+
+  .story__link:hover,
+  .story__link:focus-visible {
+    color: var(--color-white);
+  }
+
+  .story :global(.btn:disabled) {
+    background: transparent;
+    color: var(--color-white);
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  :global(:root:has(.story[open])) {
+    overflow: hidden;
   }
 
   .report > :nth-child(1) { --i: 0; }
