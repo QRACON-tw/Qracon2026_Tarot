@@ -1,0 +1,1413 @@
+<!doctype html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#000">
+<meta name="format-detection" content="telephone=no">
+<title>分享實機測試｜QRACON 2026 量子塔羅</title>
+<link rel="icon" href="../../favicon.ico">
+<style>
+  :root {
+    color-scheme: dark;
+    --ink: #000;
+    --paper: #fff;
+    --soft: #b3b3b3;
+    --rule: #4d4d4d;
+    --raised: #262626;
+    --sans: -apple-system, BlinkMacSystemFont, "PingFang TC", "Noto Sans TC", "Noto Sans CJK TC", "Microsoft JhengHei", sans-serif;
+    --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  [hidden] {
+    display: none !important;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    background: var(--ink);
+    color: var(--paper);
+  }
+
+  body {
+    margin: 0;
+    background: var(--ink);
+    color: var(--paper);
+    font-family: var(--sans);
+    font-size: 1rem;
+    line-height: 1.7;
+    overflow-wrap: anywhere;
+  }
+
+  main {
+    width: 100%;
+    max-width: 40rem;
+    margin-inline: auto;
+    padding: 2rem 1rem 4rem;
+  }
+
+  h1,
+  h2,
+  h3 {
+    margin: 0;
+    font-weight: 900;
+    line-height: 1.25;
+    text-wrap: balance;
+  }
+
+  h1 {
+    margin-bottom: 0.25rem;
+    font-size: 1.875rem;
+  }
+
+  h2 {
+    margin: 3rem 0 1rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--rule);
+    font-size: 1.375rem;
+  }
+
+  h3 {
+    font-size: 1.125rem;
+    line-height: 1.4;
+  }
+
+  p,
+  ul,
+  dl {
+    margin: 0 0 1rem;
+  }
+
+  ul.plain {
+    padding: 0;
+    list-style: none;
+  }
+
+  .muted {
+    color: var(--soft);
+  }
+
+  .mono {
+    font-family: var(--mono);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--paper);
+    outline-offset: 2px;
+  }
+
+  /* Notices (noscript and fatal errors) */
+  .notice {
+    margin: 0 0 1.5rem;
+    padding: 0.75rem 1rem;
+    border: 1.5px solid var(--paper);
+    border-radius: 4px;
+  }
+
+  /* Disclosure blocks */
+  details {
+    border-block: 1px solid var(--rule);
+  }
+
+  summary {
+    min-height: 2.75rem;
+    padding-block: 0.6875rem;
+    font-weight: 700;
+    line-height: 1.4;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .details-body {
+    padding-bottom: 1rem;
+  }
+
+  .details-body > :last-child {
+    margin-bottom: 0;
+  }
+
+  .howto {
+    margin-top: 1.5rem;
+    border-bottom: 0;
+  }
+
+  .ua {
+    margin: 0;
+    border-top: 0;
+  }
+
+  /* Buttons and link-buttons */
+  .button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 2.75rem;
+    max-width: 100%;
+    padding: 0.5rem 1.25rem;
+    border: 1.5px solid var(--paper);
+    border-radius: 4px;
+    background: transparent;
+    color: var(--paper);
+    font: inherit;
+    font-weight: 700;
+    line-height: 1.4;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  .button:active:not(:disabled):not([aria-disabled="true"]) {
+    background: var(--soft);
+    color: var(--ink);
+  }
+
+  @media (hover: hover) {
+    .button:hover:not(:disabled):not([aria-disabled="true"]) {
+      background: var(--paper);
+      color: var(--ink);
+    }
+  }
+
+  .button:disabled,
+  .button[aria-disabled="true"] {
+    border-color: var(--rule);
+    color: var(--soft);
+    cursor: not-allowed;
+  }
+
+  .button[data-armed] {
+    background: var(--paper);
+    color: var(--ink);
+  }
+
+  /* Text fields */
+  .fields {
+    display: grid;
+    gap: 1rem;
+    margin-top: 1rem;
+  }
+
+  .field {
+    display: grid;
+    gap: 0.375rem;
+    min-width: 0;
+  }
+
+  .field > span {
+    font-weight: 700;
+  }
+
+  input[type="text"],
+  textarea {
+    width: 100%;
+    min-width: 0;
+    border: 1.5px solid var(--rule);
+    border-radius: 4px;
+    background: var(--ink);
+    color: var(--paper);
+    font: inherit;
+    line-height: 1.5;
+    -webkit-appearance: none;
+    appearance: none;
+  }
+
+  input[type="text"] {
+    min-height: 2.75rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  textarea {
+    padding: 0.75rem;
+    font-family: var(--mono);
+    resize: vertical;
+  }
+
+  ::placeholder {
+    color: var(--soft);
+    opacity: 1;
+  }
+
+  /* Environment facts */
+  .facts {
+    margin: 1.5rem 0 0;
+    border-top: 1px solid var(--rule);
+  }
+
+  .facts > div {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.125rem 1rem;
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  .facts dt {
+    color: var(--soft);
+  }
+
+  .facts dd {
+    margin: 0;
+    font-family: var(--mono);
+    text-align: right;
+  }
+
+  .image-block {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    align-items: flex-start;
+    margin-top: 1.5rem;
+  }
+
+  #preview {
+    flex: none;
+    width: 8rem;
+    height: auto;
+    border: 1px solid var(--rule);
+  }
+
+  .image-info {
+    flex: 1 1 10rem;
+    min-width: 0;
+  }
+
+  .image-info p {
+    margin-bottom: 0.5rem;
+  }
+
+  /* Test cards */
+  .test {
+    display: grid;
+    gap: 1rem;
+    padding-block: 1.5rem;
+    border-top: 1px solid var(--rule);
+  }
+
+  .test > * {
+    margin: 0;
+    min-width: 0;
+  }
+
+  #tests {
+    margin-top: 1.5rem;
+  }
+
+  #tests > .test:first-child {
+    padding-top: 0;
+    border-top: 0;
+  }
+
+  .tid {
+    display: inline-block;
+    margin-right: 0.25rem;
+    padding: 0 0.5rem;
+    border: 1px solid var(--rule);
+    border-radius: 4px;
+    color: var(--soft);
+    font-family: var(--mono);
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.6;
+  }
+
+  .control {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .control img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    border: 1px solid var(--rule);
+  }
+
+  .placeholder {
+    margin: 0;
+    color: var(--soft);
+  }
+
+  .auto {
+    color: var(--soft);
+    font-size: 0.9375rem;
+  }
+
+  .auto__value {
+    color: var(--paper);
+    font-family: var(--mono);
+  }
+
+  fieldset {
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  legend {
+    margin: 0 0 0.5rem;
+    padding: 0;
+    font-weight: 700;
+    line-height: 1.5;
+  }
+
+  .opts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .opt {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    min-height: 2.75rem;
+    max-width: 100%;
+    padding: 0.25rem 0.875rem;
+    border: 1.5px solid var(--rule);
+    border-radius: 4px;
+    background: var(--raised);
+    line-height: 1.4;
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+
+  .opt:has(input:checked) {
+    border-color: var(--paper);
+  }
+
+  .opt input {
+    flex: none;
+    width: 1.25rem;
+    height: 1.25rem;
+    margin: 0;
+    accent-color: var(--paper);
+  }
+
+  /* Results */
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .status {
+    margin: 0.5rem 0 0;
+    color: var(--soft);
+  }
+
+  /* Reserve the line so the text field below does not jump when a message appears. */
+  #report-status {
+    min-height: 1.7em;
+    margin-bottom: 1rem;
+  }
+</style>
+</head>
+<body>
+<main>
+  <noscript><p class="notice">這頁需要 JavaScript。</p></noscript>
+  <p id="fatal" class="notice" role="alert" hidden></p>
+
+  <header>
+    <h1>分享實機測試</h1>
+    <p class="muted">版本 v1 · 2026-11-23</p>
+    <p>這頁測手機上分享圖片的各種做法。照順序點每一項，依你看到的結果勾選，不用真的發佈到 IG。做完按最下面的「複製結果」，把結果貼給工程。</p>
+  </header>
+
+  <details class="howto">
+    <summary>怎麼在 IG、LINE 裡打開這頁</summary>
+    <div class="details-body">
+      <ul class="plain">
+        <li>IG：把這頁網址用私訊傳給自己或朋友，在私訊裡點開。</li>
+        <li>LINE：貼到聊天室或 Keep 筆記，再點開。</li>
+      </ul>
+      <button type="button" class="button" id="copy-url">複製這頁網址</button>
+      <p id="copy-url-status" class="status" role="status" aria-live="polite"></p>
+      <p id="copy-url-fallback" class="mono" hidden></p>
+    </div>
+  </details>
+
+  <section aria-labelledby="env-title">
+    <h2 id="env-title">這台手機</h2>
+    <p>偵測到：<strong id="detected">偵測中…</strong></p>
+    <div class="fields">
+      <label class="field">
+        <span>裝置型號</span>
+        <input type="text" id="device" placeholder="例：iPhone 15、Pixel 8" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="done">
+      </label>
+      <label class="field">
+        <span>測試者（可不填）</span>
+        <input type="text" id="tester" autocomplete="off" autocapitalize="off" spellcheck="false" enterkeyhint="done">
+      </label>
+    </div>
+    <dl class="facts" id="facts"></dl>
+    <details class="ua">
+      <summary>User agent</summary>
+      <div class="details-body">
+        <p class="mono" id="ua"></p>
+      </div>
+    </details>
+    <div class="image-block">
+      <img id="preview" alt="分享測試圖預覽" width="1080" height="1920" hidden>
+      <div class="image-info">
+        <p>測試編號：<strong class="mono" id="image-id">—</strong></p>
+        <p id="image-status" role="status" aria-live="polite">圖片：產生中…</p>
+      </div>
+    </div>
+  </section>
+
+  <section aria-labelledby="tests-title">
+    <h2 id="tests-title">測試項目</h2>
+    <div id="tests"></div>
+  </section>
+
+  <section aria-labelledby="result-title">
+    <h2 id="result-title">結果</h2>
+    <div class="actions">
+      <button type="button" class="button" id="copy-report">複製結果</button>
+      <button type="button" class="button" id="share-report">用分享傳送結果</button>
+      <button type="button" class="button" id="clear-state">清除這台的紀錄</button>
+    </div>
+    <p id="report-status" class="status" role="status" aria-live="polite"></p>
+    <label class="field">
+      <span>結果文字</span>
+      <textarea id="report" readonly rows="12" spellcheck="false" autocomplete="off"></textarea>
+    </label>
+  </section>
+</main>
+
+<script type="module">
+// QRACON share lab: real-device checks for sharing a 9:16 image to Instagram Stories.
+// One self-contained file with no network requests beyond same-site assets.
+// Temporary page: delete it (and its two docs rows) after the test round.
+
+const STORAGE_KEY = 'qracon-share-test-v1';
+const REPORT_TITLE = 'QRACON 分享實機測試 v1';
+const FILE_NAME = 'qracon-story-test.png';
+const ART_SRC = '../../og/fool.png';
+const ART_TIMEOUT_MS = 15000;
+const SHARE_TEXT = '我抽到測試牌。QRACON 2026 量子塔羅';
+const IMAGE_W = 1080;
+const IMAGE_H = 1920;
+const SAFE_TOP = 288;
+const SAFE_BOTTOM = 1632;
+const ART_W = 1000;
+const ART_H = 525;
+const CANVAS_FONT = '"PingFang TC", "Noto Sans TC", "Noto Sans CJK TC", "Microsoft JhengHei", sans-serif';
+const ID_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const CONFIRM_MS = 3000;
+const LABEL_PENDING = '圖片產生中…';
+const LABEL_FAILED = '圖片產生失敗';
+const CLEAR_LABEL = '清除這台的紀錄';
+const NONE = '—';
+
+// Relative on purpose: the page lives under /lab/share-test/, the site root is two levels up.
+const siteUrl = probe(() => new URL('../../', location.href).href, location.href);
+
+// The generated test image, filled in once the canvas is done.
+const image = { status: 'pending', id: '', blob: null, file: null, url: '', kb: 0, ms: 0, artOk: true, error: '' };
+
+// Environment facts, filled in by boot().
+const env = { os: '其他系統', browser: '其他瀏覽器', ua: '' };
+const api = {
+  secure: '未知',
+  share: '未知',
+  canShareFile: NONE,
+  canShareFileText: NONE,
+  clipboardWrite: '未知',
+  clipboardItemPng: '未知',
+  userActivation: '未知',
+};
+
+const state = { device: '', tester: '', tests: {} };
+const autoNodes = {};
+const factNodes = {};
+const imageBindings = [];
+let storageCleared = false;
+
+const OPTIONS_SAVE = ['存進相簿', '存進檔案或下載資料夾', '開出圖片頁', '沒反應', '其他（寫在備註）'];
+const OPTIONS_HOLD = ['存進相簿', '有選單但存不了', '沒有選單'];
+
+// Every API call lives in a control's run(). It is invoked synchronously from the click
+// handler (no awaits in between) so the user activation is still alive when the API is called.
+const TESTS = [
+  {
+    id: 't1',
+    title: '只分享圖片',
+    instr: '點按鈕叫出分享面板，看完再選 Instagram → 限時動態。圖片進到編輯畫面就可以關掉，不用發佈。',
+    control: {
+      kind: 'button',
+      label: '分享圖片',
+      needsFile: true,
+      run: () => callShare({ files: [image.file] }),
+    },
+    questions: [
+      { id: 'panel', key: '面板', legend: '分享面板有出現嗎？', options: ['有', '沒有'] },
+      { id: 'ig', key: 'IG', legend: '面板裡有 Instagram 嗎？', options: ['有', '沒有'] },
+      { id: 'story', key: '限動', legend: '有「限時動態」選項嗎？', options: ['有', '沒有', '沒看到 IG'] },
+      { id: 'save', key: '儲存影像', legend: '有「儲存影像」嗎？', options: ['有', '沒有'] },
+      { id: 'import', key: '帶入', legend: '選 IG 限時動態後，圖片有帶進編輯畫面嗎？', options: ['有', '沒有', '沒試'] },
+    ],
+  },
+  {
+    id: 't2',
+    title: '圖片加文字',
+    instr: '跟上一項一樣，但同時帶文字和網址。有人回報 iOS 這樣做時，IG 只收到文字。',
+    control: {
+      kind: 'button',
+      label: '分享圖片和文字',
+      needsFile: true,
+      run: () => callShare({ files: [image.file], text: SHARE_TEXT, url: siteUrl }),
+    },
+    questions: [
+      { id: 'got', key: '收到', legend: '選 Instagram 後收到的是？', options: ['圖片', '只有文字', '圖文都有', '沒有 IG'] },
+    ],
+  },
+  {
+    id: 't3',
+    title: '只分享網址（現行做法）',
+    instr: '結果頁現在的「分享」按鈕就是這樣做。',
+    control: {
+      kind: 'button',
+      label: '分享網址',
+      needsFile: false,
+      run: () => callShare({ title: document.title, text: SHARE_TEXT, url: siteUrl }),
+    },
+    questions: [
+      { id: 'panel', key: '面板', legend: '分享面板有出現嗎？', options: ['有', '沒有'] },
+    ],
+  },
+  {
+    id: 't4',
+    title: '複製圖片',
+    instr: '複製後切到 IG 開限時動態，看會不會跳出貼上圖片的提示，或在文字工具裡長按貼上。',
+    control: {
+      kind: 'button',
+      label: '複製圖片',
+      needsFile: true,
+      run: () => copyImage(),
+    },
+    questions: [
+      { id: 'paste', key: '貼上', legend: '在 IG 限時動態能貼上圖片嗎？', options: ['能', '不能', '沒試'] },
+    ],
+  },
+  {
+    id: 't5',
+    title: '下載產生的圖',
+    instr: '點了之後，到相簿和「檔案」App（Android 是下載資料夾）找找看。',
+    control: { kind: 'link', label: '下載產生的圖', needsFile: true, download: FILE_NAME },
+    questions: [
+      { id: 'result', key: '結果', legend: '點了之後？', options: OPTIONS_SAVE },
+    ],
+  },
+  {
+    id: 't6',
+    title: '下載網址圖片',
+    instr: '點了之後，到相簿和「檔案」App（Android 是下載資料夾）找找看。',
+    control: { kind: 'link', label: '下載網址圖片', href: ART_SRC, download: 'qracon-og-test.png' },
+    questions: [
+      { id: 'result', key: '結果', legend: '點了之後？', options: OPTIONS_SAVE },
+    ],
+  },
+  {
+    id: 't7',
+    title: '長按存圖：產生的圖',
+    instr: '長按圖片，看有沒有「加入照片」或「儲存圖片」。存完到相簿確認。',
+    control: {
+      kind: 'image',
+      needsFile: true,
+      alt: '分享測試圖（瀏覽器產生）',
+      width: 'min(60%, 12rem)',
+      w: IMAGE_W,
+      h: IMAGE_H,
+    },
+    questions: [
+      { id: 'press', key: '長按', legend: '長按的結果？', options: OPTIONS_HOLD },
+    ],
+  },
+  {
+    id: 't8',
+    title: '長按存圖：網址圖片',
+    instr: '長按圖片，看有沒有「加入照片」或「儲存圖片」。存完到相簿確認。',
+    control: {
+      kind: 'image',
+      needsFile: false,
+      src: ART_SRC,
+      alt: '分享測試圖（網址圖片）',
+      width: 'min(100%, 20rem)',
+      w: 1200,
+      h: 630,
+    },
+    questions: [
+      { id: 'press', key: '長按', legend: '長按的結果？', options: OPTIONS_HOLD },
+    ],
+  },
+  {
+    id: 't9',
+    title: '開 IG 限時動態相機',
+    instr: '看到相機就可以退出，不用發佈。',
+    control: { kind: 'link', label: '開 IG 限動相機', href: 'https://www.instagram.com/create/story' },
+    questions: [
+      { id: 'landing', key: '落點', legend: '點了之後到哪裡？', options: ['IG App 的限動相機', 'IG App 其他畫面', '網頁版 IG', '沒反應'] },
+    ],
+  },
+  {
+    id: 't10',
+    title: 'LINE 改用外部瀏覽器開',
+    instr: '只在 LINE 裡測；不在 LINE 就選「不在 LINE，略過」。',
+    control: {
+      kind: 'link',
+      label: '用外部瀏覽器開這頁',
+      href: () => location.pathname + '?openExternalBrowser=1',
+    },
+    questions: [
+      { id: 'result', key: '結果', legend: '點了之後？', options: ['跳到 Safari 或 Chrome', '還在 LINE 裡', '不在 LINE，略過'] },
+    ],
+  },
+];
+
+/* ---------------------------------------------------------------- */
+/* Small helpers                                                     */
+/* ---------------------------------------------------------------- */
+
+const $ = (id) => document.getElementById(id);
+
+function el(tag, props, ...children) {
+  const node = document.createElement(tag);
+  for (const [key, value] of Object.entries(props || {})) {
+    if (value === undefined || value === null || value === false) continue;
+    if (key === 'class') node.className = value;
+    else if (key === 'text') node.textContent = value;
+    else node.setAttribute(key, value === true ? '' : String(value));
+  }
+  for (const child of children) node.append(child);
+  return node;
+}
+
+function probe(read, fallback) {
+  try {
+    return read();
+  } catch {
+    return fallback;
+  }
+}
+
+const pad = (n) => String(n).padStart(2, '0');
+const hms = (date = new Date()) => `${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+const errName = (error) => (error && error.name ? String(error.name) : 'Error');
+const errMessage = (error) => (error && error.message ? String(error.message) : String(error));
+
+function oneLine(value, max = 160) {
+  const text = String(value).replace(/\s+/g, ' ').trim();
+  return text.length > max ? `${text.slice(0, max - 1)}…` : text;
+}
+
+const orDash = (value) => (String(value).trim() ? oneLine(value) : NONE);
+
+function describeError(error) {
+  const message = error && error.message ? oneLine(error.message) : '';
+  return message ? `${errName(error)}：${message}` : errName(error);
+}
+
+function tzLabel(date) {
+  const total = -date.getTimezoneOffset();
+  const abs = Math.abs(total);
+  const minutes = abs % 60;
+  return `UTC${total < 0 ? '-' : '+'}${Math.floor(abs / 60)}${minutes ? `:${pad(minutes)}` : ''}`;
+}
+
+function viewportText() {
+  const ratio = Math.round((window.devicePixelRatio || 1) * 100) / 100;
+  return `${window.innerWidth}×${window.innerHeight} @${ratio}`;
+}
+
+function makeTestId() {
+  const bytes = new Uint8Array(4);
+  try {
+    crypto.getRandomValues(bytes);
+  } catch {
+    for (let i = 0; i < bytes.length; i += 1) bytes[i] = Math.floor(Math.random() * 256);
+  }
+  // 256 is a multiple of the 32-character alphabet, so the modulo adds no bias.
+  return Array.from(bytes, (byte) => ID_ALPHABET[byte % ID_ALPHABET.length]).join('');
+}
+
+function copyText(text) {
+  try {
+    if (!navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
+      return Promise.reject(new Error('clipboard.writeText is unavailable'));
+    }
+    return navigator.clipboard.writeText(text);
+  } catch (error) {
+    return Promise.reject(error);
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* Saved state                                                       */
+/* ---------------------------------------------------------------- */
+
+function testState(test) {
+  if (!state.tests[test.id]) state.tests[test.id] = { auto: '', answers: {}, note: '' };
+  return state.tests[test.id];
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const data = JSON.parse(raw);
+    if (!data || typeof data !== 'object') return;
+    if (typeof data.device === 'string') state.device = data.device;
+    if (typeof data.tester === 'string') state.tester = data.tester;
+    const saved = data.tests && typeof data.tests === 'object' ? data.tests : {};
+    for (const test of TESTS) {
+      const source = saved[test.id];
+      if (!source || typeof source !== 'object') continue;
+      const entry = testState(test);
+      if (typeof source.auto === 'string') entry.auto = source.auto;
+      if (typeof source.note === 'string') entry.note = source.note;
+      const answers = source.answers && typeof source.answers === 'object' ? source.answers : {};
+      for (const question of test.questions) {
+        const value = answers[question.id];
+        if (typeof value === 'string' && question.options.includes(value)) entry.answers[question.id] = value;
+      }
+    }
+  } catch {
+    // Storage blocked or the saved JSON is corrupt: start from an empty state.
+  }
+}
+
+function saveState() {
+  if (storageCleared) return;
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch {
+    // Storage blocked (private mode, in-app browser): the page still works for this visit.
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* Environment detection                                             */
+/* ---------------------------------------------------------------- */
+
+const BROWSER_RULES = [
+  [/Instagram/, 'Instagram 內建瀏覽器'],
+  [/MessengerForiOS|FB_IAB\/MESSENGER/, 'Messenger 內建瀏覽器'],
+  [/FBAN|FBAV|FB_IAB/, 'Facebook 內建瀏覽器'],
+  [/Barcelona/, 'Threads 內建瀏覽器'],
+  [/\bLine\//i, 'LINE 內建瀏覽器'],
+  // Android WebView marks itself with "; wv)"; any app not matched above lands here.
+  [/; wv\)/, 'Android WebView（其他 App）'],
+  [/EdgiOS|EdgA|Edg\//, 'Edge'],
+  [/SamsungBrowser/, 'Samsung Internet'],
+  [/FxiOS|Firefox\//, 'Firefox'],
+  [/CriOS|Chrome\//, 'Chrome'],
+];
+
+function detectEnv() {
+  const ua = navigator.userAgent || '';
+  const ios = /OS (\d+)_(\d+)/.exec(ua);
+  const android = /Android (\d+(?:\.\d+)?)/.exec(ua);
+  // iPadOS Safari reports a Mac user agent by default; touch points give it away.
+  const ipadDesktop = probe(() => navigator.maxTouchPoints > 1 && /Macintosh/.test(ua), false);
+  const isIOS = Boolean(ios) || ipadDesktop;
+
+  let os = '其他系統';
+  if (ios) {
+    os = `iOS ${ios[1]}.${ios[2]}`;
+  } else if (android) {
+    os = `Android ${android[1]}`;
+  } else if (ipadDesktop) {
+    const version = /Version\/(\d+(?:\.\d+)?)/.exec(ua);
+    os = version ? `iPadOS ${version[1]}` : 'iPadOS';
+  }
+
+  const rule = BROWSER_RULES.find(([pattern]) => pattern.test(ua));
+  let browser = '其他瀏覽器';
+  if (rule) browser = rule[1];
+  // An iOS WKWebView in an unlisted app drops the Safari/ token.
+  else if (isIOS) browser = /Safari\//.test(ua) ? 'Safari' : 'iOS WebView（其他 App）';
+
+  env.os = os;
+  env.browser = browser;
+  env.ua = ua;
+}
+
+function collectApi() {
+  api.secure = probe(() => (window.isSecureContext ? '是' : '否'), '未知');
+  api.share = probe(() => ('share' in navigator ? '有' : '沒有'), '未知');
+  api.clipboardWrite = probe(() => (typeof navigator.clipboard?.write === 'function' ? '有' : '沒有'), '未知');
+  api.clipboardItemPng = probe(() => {
+    if (typeof ClipboardItem === 'undefined') return '否';
+    if (typeof ClipboardItem.supports !== 'function') return '未知';
+    return ClipboardItem.supports('image/png') ? '是' : '否';
+  }, '未知');
+  api.userActivation = probe(() => ('userActivation' in navigator ? '有' : '沒有'), '未知');
+}
+
+function checkCanShare(data) {
+  try {
+    if (typeof navigator.canShare !== 'function') return '不支援';
+    return navigator.canShare(data) ? '是' : '否';
+  } catch (error) {
+    return `例外：${errName(error)}`;
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* Test image                                                        */
+/* ---------------------------------------------------------------- */
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    const timer = setTimeout(() => reject(new Error('image load timed out')), ART_TIMEOUT_MS);
+    img.onload = () => {
+      clearTimeout(timer);
+      resolve(img);
+    };
+    img.onerror = () => {
+      clearTimeout(timer);
+      reject(new Error('image failed to load'));
+    };
+    img.src = src;
+  });
+}
+
+function drawCentered(ctx, text, y, { size, color, weight = '', baseline = 'alphabetic' }) {
+  ctx.font = `${weight} ${size}px ${CANVAS_FONT}`.trim();
+  ctx.fillStyle = color;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = baseline;
+  ctx.fillText(text, IMAGE_W / 2, y);
+}
+
+async function generateImage() {
+  const started = performance.now();
+  const canvas = document.createElement('canvas');
+  canvas.width = IMAGE_W;
+  canvas.height = IMAGE_H;
+  const ctx = canvas.getContext('2d');
+  if (!ctx) throw new Error('canvas 2d context is unavailable');
+
+  const id = makeTestId();
+  const stamp = hms();
+
+  ctx.fillStyle = '#08090a';
+  ctx.fillRect(0, 0, IMAGE_W, IMAGE_H);
+
+  // Safe zones: Instagram covers roughly the top and bottom 15% with its own interface.
+  ctx.fillStyle = '#141516';
+  ctx.fillRect(0, 0, IMAGE_W, SAFE_TOP);
+  ctx.fillRect(0, SAFE_BOTTOM, IMAGE_W, IMAGE_H - SAFE_BOTTOM);
+
+  // The half pixel keeps the 3px line on whole pixel rows (287-289 and 1631-1633) instead of blurring.
+  ctx.strokeStyle = '#5a5c5a';
+  ctx.lineWidth = 3;
+  ctx.setLineDash([18, 14]);
+  for (const y of [SAFE_TOP, SAFE_BOTTOM]) {
+    ctx.beginPath();
+    ctx.moveTo(0, y + 0.5);
+    ctx.lineTo(IMAGE_W, y + 0.5);
+    ctx.stroke();
+  }
+  ctx.setLineDash([]);
+
+  drawCentered(ctx, '上方 15%：IG 介面可能蓋住', SAFE_TOP / 2, { size: 34, color: '#8a8c88', baseline: 'middle' });
+  drawCentered(ctx, '下方 15%：IG 介面可能蓋住', (SAFE_BOTTOM + IMAGE_H) / 2, { size: 34, color: '#8a8c88', baseline: 'middle' });
+  drawCentered(ctx, 'QRACON 2026 量子塔羅', 430, { size: 64, weight: 'bold', color: '#fff' });
+  drawCentered(ctx, '分享測試圖 1080×1920', 500, { size: 40, color: '#d4d5d2' });
+
+  const artX = (IMAGE_W - ART_W) / 2;
+  const artY = Math.round(IMAGE_H / 2 - ART_H / 2);
+  let artOk = true;
+  try {
+    const art = await loadImage(ART_SRC);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(art, artX, artY, ART_W, ART_H);
+  } catch {
+    artOk = false;
+    ctx.strokeStyle = '#4d4d4d';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(artX + 1.5, artY + 1.5, ART_W - 3, ART_H - 3);
+    drawCentered(ctx, '（圖片載入失敗）', artY + ART_H / 2, { size: 40, color: '#d4d5d2', baseline: 'middle' });
+  }
+
+  drawCentered(ctx, `測試編號 ${id} · ${stamp}`, 1520, { size: 40, color: '#d4d5d2' });
+
+  const blob = await new Promise((resolve, reject) => {
+    try {
+      canvas.toBlob((result) => (result ? resolve(result) : reject(new Error('toBlob returned null'))), 'image/png');
+    } catch (error) {
+      reject(error);
+    }
+  });
+  const file = new File([blob], FILE_NAME, { type: 'image/png' });
+  // Never revoked: the same object URL feeds the previews, the download link and the long-press image.
+  const url = URL.createObjectURL(blob);
+
+  return { id, blob, file, url, artOk, kb: Math.round(blob.size / 1024), ms: Math.round(performance.now() - started) };
+}
+
+function bindImage(update) {
+  imageBindings.push(update);
+  update(image.status);
+}
+
+function publishImage() {
+  for (const update of imageBindings) update(image.status);
+}
+
+function imageStatusText() {
+  if (image.status === 'failed') return `圖片產生失敗：${image.error}`;
+  if (image.status !== 'ready') return '圖片：產生中…';
+  return `圖片：完成 ${IMAGE_W}×${IMAGE_H} · ${image.kb} KB · ${image.ms} ms${image.artOk ? '' : ' · 牌面圖載入失敗'}`;
+}
+
+function onImageReady(result) {
+  Object.assign(image, result, { status: 'ready' });
+  api.canShareFile = checkCanShare({ files: [image.file] });
+  api.canShareFileText = checkCanShare({ files: [image.file], text: SHARE_TEXT, url: siteUrl });
+
+  const preview = $('preview');
+  preview.src = image.url;
+  preview.hidden = false;
+  $('image-id').textContent = image.id;
+  $('image-status').textContent = imageStatusText();
+
+  updateFacts();
+  publishImage();
+  refreshReport();
+}
+
+function onImageFailed(error) {
+  image.status = 'failed';
+  image.error = describeError(error);
+  $('image-status').textContent = imageStatusText();
+  publishImage();
+  refreshReport();
+}
+
+/* ---------------------------------------------------------------- */
+/* Test actions                                                      */
+/* ---------------------------------------------------------------- */
+
+function callShare(data) {
+  if (typeof navigator.share !== 'function') return { unsupported: 'navigator.share 不存在' };
+  return navigator.share(data);
+}
+
+function copyImage() {
+  const clipboard = navigator.clipboard;
+  if (!clipboard || typeof clipboard.write !== 'function' || typeof ClipboardItem === 'undefined') {
+    return { unsupported: 'clipboard.write 或 ClipboardItem 不存在' };
+  }
+  return clipboard.write([new ClipboardItem({ 'image/png': image.blob })]);
+}
+
+function setAuto(test, text) {
+  const entry = testState(test);
+  entry.auto = `${text} ${hms()}`;
+  const node = autoNodes[test.id];
+  if (node) node.textContent = entry.auto;
+  saveState();
+  refreshReport();
+}
+
+function runAction(test) {
+  let outcome;
+  try {
+    outcome = test.control.run();
+  } catch (error) {
+    setAuto(test, `例外：${errName(error)}：${oneLine(errMessage(error))}`);
+    return;
+  }
+  if (outcome && typeof outcome.then === 'function') {
+    outcome.then(
+      () => setAuto(test, '完成'),
+      (error) => setAuto(test, errName(error) === 'AbortError' ? '取消（AbortError）' : `錯誤：${errName(error)}`),
+    );
+  } else if (outcome && outcome.unsupported) {
+    setAuto(test, `不支援（${outcome.unsupported}）`);
+  }
+}
+
+/* ---------------------------------------------------------------- */
+/* Rendering                                                         */
+/* ---------------------------------------------------------------- */
+
+const FACT_ROWS = [
+  ['secure', '安全連線'],
+  ['share', 'navigator.share'],
+  ['canShareFile', 'canShare(圖)'],
+  ['canShareFileText', 'canShare(圖+文)'],
+  ['clipboardWrite', 'clipboard.write'],
+  ['clipboardItemPng', 'ClipboardItem png'],
+  ['userActivation', 'userActivation'],
+];
+
+function renderFacts() {
+  const list = $('facts');
+  for (const [key, label] of FACT_ROWS) {
+    const value = el('dd', { text: api[key] });
+    factNodes[key] = value;
+    list.append(el('div', {}, el('dt', { text: label }), value));
+  }
+  const viewport = el('dd', { text: viewportText() });
+  factNodes.viewport = viewport;
+  list.append(el('div', {}, el('dt', { text: '視窗' }), viewport));
+}
+
+function updateFacts() {
+  for (const [key] of FACT_ROWS) factNodes[key].textContent = api[key];
+  updateViewport();
+}
+
+function updateViewport() {
+  factNodes.viewport.textContent = viewportText();
+}
+
+function renderControl(test) {
+  const spec = test.control;
+  const box = el('div', { class: 'control' });
+
+  if (spec.kind === 'button') {
+    const button = el('button', { type: 'button', class: 'button' });
+    button.addEventListener('click', () => runAction(test));
+    if (spec.needsFile) {
+      bindImage((status) => {
+        button.disabled = status !== 'ready';
+        button.textContent = status === 'ready' ? spec.label : status === 'failed' ? LABEL_FAILED : LABEL_PENDING;
+      });
+    } else {
+      button.textContent = spec.label;
+    }
+    box.append(button);
+  } else if (spec.kind === 'link') {
+    const link = el('a', { class: 'button', download: spec.download });
+    link.addEventListener('click', () => {
+      // A disabled link has no href, so there is nothing to navigate to or to record.
+      if (link.getAttribute('aria-disabled') === 'true') return;
+      setAuto(test, '已點擊');
+    });
+    if (spec.needsFile) {
+      bindImage((status) => {
+        if (status === 'ready') {
+          link.href = image.url;
+          link.removeAttribute('aria-disabled');
+          link.removeAttribute('role');
+          link.textContent = spec.label;
+        } else {
+          link.removeAttribute('href');
+          link.setAttribute('aria-disabled', 'true');
+          link.setAttribute('role', 'link');
+          link.textContent = status === 'failed' ? LABEL_FAILED : LABEL_PENDING;
+        }
+      });
+    } else {
+      link.href = typeof spec.href === 'function' ? spec.href() : spec.href;
+      link.textContent = spec.label;
+    }
+    box.append(link);
+  } else {
+    const img = el('img', { alt: spec.alt, width: spec.w, height: spec.h });
+    img.style.width = spec.width;
+    // Observe only: the native long-press menu is what is being tested, so nothing is prevented.
+    img.addEventListener('contextmenu', () => setAuto(test, '收到 contextmenu 事件'));
+    if (spec.needsFile) {
+      const note = el('p', { class: 'placeholder', text: LABEL_PENDING });
+      img.hidden = true;
+      bindImage((status) => {
+        if (status === 'ready') {
+          img.src = image.url;
+          img.hidden = false;
+          note.hidden = true;
+        } else {
+          note.textContent = status === 'failed' ? LABEL_FAILED : LABEL_PENDING;
+        }
+      });
+      box.append(note, img);
+    } else {
+      img.src = spec.src;
+      box.append(img);
+    }
+  }
+  return box;
+}
+
+function renderQuestion(test, question, entry) {
+  const name = `${test.id}-${question.id}`;
+  const options = el('div', { class: 'opts' });
+  for (const option of question.options) {
+    const input = el('input', {
+      type: 'radio',
+      name,
+      value: option,
+      'data-test': test.id,
+      'data-q': question.id,
+    });
+    input.checked = entry.answers[question.id] === option;
+    options.append(el('label', { class: 'opt' }, input, el('span', { text: option })));
+  }
+  return el('fieldset', {}, el('legend', { text: question.legend }), options);
+}
+
+function renderTest(test) {
+  const entry = testState(test);
+  const titleId = `${test.id}-title`;
+  const card = el('article', { class: 'test', 'aria-labelledby': titleId });
+
+  card.append(
+    el('h3', { id: titleId }, el('span', { class: 'tid', text: test.id.toUpperCase() }), ' ', test.title),
+    el('p', { text: test.instr }),
+    renderControl(test),
+  );
+
+  const autoValue = el('span', { class: 'auto__value', text: entry.auto || NONE });
+  autoNodes[test.id] = autoValue;
+  card.append(el('p', { class: 'auto', 'aria-live': 'polite', 'aria-atomic': 'true' }, '自動紀錄：', autoValue));
+
+  for (const question of test.questions) card.append(renderQuestion(test, question, entry));
+
+  const note = el('input', {
+    type: 'text',
+    id: `${test.id}-note`,
+    'data-test': test.id,
+    'data-note': '',
+    autocomplete: 'off',
+    autocapitalize: 'off',
+    spellcheck: 'false',
+    enterkeyhint: 'done',
+  });
+  note.value = entry.note;
+  card.append(el('label', { class: 'field' }, el('span', { text: '備註' }), note));
+  return card;
+}
+
+function onFieldInput(event) {
+  const target = event.target;
+  if (!(target instanceof HTMLInputElement)) return;
+  const test = TESTS.find((item) => item.id === target.getAttribute('data-test'));
+  if (!test) return;
+  const entry = testState(test);
+  if (target.type === 'radio') {
+    if (!target.checked) return;
+    entry.answers[target.getAttribute('data-q')] = target.value;
+  } else if (target.hasAttribute('data-note')) {
+    entry.note = target.value;
+  } else {
+    return;
+  }
+  saveState();
+  refreshReport();
+}
+
+/* ---------------------------------------------------------------- */
+/* Report                                                            */
+/* ---------------------------------------------------------------- */
+
+function imageReportLine() {
+  if (image.status === 'failed') return `圖片：產生失敗（${image.error}）`;
+  if (image.status !== 'ready') return '圖片：產生中';
+  const extra = image.artOk ? '' : '；牌面圖載入失敗';
+  return `圖片：完成 ${IMAGE_W}×${IMAGE_H} · ${image.kb} KB（測試編號 ${image.id}${extra}）`;
+}
+
+function buildReport() {
+  const now = new Date();
+  const lines = [
+    REPORT_TITLE,
+    `時間：${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}（${tzLabel(now)}）`,
+    `裝置：${orDash(state.device)} ／ 測試者：${orDash(state.tester)}`,
+    `偵測：${env.os} · ${env.browser}`,
+    `UA：${env.ua}`,
+    `視窗：${viewportText()} ／ 安全連線：${api.secure}`,
+    `API：share ${api.share} ／ canShare(圖) ${api.canShareFile} ／ canShare(圖+文) ${api.canShareFileText} ／ clipboard.write ${api.clipboardWrite} ／ ClipboardItem png ${api.clipboardItemPng} ／ userActivation ${api.userActivation}`,
+  ];
+  if (location.search) lines.push(`網址參數：${location.search}`);
+  lines.push(imageReportLine());
+  for (const test of TESTS) {
+    const entry = testState(test);
+    const answers = test.questions.map((question) => `${question.key} ${entry.answers[question.id] || NONE}`).join('、');
+    lines.push(`${test.id.toUpperCase()} ${test.title}｜自動：${entry.auto || NONE}｜${answers}｜備註：${orDash(entry.note)}`);
+  }
+  return lines.join('\n');
+}
+
+function refreshReport() {
+  const text = buildReport();
+  $('report').value = text;
+  return text;
+}
+
+/* ---------------------------------------------------------------- */
+/* Page wiring                                                       */
+/* ---------------------------------------------------------------- */
+
+function showUrlFallback(url) {
+  const node = $('copy-url-fallback');
+  node.textContent = url;
+  node.hidden = false;
+  try {
+    const range = document.createRange();
+    range.selectNodeContents(node);
+    const selection = window.getSelection();
+    selection.removeAllRanges();
+    selection.addRange(range);
+  } catch {
+    // Pre-selecting is a convenience only; long-press still works.
+  }
+}
+
+function wireCopyUrl() {
+  $('copy-url').addEventListener('click', () => {
+    const url = location.origin + location.pathname;
+    const status = $('copy-url-status');
+    copyText(url).then(
+      () => {
+        $('copy-url-fallback').hidden = true;
+        status.textContent = '已複製。';
+      },
+      () => {
+        status.textContent = '沒辦法自動複製，請長按下面的網址複製。';
+        showUrlFallback(url);
+      },
+    );
+  });
+}
+
+function wireResults() {
+  const status = $('report-status');
+
+  $('copy-report').addEventListener('click', () => {
+    // Rebuild so the time line is the moment of copying.
+    const text = refreshReport();
+    copyText(text).then(
+      () => {
+        status.textContent = '已複製。';
+      },
+      () => {
+        status.textContent = '沒辦法自動複製，請長按下面的文字框全選複製。';
+      },
+    );
+  });
+
+  const shareButton = $('share-report');
+  if (typeof navigator.share !== 'function') {
+    shareButton.disabled = true;
+    shareButton.textContent = '這個瀏覽器不能分享';
+  } else {
+    shareButton.addEventListener('click', () => {
+      const text = refreshReport();
+      let pending;
+      try {
+        pending = navigator.share({ text });
+      } catch (error) {
+        status.textContent = `分享失敗：${errName(error)}`;
+        return;
+      }
+      pending.then(
+        () => {
+          status.textContent = '已送出分享。';
+        },
+        (error) => {
+          status.textContent = errName(error) === 'AbortError' ? '已取消分享。' : `分享失敗：${errName(error)}`;
+        },
+      );
+    });
+  }
+
+  // Two taps instead of a native dialog: some in-app browsers suppress dialogs.
+  const clearButton = $('clear-state');
+  let armedTimer = 0;
+  clearButton.addEventListener('click', () => {
+    if (!armedTimer) {
+      clearButton.textContent = '再按一次確認清除';
+      clearButton.setAttribute('data-armed', '');
+      armedTimer = setTimeout(() => {
+        armedTimer = 0;
+        clearButton.textContent = CLEAR_LABEL;
+        clearButton.removeAttribute('data-armed');
+      }, CONFIRM_MS);
+      return;
+    }
+    clearTimeout(armedTimer);
+    storageCleared = true;
+    try {
+      localStorage.removeItem(STORAGE_KEY);
+    } catch {
+      // Nothing to clear when storage is blocked; the reload still resets the page.
+    }
+    location.reload();
+  });
+}
+
+function wireFields() {
+  const device = $('device');
+  const tester = $('tester');
+  device.value = state.device;
+  tester.value = state.tester;
+  device.addEventListener('input', () => {
+    state.device = device.value;
+    saveState();
+    refreshReport();
+  });
+  tester.addEventListener('input', () => {
+    state.tester = tester.value;
+    saveState();
+    refreshReport();
+  });
+}
+
+function showFatal(error) {
+  const node = $('fatal');
+  node.textContent = `頁面發生錯誤：${describeError(error)}`;
+  node.hidden = false;
+}
+
+function boot() {
+  loadState();
+  detectEnv();
+  collectApi();
+
+  $('detected').textContent = `${env.os} · ${env.browser}`;
+  $('ua').textContent = env.ua;
+  wireFields();
+  renderFacts();
+
+  const tests = $('tests');
+  for (const test of TESTS) tests.append(renderTest(test));
+  tests.addEventListener('input', onFieldInput);
+  tests.addEventListener('change', onFieldInput);
+
+  wireCopyUrl();
+  wireResults();
+  window.addEventListener('resize', updateViewport);
+  refreshReport();
+
+  generateImage().then(onImageReady, onImageFailed);
+}
+
+try {
+  boot();
+} catch (error) {
+  showFatal(error);
+}
+</script>
+</body>
+</html>
